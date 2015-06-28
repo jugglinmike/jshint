@@ -1409,6 +1409,19 @@ exports.testDefaultArguments = function (test) {
   test.done();
 };
 
+exports.testDuplicateParamNames = function (test) {
+  var src = fs.readFileSync(__dirname + "/fixtures/duplicate-param-names.js", "utf8");
+  TestRun(test)
+    .addError(3, "'a' is already defined.")
+    .addError(8, "'a' has already been declared.")
+    .addError(13, "'a' is already defined.")
+    .addError(18, "'a' has already been declared.")
+    .addError(28, "'a' has already been declared.")
+    .test(src, { });
+
+  test.done();
+};
+
 // Issue #1324: Make sure that we're not mutating passed options object.
 exports.testClonePassedObjects = function (test) {
   var options = { predef: ["sup"] };

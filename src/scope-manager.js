@@ -422,7 +422,15 @@ var scopeManager = function(state, predefined, exported, declared) {
         }
       }
 
-      _checkOuterShadow(labelName, token, type);
+      var declaredInCurrentScope = _.has(_current["(labels)"], labelName);
+
+      // if this scope has the variable defined, its a re-definition error
+      var isStrict = state.isStrict();
+      if (declaredInCurrentScope && (isStrict || state.option.shadow !== true)) {
+        warning(isStrict ? "E011" : "W004", token, labelName);
+      } else {
+        _checkOuterShadow(labelName, token, type);
+      }
 
       if (_.has(_current["(usages)"], labelName)) {
         var usage = _current["(usages)"][labelName];
