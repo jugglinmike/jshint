@@ -740,7 +740,7 @@ exports.undef = function (test) {
   test.ok(!JSHINT.data().implieds);
 
   JSHINT("if (typeof foobar) {}", { undef: true });
-  console.log(JSHINT.data().implieds);
+
   test.strictEqual(JSHINT.data().implieds, undefined);
 
   test.done();
@@ -862,6 +862,37 @@ exports.unused = function (test) {
   test.ok(unused.some(function (err) { return err.line === 7 && err.character == 9 && err.name === "c"; }));
   test.ok(unused.some(function (err) { return err.line === 15 && err.character == 10 && err.name === "foo"; }));
   test.ok(unused.some(function (err) { return err.line === 68 && err.character == 5 && err.name === "y"; }));
+
+  test.done();
+};
+
+exports['unused with param destructuring'] = function(test) {
+  var code = [
+    "let b = ([...args], a) => a;",
+    "b = args => true;",
+    "b = function([...args], a) { return a; };",
+    "b = function([args], a) { return a; };",
+    "b = function({ args }, a) { return a; };",
+    "b = function({ a: args }, a) { return a; };",
+    "b = function({ a: [args] }, a) { return a; };",
+    "b = function({ a: [args] }, a) { return a; };"
+  ];
+
+  TestRun(test)
+    .addError(2, "'args' is defined but never used.")
+    .test(code, { esnext: true, unused: true });
+
+  TestRun(test)
+    .addError(1, "'args' is defined but never used.")
+    .addError(2, "'args' is defined but never used.")
+    .addError(3, "'args' is defined but never used.")
+    .addError(4, "'args' is defined but never used.")
+    .addError(5, "'args' is defined but never used.")
+    .addError(6, "'args' is defined but never used.")
+    .addError(7, "'args' is defined but never used.")
+    .addError(8, "'args' is defined but never used.")
+    .test(code, { esnext: true, unused: "strict" });
+
 
   test.done();
 };
