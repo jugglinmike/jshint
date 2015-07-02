@@ -117,7 +117,7 @@ exports.prototype_1_7 = function (test) {
     .addError(5224, "'values' is already defined.")
     .addError(5495, "Function declarations should not be placed in blocks. Use a function " +
       "expression or move the statement to the top of the outer function.")
-    .addError(5545, "'__proto__' is only available in ES6 (use esnext option).")
+    .addError(5545, "'__proto__' is only available in ES6 (use 'esversion: 6').")
     .test(src, {
       sub      : true,
       lastsemic: true,

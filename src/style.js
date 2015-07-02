@@ -15,7 +15,7 @@ exports.register = function(linter) {
       linter.warn(esnext ? "W135" : "W119", {
         line: data.line,
         char: data.char,
-        data: [ esnext ? "The '__proto__' property" : "__proto__" ]
+        data: [ esnext ? "The '__proto__' property" : "__proto__", "6" ]
       });
     }
   });
