@@ -1410,14 +1410,62 @@ exports.testDefaultArguments = function (test) {
 };
 
 exports.testDuplicateParamNames = function (test) {
-  var src = fs.readFileSync(__dirname + "/fixtures/duplicate-param-names.js", "utf8");
+  var src = [
+  "(function() {",
+  "  (function(a, a) { // warns only with shadow",
+  "  })();",
+  "})();",
+  "(function() {",
+  "  'use strict';",
+  "  (function(a, a) { // errors because of strict mode",
+  "  })();",
+  "})();",
+  "(function() {",
+  "  (function(a, a) { // errors because of strict mode",
+  "  'use strict';",
+  "  })();",
+  "})();",
+  "(function() {",
+  "  'use strict';",
+  "  (function(a, a) { // errors *once* because of strict mode",
+  "  'use strict';",
+  "  })();",
+  "})();"
+  ];
+
   TestRun(test)
-    .addError(3, "'a' is already defined.")
-    .addError(8, "'a' has already been declared.")
-    .addError(13, "'a' is already defined.")
-    .addError(18, "'a' has already been declared.")
-    .addError(28, "'a' has already been declared.")
-    .test(src, { });
+    .addError(7, "'a' has already been declared.")
+    .addError(11, "'a' has already been declared.")
+    .addError(17, "'a' has already been declared.")
+    .addError(18, "Unnecessary directive \"use strict\".")
+    .test(src, { shadow: true });
+
+  TestRun(test)
+    .addError(2, "'a' is already defined.")
+    .addError(7, "'a' has already been declared.")
+    .addError(11, "'a' is already defined.")
+    .addError(11, "'a' has already been declared.")
+    .addError(17, "'a' has already been declared.")
+    .addError(18, "Unnecessary directive \"use strict\".")
+    .test(src, { shadow: "inner" });
+
+  TestRun(test)
+    .addError(2, "'a' is already defined.")
+    .addError(7, "'a' has already been declared.")
+    .addError(11, "'a' is already defined.")
+    .addError(11, "'a' has already been declared.")
+    .addError(17, "'a' has already been declared.")
+    .addError(18, "Unnecessary directive \"use strict\".")
+    .test(src, { shadow: "outer" });
+
+  TestRun(test)
+    .addError(2, "'a' is already defined.")
+    .addError(7, "'a' has already been declared.")
+    .addError(11, "'a' is already defined.")
+    .addError(11, "'a' has already been declared.")
+    .addError(17, "'a' has already been declared.")
+    .addError(18, "Unnecessary directive \"use strict\".")
+    .test(src, { shadow: false });
 
   test.done();
 };

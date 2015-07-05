@@ -426,8 +426,18 @@ var scopeManager = function(state, predefined, exported, declared) {
 
       // if this scope has the variable defined, its a re-definition error
       var isStrict = state.isStrict();
-      if (declaredInCurrentScope && (isStrict || state.option.shadow !== true)) {
-        warning(isStrict ? "E011" : "W004", token, labelName);
+      if (declaredInCurrentScope) {
+        if (isStrict) {
+          warning("E011", token, labelName);
+        } else {
+          if (state.option.shadow !== true) {
+            warning("W004", token, labelName);
+          }
+          if (!_current["(unraisedStrictWarnings)"]) {
+            _current["(unraisedStrictWarnings)"] = [];
+          }
+          _current["(unraisedStrictWarnings)"].push(["E011", token, labelName]);
+        }
       } else {
         _checkOuterShadow(labelName, token, type);
       }
@@ -448,6 +458,22 @@ var scopeManager = function(state, predefined, exported, declared) {
         "(token)": token,
         "(unused)": true };
       _current["(params)"].push(labelName);
+    },
+
+    inStrictMode: function() {
+      // we only care about duplicate params, so return if we are not in a function
+      if (_currentFunct["(global)"]) {
+        return;
+      }
+
+      var currentFunctParamScope = _currentFunct["(parent)"];
+      var warnings = currentFunctParamScope["(unraisedStrictWarnings)"];
+      if (!warnings) {
+        return;
+      }
+      for (var i = 0; i < warnings.length; i++) {
+        warning.apply(null, warnings[i]);
+      }
     },
 
     /**
