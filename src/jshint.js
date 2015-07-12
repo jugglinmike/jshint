@@ -2181,6 +2181,7 @@ var JSHINT = (function() {
   });
 
   prefix("...", function() {
+
     if (!state.option.esnext) {
       warning("W119", this, "spread/rest operator");
     }
@@ -2216,7 +2217,9 @@ var JSHINT = (function() {
     // }
     // // false
     //
-    if (!state.tokens.next.identifier &&
+    if (!state.tokens.curr.allowSpread) {
+      error("E059", state.tokens.curr);
+    } else if (!state.tokens.next.identifier &&
         state.tokens.next.type !== "(string)" &&
           !checkPunctuators(state.tokens.next, ["[", "("])) {
 
@@ -2383,6 +2386,7 @@ var JSHINT = (function() {
 
     if (state.tokens.next.id !== ")") {
       for (;;) {
+        state.tokens.next.allowSpread = true;
         p[p.length] = expression(10);
         n += 1;
         if (state.tokens.next.id !== ",") {
@@ -2671,6 +2675,7 @@ var JSHINT = (function() {
         break;
       }
 
+      state.tokens.next.allowSpread = true;
       this.first.push(expression(10));
       if (state.tokens.next.id === ",") {
         comma({ allowTrailing: true });
