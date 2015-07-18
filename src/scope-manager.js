@@ -422,11 +422,20 @@ var scopeManager = function(state, predefined, exported, declared) {
         }
       }
 
-      var declaredInCurrentScope = _.has(_current["(labels)"], labelName);
+      // The variable was declared in the current scope
+      if (_.has(_current["(labels)"], labelName)) {
+        _current["(labels)"][labelName].duplicated = true;
 
-      // if this scope has the variable defined, its a re-definition error
-      if (!declaredInCurrentScope) {
+      // The variable was declared in an outer scope
+      } else {
+        // if this scope has the variable defined, it's a re-definition error
         _checkOuterShadow(labelName, token, type);
+
+        _current["(labels)"][labelName] = {
+          "(type)" : type,
+          "(token)": token,
+          "(unused)": true };
+        _current["(params)"].push(labelName);
       }
 
       if (_.has(_current["(usages)"], labelName)) {
@@ -438,16 +447,6 @@ var scopeManager = function(state, predefined, exported, declared) {
           // this is a clear illegal usage for block scoped variables
           warning("E056", token, labelName, type);
         }
-      }
-
-      if (_.has(_current["(labels)"], labelName)) {
-        _current["(labels)"][labelName].duplicated = true;
-      } else {
-        _current["(labels)"][labelName] = {
-          "(type)" : type,
-          "(token)": token,
-          "(unused)": true };
-        _current["(params)"].push(labelName);
       }
     },
 
