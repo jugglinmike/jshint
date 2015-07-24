@@ -787,6 +787,12 @@ exports.undef = function (test) {
 
   test.strictEqual(JSHINT.data().implieds, undefined);
 
+  TestRun(test)
+    .addError(1, "'foo' is not defined.")
+    .test(['foo.call();',
+      '/* exported foo, bar */'],
+    {undef: true});
+
   test.done();
 };
 
