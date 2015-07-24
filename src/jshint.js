@@ -1757,9 +1757,7 @@ var JSHINT = (function() {
         if (isfunc) {
           m = {};
           for (d in state.directive) {
-            if (_.has(state.directive, d)) {
-              m[d] = state.directive[d];
-            }
+            m[d] = state.directive[d];
           }
           directives();
 
