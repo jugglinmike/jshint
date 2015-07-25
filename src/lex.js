@@ -1645,22 +1645,28 @@ Lexer.prototype = {
       }
       var meta = token.meta;
 
-      if (meta && meta.isFutureReservedWord && state.inES5()) {
-        // ES3 FutureReservedWord in an ES5 environment.
-        if (!meta.es5) {
+      if (meta && meta.isFutureReservedWord) {
+        if (meta.moduleOnly && !state.option.module) {
           return false;
         }
 
-        // Some ES5 FutureReservedWord identifiers are active only
-        // within a strict mode environment.
-        if (meta.strictOnly) {
-          if (!state.option.strict && !state.isStrict()) {
+        if (state.inES5()) {
+          // ES3 FutureReservedWord in an ES5 environment.
+          if (!meta.es5) {
             return false;
           }
-        }
 
-        if (isProperty) {
-          return false;
+          // Some ES5 FutureReservedWord identifiers are active only
+          // within a strict mode environment.
+          if (meta.strictOnly) {
+            if (!state.option.strict && !state.isStrict()) {
+              return false;
+            }
+          }
+
+          if (isProperty) {
+            return false;
+          }
         }
       }
 
