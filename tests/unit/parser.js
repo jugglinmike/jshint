@@ -7443,6 +7443,27 @@ exports.testStrictDirectiveASI = function (test) {
     .addError(1, "Missing \"use strict\" statement.")
     .test("'use strict'++;", options);
 
+  TestRun(test, 16)
+    .addError(1, "Missing \"use strict\" statement.")
+    .test("(() => 1)();", { strict: true, esversion: 6 });
+
+  TestRun(test, 17)
+    .test("(() => { \"use strict\"; })();", { strict: true, esversion: 6 });
+
+  TestRun(test, 18)
+    .test("(() => {})();", { strict: true, esversion: 6 });
+
+  TestRun(test, 19)
+    .addError(1, "Missing \"use strict\" statement.")
+    .test("(() => { return 1; })();", { strict: true, esversion: 6 });
+
+  TestRun(test, 20)
+    .addError(1, "Use the function form of \"use strict\".")
+    .test([
+      "'use strict';",
+      "(() => { return 1; })();"
+    ], { strict: true, esversion: 6 });
+
   test.done();
 };
 
