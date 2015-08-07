@@ -109,6 +109,12 @@ module.exports = function(done) {
     fs.createReadStream(__dirname + "/fixture-fs.js"),
     { expose: "fs" }
   );
+
+  // The nodeunit module expresses a dependency on the 'http' module, but it is
+  // not needed by this project's tests. Ignore it to avoid errors when running
+  // the tests in JavaScriptCore.
+  bundle.ignore("http");
+
   bundle.add(streams.fixtures());
   bundle.add(streams.runAllScript(), { basedir: __dirname });
 

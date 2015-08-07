@@ -31,6 +31,7 @@
     "pretest": "jshint src && jscs src",
     "test-browser": "node tests/browser",
     "test-cli": "nodeunit tests/cli.js",
+    "test-jsc": "node tests/jsc.js",
     "test-node": "npm run test-unit && npm run test-cli && npm run test-regression",
     "test-regression": "nodeunit tests/regression",
     "test-unit": "nodeunit tests/unit",

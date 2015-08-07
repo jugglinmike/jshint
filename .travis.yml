@@ -1,7 +1,21 @@
 language: node_js
 after_success: npm run coverage && cat ./coverage/lcov.info | coveralls
+before_install:
+  - if [ "$TARGET" = "jsc" ]; then
+      sudo apt-get update -qq;
+      sudo apt-get install -y libjavascriptcoregtk-3.0-bin;
+    fi
 node_js:
   - "0.10"
   - "0.12"
+script:
+  - if [ "$TARGET" = "" ]; then npm test; fi
+  - if [ "$TARGET" = "jsc" ]; then npm run test-jsc; fi
+env:
+  - TARGET=jsc
+  - TARGET=
 matrix:
   fast_finish: true
+  exclude:
+    - node_js: "0.10"
+      env: TARGET=jsc

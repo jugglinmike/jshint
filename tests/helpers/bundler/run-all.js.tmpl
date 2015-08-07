@@ -1,7 +1,12 @@
 (function() {
   "use strict";
   var nodeunit = require("nodeunit");
-  var callPhantom = window.callPhantom;
+  var jscDone = function(err) {
+    if (err) {
+      console.log('JavaScriptCore failure');
+    }
+  };
+  var done = window.callPhantom || jscDone;
   var tests;
 
   /**
@@ -9,7 +14,9 @@
    * between the document and the PhantomJS context (where available). Because
    * of this, it should not be available to other scripts on the page.
    */
-  window.callPhantom = null;
+  if (window.callPhantom) {
+    window.callPhantom = null;
+  }
 
   /**
    * Nodeunit's "browser" reporter expects Nodeunit to be available on the
@@ -38,7 +45,7 @@
       assertion_suffix: "\u001B[39m"
     };
     nodeunit.reporters.default.run(tests, colors, function(err) {
-      callPhantom(err ? err : null);
+      done(err ? err : null);
     });
   }
 
@@ -48,7 +55,7 @@
     reporter.run(tests);
   }
 
-  if (/PhantomJS/.test(navigator.userAgent)) {
+  if (typeof navigator === "undefined" || /PhantomJS/.test(navigator.userAgent)) {
     runHeadless();
   } else {
     runHeadful();
