@@ -1,6 +1,6 @@
 "use strict";
 
-var _      = require("lodash");
+var _      = require("underscore");
 var events = require("events");
 
 // Used to denote membership in lookup tables (a primitive value such as `true`
@@ -43,7 +43,7 @@ var scopeManager = function(state, predefined, exported, declared) {
     emitter.emit("warning", {
       code: code,
       token: token,
-      data: _.slice(arguments, 2)
+      data: Array.prototype.slice.call(arguments, 2)
     });
   }
 
@@ -51,7 +51,7 @@ var scopeManager = function(state, predefined, exported, declared) {
     emitter.emit("warning", {
       code: code,
       token: token,
-      data: _.slice(arguments, 2)
+      data: Array.prototype.slice.call(arguments, 2)
     });
   }
 
