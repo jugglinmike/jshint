@@ -4,7 +4,7 @@
 
 "use strict";
 
-var _      = require("lodash");
+var _      = require("underscore");
 var events = require("events");
 var reg    = require("./reg.js");
 var state  = require("./state.js").state;

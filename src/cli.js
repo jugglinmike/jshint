@@ -1,6 +1,6 @@
 "use strict";
 
-var _                 = require("lodash");
+var _                 = require("underscore");
 var fs                = require("fs");
 var cli               = require("cli");
 var path              = require("path");
@@ -541,11 +541,13 @@ var exports = {
 
       if (config['extends']) {
         var baseConfig = exports.loadConfig(path.resolve(config.dirname, config['extends']));
-        config = _.merge({}, baseConfig, config, function(a, b) {
-          if (_.isArray(a)) {
-            return a.concat(b);
-          }
+        config.globals = _.extend({}, baseConfig.globals, config.globals);
+        _.forEach(baseConfig.overrides, function(val, key) {
+          var override = config.overrides[key] = config.overrides[key] || {};
+          override.globals = _.defaults({}, override.globals, val.globals);
+          _.defaults(override, val);
         });
+        _.defaults(config, baseConfig);
         delete config['extends'];
       }
 
