@@ -5431,6 +5431,8 @@ exports["invalid spread & rest"] = function (test) {
     "var a = (...(b) => ());",
     "var b = ...a;",
     "[{a:...a}] = a;",
+    "[{'a':...a}] = a;",
+    "[{['a']:...a}] = a;",
     "var a = b((...a));"
   ];
 
@@ -5439,6 +5441,8 @@ exports["invalid spread & rest"] = function (test) {
     .addError(2, "Invalid location for spread/rest operator.")
     .addError(3, "Invalid location for spread/rest operator.")
     .addError(4, "Invalid location for spread/rest operator.")
+    .addError(5, "Invalid location for spread/rest operator.")
+    .addError(6, "Invalid location for spread/rest operator.")
     .test(code, {esnext: true});
 
   TestRun(test)
@@ -5446,6 +5450,8 @@ exports["invalid spread & rest"] = function (test) {
     .addError(2, "Invalid location for spread/rest operator.")
     .addError(3, "Invalid location for spread/rest operator.")
     .addError(4, "Invalid location for spread/rest operator.")
+    .addError(5, "Invalid location for spread/rest operator.")
+    .addError(6, "Invalid location for spread/rest operator.")
 
     .addError(1, "'spread/rest operator' is only available in ES6 (use esnext option).")
     .addError(1, "'arrow function syntax (=>)' is only available in ES6 (use esnext option).")
@@ -5453,6 +5459,10 @@ exports["invalid spread & rest"] = function (test) {
     .addError(3, "'destructuring assignment' is available in ES6 (use esnext option) or Mozilla JS extensions (use moz).")
     .addError(3, "'spread/rest operator' is only available in ES6 (use esnext option).")
     .addError(4, "'spread/rest operator' is only available in ES6 (use esnext option).")
+    .addError(4, "'destructuring assignment' is available in ES6 (use esnext option) or Mozilla JS extensions (use moz).")
+    .addError(5, "'spread/rest operator' is only available in ES6 (use esnext option).")
+    .addError(5, "'destructuring assignment' is available in ES6 (use esnext option) or Mozilla JS extensions (use moz).")
+    .addError(6, "'spread/rest operator' is only available in ES6 (use esnext option).")
     .test(code);
 
   test.done();
