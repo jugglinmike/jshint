@@ -62,16 +62,18 @@ var errors = {
   E044: null,
   E045: "Invalid for each loop.",
   E046: "A yield statement shall be within a generator function (with syntax: `function*`)",
-  E047: null, // Vacant
+  E047: null,
   E048: "{a} declaration not directly within block.",
   E049: "A {a} cannot be named '{b}'.",
   E050: "Mozilla requires the yield expression to be parenthesized here.",
-  E051: "Regular parameters cannot come after default parameters.",
+  E051: null,
   E052: "Unclosed template literal.",
   E053: "Export declaration must be in global scope.",
   E054: "Class properties must be methods. Expected '(' but instead saw '{a}'.",
   E055: "The '{a}' option cannot be set after any executable code.",
-  E056: "'{a}' was used before it was declared, which is illegal for '{b}' variables."
+  E056: "'{a}' was used before it was declared, which is illegal for '{b}' variables.",
+  E057: "Invalid meta property: '{a}.{b}'.",
+  E058: "Missing semicolon."
 };
 
 var warnings = {
@@ -95,7 +97,8 @@ var warnings = {
   W018: "Confusing use of '{a}'.",
   W019: "Use the isNaN function to compare with NaN.",
   W020: "Read only.",
-  W021: "'{a}' is a function.",
+  W021: "Reassignment of '{a}', which is is a {b}. " +
+    "Use 'var' or 'let' to declare bindings that may change.",
   W022: "Do not assign to the exception parameter.",
   W023: "Expected an identifier in an assignment and instead saw a function invocation.",
   W024: "Expected an identifier and instead saw '{a}' (a reserved word).",
@@ -212,7 +215,10 @@ var warnings = {
   W132: "`var` declarations are forbidden. Use `let` or `const` instead.",
   W133: "Invalid for-{a} loop left-hand-side: {b}.",
   W134: "The '{a}' option is only available when linting ECMAScript {b} code.",
-  W135: "{a} may not be supported by non-browser environments."
+  W135: "{a} may not be supported by non-browser environments.",
+  W136: "'{a}' must be in function scope.",
+  W137: "Empty destructuring.",
+  W138: "Regular parameters should not come after default parameters."
 };
 
 var info = {
