@@ -11,10 +11,11 @@ var exit              = require("exit");
 var stripJsonComments = require("strip-json-comments");
 var JSHINT            = require("./jshint.js").JSHINT;
 var defReporter       = require("./reporters/default").reporter;
+var flags = require("./cli-flags");
 
 var OPTIONS = {
-  "config": ["c", "Custom configuration file", "string", false ],
-  "reporter": ["reporter", "Custom reporter (<PATH>|jslint|checkstyle|unix)", "string", undefined ],
+  //"config": ["c", "Custom configuration file", "string", false ],
+  //"reporter": ["reporter", "Custom reporter (<PATH>|jslint|checkstyle|unix)", "string", undefined ],
   "prereq": [
     "prereq",
     "Comma-separate list of prerequisite (paths). E.g. files which include" +
@@ -43,32 +44,14 @@ var OPTIONS = {
   // Deprecated options.
   "jslint-reporter": [
     "jslint-reporter",
-    deprecated("Use a jslint compatible reporter", "--reporter=jslint")
+    //deprecated("Use a jslint compatible reporter", "--reporter=jslint")
   ],
 
   "checkstyle-reporter": [
     "checkstyle-reporter",
-    deprecated("Use a CheckStyle compatible XML reporter", "--reporter=checkstyle")
+    //deprecated("Use a CheckStyle compatible XML reporter", "--reporter=checkstyle")
   ]
 };
-
-/**
- * Returns the same text but with a deprecation notice.
- * Useful for options descriptions.
- *
- * @param {string} text
- * @param {string} alt (optional) Alternative command to include in the
- *                 deprecation notice.
- *
- * @returns {string}
- */
-function deprecated(text, alt) {
-  if (!alt) {
-    return text + " (DEPRECATED)";
-  }
-
-  return text + " (DEPRECATED, use " + alt + " instead)";
-}
 
 /**
  * Tries to find a configuration file in either project directory
@@ -133,21 +116,6 @@ function loadNpmConfig(file) {
   try {
     return require(fp).jshintConfig;
   } catch (e) {
-    return null;
-  }
-}
-
-/**
- * Tries to import a reporter file and returns its reference.
- *
- * @param {string} fp a path to the reporter file
- * @returns {object} imported module for the reporter or 'null'
- *                   if a module cannot be imported.
- */
-function loadReporter(fp) {
-  try {
-    return require(fp).reporter;
-  } catch (err) {
     return null;
   }
 }
@@ -693,7 +661,18 @@ var exports = {
     cli.enable("version", "glob", "help");
     cli.setApp(path.resolve(__dirname + "/../package.json"));
 
-    var options = cli.parse(OPTIONS);
+    var O = {};
+    _.forEach(flags, function(val, name) {
+      O[name] = [val.short, val.desc];
+      if (val.type) {
+        O[name].push(val.type);
+
+        if ('dflt' in val) {
+          O[name].push(val.dflt);
+        }
+      }
+    });
+    var options = cli.parse(O);
     // Use config file if specified
     var config;
     if (options.config) {
@@ -729,11 +708,10 @@ var exports = {
     }
 
     var reporter;
-    if (options.reporter) {
-      reporter = loadReporter(options.reporter);
-
-      if (reporter === null) {
-        cli.error("Can't load reporter file: " + options.reporter);
+    if (false && options.reporter) {
+      reporter = flags.reporter.apply(options.reporter);
+      if (reporter instanceof Error) {
+        cli.error(reporter.message);
         exports.exit(1);
       }
     }
