@@ -4017,7 +4017,12 @@ exports["for of as esnext"] = function (test) {
     "for (let x = 1, y = 2 of [1,2,3,4]) print(x + y);",
     "for (const x = 1 of [1,2,3,4]) print(x);",
     "for (const x, y of [1,2,3,4]) print(x + y);",
-    "for (const x = 1, y = 2 of [1,2,3,4]) print(x + y);"
+    "for (const x = 1, y = 2 of [1,2,3,4]) print(x + y);",
+    "for (this of [1]) { void 0; }",
+    "for (0 of [1]) { void 0; }",
+    "for (xg() in [1]) { void 0; }",
+    "for (xg.prop in [1]) { void 0; }",
+    "for (xg[xg] in [1]) { void 0; }"
   ];
   TestRun(test)
     .addError(7, "Invalid for-of loop left-hand-side: initializer is forbidden.")
@@ -4036,6 +4041,9 @@ exports["for of as esnext"] = function (test) {
     .addError(17, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(18, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(18, "Invalid for-of loop left-hand-side: more than one ForBinding.")
+    .addError(19, "Bad assignment.")
+    .addError(20, "Bad assignment.")
+    .addError(21, "Bad assignment.")
     .test(code, {esnext: true, undef: true, predef: ["print"]});
 
   test.done();

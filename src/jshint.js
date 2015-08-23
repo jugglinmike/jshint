@@ -3628,10 +3628,6 @@ var JSHINT = (function() {
           if (t.id) {
             if (implied === "for") {
 
-              if (!state.funct["(scope)"].has(t.id)) {
-                if (report) warning("W088", t.token, t.id);
-              }
-              state.funct["(scope)"].block.use(t.id, t.token);
             } else {
               state.funct["(scope)"].addlabel(t.id, {
                 type: "var",
@@ -4231,7 +4227,17 @@ var JSHINT = (function() {
       } else {
         // Parse as a var statement, with implied bindings. Ignore errors if an error
         // was already reported
-        Object.create(varstatement).fud({ prefix: true, implied: "for", ignore: !ok });
+        if (!ok) {
+          Object.create(varstatement).fud({ prefix: true, implied: "for", ignore: true });
+        } else {
+          var expr = expression(120);
+          if (!checkLeftSideAssign(expr, this)) {
+            error("E031", expr);
+          } else if (expr.identifier && !state.funct["(scope)"].has(expr.id)) {
+            warning("W088", expr.token, expr.value);
+          }
+          //state.funct["(scope)"].block.use(t.id, t.token);
+        }
       }
       advance(nextop.value);
       expression(20);

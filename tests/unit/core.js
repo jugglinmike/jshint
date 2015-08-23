@@ -681,6 +681,8 @@ exports.testForIn = function (test) {
   var src = [
     "(function (o) {",
     "for (var i in o) { i(); }",
+    "for (i.prop in o) { void 0; }",
+    "for (i[i] in o) { void 0; }",
     "}());"
   ];
 
@@ -704,7 +706,7 @@ exports.testForIn = function (test) {
   ];
 
   TestRun(test)
-    .addError(2, "Expected an identifier and instead saw 'i'.")
+    .addError(2, "Bad assignment.")
     .test(src);
 
   src = [
@@ -713,6 +715,9 @@ exports.testForIn = function (test) {
     "for (var x, u in o) { x(); }",
     "for (z = 0 in o) { z(); }",
     "for (var q = 0 in o) { q(); }",
+    "for (this in o) { void 0; }",
+    "for (0 in o) { void 0; }",
+    "for (xg() in o) { void 0; }",
     "})();"
   ];
 
@@ -721,6 +726,9 @@ exports.testForIn = function (test) {
     .addError(3, "Invalid for-in loop left-hand-side: more than one ForBinding.")
     .addError(4, "Invalid for-in loop left-hand-side: initializer is forbidden.")
     .addError(5, "Invalid for-in loop left-hand-side: initializer is forbidden.")
+    .addError(6, "Bad assignment.")
+    .addError(7, "Bad assignment.")
+    .addError(8, "Bad assignment.")
     .test(src);
 
   src = [
