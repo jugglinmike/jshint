@@ -1590,7 +1590,9 @@ exports.strict = function (test) {
 
   TestRun(test).test(code1, { es3: true, strict: true });
   TestRun(test).test(code1, { es3: true, strict: "func" });
-  TestRun(test).test(code1, { es3: true, strict: "global" });
+  TestRun(test)
+    .addError(1, "Missing \"use strict\" statement.")
+    .test(code1, { es3: true, strict: "global" });
   TestRun(test)
     .addError(1, 'Unnecessary directive "use strict".')
     .test(code1, { es3: true, strict: "implied" });
@@ -1602,7 +1604,13 @@ exports.strict = function (test) {
     .addError(8, 'Strict violation.');
   run.test(src, { es3: true, strict: true });
   run.test(src, { es3: true, strict: "func" });
-  run.test(src, { es3: true, strict: "global" });
+
+  TestRun(test)
+    .addError(4, 'Possible strict violation.')
+    .addError(7, 'Strict violation.')
+    .addError(8, 'Strict violation.')
+    .addError(9, "Missing \"use strict\" statement.")
+    .test(src, { es3: true, strict: "global" });
 
   run = TestRun(test)
     .addError(4, 'Expected an assignment or function call and instead saw an expression.')
@@ -1644,6 +1652,10 @@ exports.strict = function (test) {
   TestRun(test, "environments don't have precedence over 'strict: func'")
     .addError(1, 'Use the function form of "use strict".')
     .test(code3, { strict: "func", node: true });
+
+  TestRun(test)
+    .addError(1, "Missing \"use strict\" statement.")
+    .test("a = 1;", { strict: "global" });
 
   test.done();
 };

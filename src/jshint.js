@@ -1667,7 +1667,7 @@ var JSHINT = (function() {
 
     r = expression(0, true);
 
-    if (r && (!r.identifier || r.value !== "function") && (r.type !== "(punctuator)")) {
+    if (r && (!r.identifier || r.value !== "function")) {
       if (!state.isStrict() &&
           state.option.strict === "global") {
         warning("E007");
