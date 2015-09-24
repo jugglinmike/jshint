@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = {
-  reporter: function(results, data, opts) {
+  reporter: function(results, datum, opts) {
     var len = results.length,
       str = '',
       file, error, globals, unuseds;
@@ -22,7 +22,7 @@ module.exports = {
 
     str += len > 0 ? ("\n" + len + ' error' + ((len === 1) ? '' : 's')) : "";
 
-    data.forEach(function(data) {
+    datum.forEach(function(data) {
       file = data.file;
       globals = data.implieds;
       unuseds = data.unused;

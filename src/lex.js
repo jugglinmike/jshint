@@ -688,8 +688,8 @@ Lexer.prototype = {
       return null;
     }.bind(this);
 
-    function removeEscapeSequences(id) {
-      return id.replace(/\\u([0-9a-fA-F]{4})/g, function(m0, codepoint) {
+    function removeEscapeSequences(val) {
+      return val.replace(/\\u([0-9a-fA-F]{4})/g, function(m0, codepoint) {
         return String.fromCharCode(parseInt(codepoint, 16));
       });
     }
@@ -1590,11 +1590,11 @@ Lexer.prototype = {
     var token;
 
 
-    function isReserved(token, isProperty) {
-      if (!token.reserved) {
+    function isReserved(t, isProperty) {
+      if (!t.reserved) {
         return false;
       }
-      var meta = token.meta;
+      var meta = t.meta;
 
       if (meta && meta.isFutureReservedWord && state.inES5()) {
         // ES3 FutureReservedWord in an ES5 environment.
@@ -1619,7 +1619,7 @@ Lexer.prototype = {
     }
 
     // Produce a token object.
-    var create = function(type, value, isProperty, token) {
+    var create = function(type, value, isProperty, source) {
       /*jshint validthis:true */
       var obj;
 
@@ -1670,21 +1670,21 @@ Lexer.prototype = {
       obj.line = this.line;
       obj.character = this.char;
       obj.from = this.from;
-      if (obj.identifier && token) obj.raw_text = token.text || token.value;
-      if (token && token.startLine && token.startLine !== this.line) {
-        obj.startLine = token.startLine;
+      if (obj.identifier && source) obj.raw_text = source.text || source.value;
+      if (source && source.startLine && source.startLine !== this.line) {
+        obj.startLine = source.startLine;
       }
-      if (token && token.context) {
-        // Context of current token
-        obj.context = token.context;
+      if (source && source.context) {
+        // Context of current source
+        obj.context = source.context;
       }
-      if (token && token.depth) {
+      if (source && source.depth) {
         // Nested template depth
-        obj.depth = token.depth;
+        obj.depth = source.depth;
       }
-      if (token && token.isUnclosed) {
+      if (source && source.isUnclosed) {
         // Mark token as unclosed string / template literal
-        obj.isUnclosed = token.isUnclosed;
+        obj.isUnclosed = source.isUnclosed;
       }
 
       if (isProperty && obj.identifier) {
