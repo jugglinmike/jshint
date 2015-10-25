@@ -24,8 +24,7 @@ var scopeManager = function(state, predefined, exported, declared) {
       "(breakLabels)": Object.create(null),
       "(parent)": _current,
       "(type)": type,
-      "(params)": (type === "functionparams" || type === "catchparams") ? [] : null,
-      "(currentDefinition)": Object.create(null)
+      "(params)": (type === "functionparams" || type === "catchparams") ? [] : null
     };
     _scopeStack.push(_current);
   }
@@ -590,6 +589,12 @@ var scopeManager = function(state, predefined, exported, declared) {
       this.block.use(labelName, token);
     },
 
+    initialize: function(labelName) {
+      if (_current["(labels)"][labelName]) {
+        _current["(labels)"][labelName]["(initialized)"] = true;
+      }
+    },
+
     /**
      * adds an indentifier to the relevant current scope and creates warnings/errors as necessary
      * @param {string} labelName
@@ -675,15 +680,6 @@ var scopeManager = function(state, predefined, exported, declared) {
         if (_currentFunctBody["(type)"] === "global") {
           usedPredefinedAndGlobals[labelName] = marker;
         }
-      }
-    },
-
-    definition: {
-      add: function(labelName, type) {
-        _current["(currentDefinition)"][labelName] = { type: type };
-      },
-      reset: function() {
-        _current["(currentDefinition)"] = Object.create(null);
       }
     },
 
@@ -793,10 +789,9 @@ var scopeManager = function(state, predefined, exported, declared) {
         }
 
         // blockscoped vars can't be used within their initializer (TDZ)
-        // (currentDefinitions) only contains blockscoped vars
-        var currentDefinition = _current["(currentDefinition)"][labelName];
-        if (currentDefinition) {
-          error("E056", token, labelName, currentDefinition.type);
+        var label = _current["(labels)"][labelName];
+        if (label && label["(blockscoped)"] && !label["(initialized)"]) {
+          error("E056", token, labelName, label["(type)"]);
         }
       },
 
@@ -821,6 +816,7 @@ var scopeManager = function(state, predefined, exported, declared) {
         _current["(labels)"][labelName] = {
           "(type)" : type,
           "(token)": tok,
+          "(initialized)": false,
           "(blockscoped)": true,
           "(unused)": unused };
       },

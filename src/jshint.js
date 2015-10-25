@@ -3571,11 +3571,6 @@ var JSHINT = (function() {
               type: type,
               token: t.token });
             names.push(t.token);
-
-            if (lone && inexport) {
-              state.funct["(scope)"].setExported(t.token.value, t.token);
-            }
-            state.funct["(scope)"].definition.add(t.id, type);
           }
         }
       }
@@ -3598,7 +3593,16 @@ var JSHINT = (function() {
       }
 
       if (!prefix) {
-        state.funct["(scope)"].definition.reset();
+        for (t in tokens) {
+          if (tokens.hasOwnProperty(t)) {
+            t = tokens[t];
+            state.funct["(scope)"].initialize(t.id);
+
+            if (lone && inexport) {
+              state.funct["(scope)"].setExported(t.token.value, t.token);
+            }
+          }
+        }
       }
 
       statement.first = statement.first.concat(names);
@@ -3740,7 +3744,6 @@ var JSHINT = (function() {
         type: "class",
         token: state.tokens.curr });
 
-      state.funct["(scope)"].definition.add(this.name, "class");
     } else if (state.tokens.next.identifier && state.tokens.next.value !== "extends") {
       // BindingIdentifier(opt)
       this.name = identifier();
@@ -3752,7 +3755,7 @@ var JSHINT = (function() {
     classtail(this);
 
     if (isStatement) {
-      state.funct["(scope)"].definition.reset();
+      state.funct["(scope)"].initialize(this.name);
     }
 
     return this;
@@ -4287,10 +4290,6 @@ var JSHINT = (function() {
       expression(20);
       advance(")", t);
 
-      if (letscope) {
-        state.funct["(scope)"].definition.reset();
-      }
-
       if (nextop.value === "in" && state.option.forin) {
         state.forinifcheckneeded = true;
 
@@ -4539,6 +4538,7 @@ var JSHINT = (function() {
       state.funct["(scope)"].addlabel(this.name, {
         type: "const",
         token: state.tokens.curr });
+      state.funct["(scope)"].initialize(this.name);
 
       if (state.tokens.next.value === ",") {
         // ImportClause :: ImportedDefaultBinding , NameSpaceImport
@@ -4565,6 +4565,7 @@ var JSHINT = (function() {
         state.funct["(scope)"].addlabel(this.name, {
           type: "const",
           token: state.tokens.curr });
+        state.funct["(scope)"].initialize(this.name);
       }
     } else {
       // ImportClause :: NamedImports
@@ -4590,6 +4591,7 @@ var JSHINT = (function() {
         state.funct["(scope)"].addlabel(importName, {
           type: "const",
           token: state.tokens.curr });
+        state.funct["(scope)"].initialize(importName);
 
         if (state.tokens.next.value === ",") {
           advance(",");
@@ -4655,6 +4657,7 @@ var JSHINT = (function() {
           type: exportType,
           token: token });
 
+        state.funct["(scope)"].initialize(identifier);
         state.funct["(scope)"].setExported(identifier, token);
       }
 
