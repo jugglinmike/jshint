@@ -601,6 +601,7 @@ var scopeManager = function(state, predefined, exported, declared) {
      * @param {Object} opts
      * @param {String} opts.type - the type of the label e.g. "param", "var", "let, "const", "function"
      * @param {Token} opts.token - the token pointing at the declaration
+     * @param {boolean} opts.initialized - whether the binding should be created in an "initialized" state.
      */
     addlabel: function(labelName, opts) {
 
@@ -648,7 +649,9 @@ var scopeManager = function(state, predefined, exported, declared) {
           }
         }
 
-        scopeManagerInst.block.add(labelName, type, token, !isexported);
+        scopeManagerInst.block.add(
+          labelName, type, token, !isexported, opts.initialized
+        );
 
       } else {
 
@@ -812,11 +815,11 @@ var scopeManager = function(state, predefined, exported, declared) {
       /**
        * Adds a new variable
        */
-      add: function(labelName, type, tok, unused) {
+      add: function(labelName, type, tok, unused, initialized) {
         _current["(labels)"][labelName] = {
           "(type)" : type,
           "(token)": tok,
-          "(initialized)": false,
+          "(initialized)": !!initialized,
           "(blockscoped)": true,
           "(unused)": unused };
       },

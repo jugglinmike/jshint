@@ -4537,8 +4537,8 @@ var JSHINT = (function() {
       // Import bindings are immutable (see ES6 8.1.1.5.5)
       state.funct["(scope)"].addlabel(this.name, {
         type: "const",
+        initialized: true,
         token: state.tokens.curr });
-      state.funct["(scope)"].initialize(this.name);
 
       if (state.tokens.next.value === ",") {
         // ImportClause :: ImportedDefaultBinding , NameSpaceImport
@@ -4564,8 +4564,8 @@ var JSHINT = (function() {
         // Import bindings are immutable (see ES6 8.1.1.5.5)
         state.funct["(scope)"].addlabel(this.name, {
           type: "const",
+          initialized: true,
           token: state.tokens.curr });
-        state.funct["(scope)"].initialize(this.name);
       }
     } else {
       // ImportClause :: NamedImports
@@ -4590,8 +4590,8 @@ var JSHINT = (function() {
         // Import bindings are immutable (see ES6 8.1.1.5.5)
         state.funct["(scope)"].addlabel(importName, {
           type: "const",
+          initialized: true,
           token: state.tokens.curr });
-        state.funct["(scope)"].initialize(importName);
 
         if (state.tokens.next.value === ",") {
           advance(",");
@@ -4655,9 +4655,9 @@ var JSHINT = (function() {
       if (this.block) {
         state.funct["(scope)"].addlabel(identifier, {
           type: exportType,
+          initialized: true,
           token: token });
 
-        state.funct["(scope)"].initialize(identifier);
         state.funct["(scope)"].setExported(identifier, token);
       }
 
