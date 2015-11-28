@@ -907,6 +907,7 @@ var JSHINT = (function() {
       if (state.tokens.curr.nud) {
         left = state.tokens.curr.nud();
       } else {
+// mike
         error("E030", state.tokens.curr, state.tokens.curr.id);
       }
 
@@ -1052,29 +1053,41 @@ var JSHINT = (function() {
 
   // Functional constructors for making the symbols that will be inherited by
   // tokens.
+  var Token = function() {};
+  function createSyntax(protoProps) {
+    var syntax = function() { Token.apply(this, arguments); };
+    var prop;
+    syntax.prototype = Object.create(Token.prototype);
+
+    for (prop in protoProps) {
+      syntax.prototype[prop] = protoProps[prop];
+    }
+
+    return syntax;
+  }
 
   function symbol(s, p) {
     var x = state.syntax[s];
-    if (!x || typeof x !== "object") {
-      state.syntax[s] = x = {
+    if (!x || typeof x !== "function") {
+      state.syntax[s] = x = createSyntax({
         id: s,
         lbp: p,
         value: s
-      };
+      });
     }
     return x;
   }
 
   function delim(s) {
     var x = symbol(s, 0);
-    x.delim = true;
+    x.prototype.delim = true;
     return x;
   }
 
   function stmt(s, f) {
     var x = delim(s);
-    x.identifier = x.reserved = true;
-    x.fud = f;
+    x.prototype.identifier = x.prototype.reserved = true;
+    x.prototype.fud = f;
     return x;
   }
 
@@ -1085,9 +1098,9 @@ var JSHINT = (function() {
   }
 
   function reserveName(x) {
-    var c = x.id.charAt(0);
+    var c = x.prototype.id.charAt(0);
     if ((c >= "a" && c <= "z") || (c >= "A" && c <= "Z")) {
-      x.identifier = x.reserved = true;
+      x.prototype.identifier = x.prototype.reserved = true;
     }
     return x;
   }
@@ -1096,7 +1109,7 @@ var JSHINT = (function() {
     var x = symbol(s, 150);
     reserveName(x);
 
-    x.nud = (typeof f === "function") ? f : function() {
+    x.prototype.nud = (typeof f === "function") ? f : function() {
       this.arity = "unary";
       this.right = expression(150);
 
@@ -1125,15 +1138,15 @@ var JSHINT = (function() {
 
   function type(s, f) {
     var x = delim(s);
-    x.type = s;
-    x.nud = f;
+    x.prototype.type = s;
+    x.prototype.nud = f;
     return x;
   }
 
   function reserve(name, func) {
     var x = type(name, func);
-    x.identifier = true;
-    x.reserved = true;
+    x.prototype.identifier = true;
+    x.prototype.reserved = true;
     return x;
   }
 
@@ -1145,10 +1158,10 @@ var JSHINT = (function() {
     meta = meta || {};
     meta.isFutureReservedWord = true;
 
-    x.value = name;
-    x.identifier = true;
-    x.reserved = true;
-    x.meta = meta;
+    x.prototype.value = name;
+    x.prototype.identifier = true;
+    x.prototype.reserved = true;
+    x.prototype.meta = meta;
 
     return x;
   }
@@ -1926,7 +1939,7 @@ var JSHINT = (function() {
     return this;
   });
 
-  state.syntax["(identifier)"] = {
+  state.syntax["(identifier)"] = createSyntax({
     type: "(identifier)",
     lbp: 0,
     identifier: true,
@@ -1955,39 +1968,39 @@ var JSHINT = (function() {
     led: function() {
       error("E033", state.tokens.next, state.tokens.next.value);
     }
-  };
+  });
 
   var baseTemplateSyntax = {
     lbp: 0,
     identifier: false,
     template: true,
   };
-  state.syntax["(template)"] = _.extend({
+  state.syntax["(template)"] = createSyntax(_.extend({
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
     noSubst: false
-  }, baseTemplateSyntax);
+  }, baseTemplateSyntax));
 
-  state.syntax["(template middle)"] = _.extend({
+  state.syntax["(template middle)"] = createSyntax(_.extend({
     type: "(template middle)",
     middle: true,
     noSubst: false
-  }, baseTemplateSyntax);
+  }, baseTemplateSyntax));
 
-  state.syntax["(template tail)"] = _.extend({
+  state.syntax["(template tail)"] = createSyntax(_.extend({
     type: "(template tail)",
     tail: true,
     noSubst: false
-  }, baseTemplateSyntax);
+  }, baseTemplateSyntax));
 
-  state.syntax["(no subst template)"] = _.extend({
+  state.syntax["(no subst template)"] = createSyntax(_.extend({
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
     noSubst: true,
     tail: true // mark as tail, since it's always the last component
-  }, baseTemplateSyntax);
+  }, baseTemplateSyntax));
 
   type("(regexp)", function() {
     return this;
@@ -2038,7 +2051,7 @@ var JSHINT = (function() {
   assignop("+=", "assignadd", 20);
   assignop("-=", "assignsub", 20);
   assignop("*=", "assignmult", 20);
-  assignop("/=", "assigndiv", 20).nud = function() {
+  assignop("/=", "assigndiv", 20).prototype.nud = function() {
     error("E014");
   };
   assignop("%=", "assignmod", 20);
@@ -2209,11 +2222,11 @@ var JSHINT = (function() {
 
   suffix("++");
   prefix("++", "preinc");
-  state.syntax["++"].exps = true;
+  state.syntax["++"].prototype.exps = true;
 
   suffix("--");
   prefix("--", "predec");
-  state.syntax["--"].exps = true;
+  state.syntax["--"].prototype.exps = true;
   prefix("delete", function() {
     var p = expression(10);
     if (!p) {
@@ -2384,9 +2397,9 @@ var JSHINT = (function() {
     this.first = this.right = c;
     return this;
   });
-  state.syntax["new"].exps = true;
+  state.syntax["new"].prototype.exps = true;
 
-  prefix("void").exps = true;
+  prefix("void").prototype.exps = true;
 
   infix(".", function(left, that) {
     var m = identifier(false, true);
@@ -2493,7 +2506,7 @@ var JSHINT = (function() {
 
     that.left = left;
     return that;
-  }, 155, true).exps = true;
+  }, 155, true).prototype.exps = true;
 
   prefix("(", function() {
     var pn = state.tokens.next, pn1, i = -1;
@@ -2556,7 +2569,7 @@ var JSHINT = (function() {
       return;
     }
     if (exprs.length > 1) {
-      ret = Object.create(state.syntax[","]);
+      ret = new state.syntax[","]();
       ret.exprs = exprs;
 
       first = exprs[0];
@@ -2627,7 +2640,7 @@ var JSHINT = (function() {
       countMember(e.value);
       if (!state.option.sub && reg.identifier.test(e.value)) {
         s = state.syntax[e.value];
-        if (!s || !isReserved(s)) {
+        if (!s || !isReserved(s.prototype)) {
           warning("W069", state.tokens.prev, e.value);
         }
       }
@@ -3210,7 +3223,7 @@ var JSHINT = (function() {
   }
 
   (function(x) {
-    x.nud = function() {
+    x.prototype.nud = function() {
       var b, f, i, p, t, isGeneratorMethod = false, nextVal;
       var props = Object.create(null); // All properties, including accessors
 
@@ -3333,7 +3346,7 @@ var JSHINT = (function() {
 
       return this;
     };
-    x.fud = function() {
+    x.prototype.fud = function() {
       error("E036", state.tokens.curr);
     };
   }(delim("{")));
@@ -4258,7 +4271,7 @@ var JSHINT = (function() {
       } else {
         // Parse as a var statement, with implied bindings. Ignore errors if an error
         // was already reported
-        Object.create(varstatement).fud({ prefix: true, implied: "for", ignore: !ok });
+        new varstatement().fud({ prefix: true, implied: "for", ignore: !ok });
       }
       advance(nextop.value);
       expression(20);
@@ -4692,13 +4705,13 @@ var JSHINT = (function() {
       // ExportDeclaration :: export Declaration
       this.block = true;
       advance("function");
-      state.syntax["function"].fud({ inexport:true });
+      state.syntax["function"].prototype.fud({ inexport:true });
     } else if (state.tokens.next.id === "class") {
       // ExportDeclaration :: export Declaration
       this.block = true;
       advance("class");
       var classNameToken = state.tokens.next;
-      state.syntax["class"].fud();
+      state.syntax["class"].prototype.fud();
       state.funct["(scope)"].setExported(classNameToken.value, classNameToken);
     } else {
       error("E024", state.tokens.next, state.tokens.next.value);
@@ -5228,7 +5241,7 @@ var JSHINT = (function() {
       func(api);
     });
 
-    state.tokens.prev = state.tokens.curr = state.tokens.next = state.syntax["(begin)"];
+    state.tokens.prev = state.tokens.curr = state.tokens.next = new state.syntax["(begin)"]();
 
     if (o && o.ignoreDelimiters) {
 

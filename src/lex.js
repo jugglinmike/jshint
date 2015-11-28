@@ -1623,7 +1623,7 @@ Lexer.prototype = {
           this.prereg = true;
         }
 
-        obj = Object.create(state.syntax[value] || state.syntax["(error)"]);
+        obj = new (state.syntax[value] || state.syntax["(error)"])();
       }
 
       if (type === "(identifier)") {
@@ -1632,7 +1632,7 @@ Lexer.prototype = {
         }
 
         if (_.has(state.syntax, value)) {
-          obj = Object.create(state.syntax[value] || state.syntax["(error)"]);
+          obj = new (state.syntax[value] || state.syntax["(error)"])();
 
           // If this can't be a reserved keyword, reset the object.
           if (!isReserved(obj, isProperty && type === "(identifier)")) {
@@ -1642,7 +1642,7 @@ Lexer.prototype = {
       }
 
       if (!obj) {
-        obj = Object.create(state.syntax[type]);
+        obj = new (state.syntax[type])();
       }
 
       obj.identifier = (type === "(identifier)");
