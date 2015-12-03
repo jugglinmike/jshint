@@ -374,6 +374,7 @@ exports.argsInCatchReused = function (test) {
   var src = fs.readFileSync(__dirname + '/fixtures/trycatch.js', 'utf8');
   TestRun(test)
     .addError(6, "'e' is already defined.")
+    .addError(11, "Value of 'e' may be overwritten in IE 8 and earlier.")
     .addError(12, "Do not assign to the exception parameter.")
     .addError(13, "Do not assign to the exception parameter.")
     .addError(24, "'e' is not defined.")
@@ -644,8 +645,6 @@ exports.testCatchBlocks = function (test) {
 
   TestRun(test)
     .addError(19, "'w' is already defined.")
-    .addError(35, "'u2' used out of scope.")
-    .addError(36, "'w2' used out of scope.")
     .test(src, { es3: true, undef: true, devel: true });
 
   src = fs.readFileSync(__dirname + '/fixtures/gh618.js', 'utf8');

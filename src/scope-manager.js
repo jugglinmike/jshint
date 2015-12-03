@@ -279,18 +279,6 @@ var scopeManager = function(state, predefined, exported, declared) {
         if (usedLabel) {
           var usedLabelType = usedLabel["(type)"];
 
-          if (usedLabel["(useOutsideOfScope)"] && !state.option.funcscope) {
-            var usedTokens = usage["(tokens)"];
-            if (usedTokens) {
-              for (j = 0; j < usedTokens.length; j++) {
-                // Keep the consistency of https://github.com/jshint/jshint/issues/2409
-                if (usedLabel["(function)"] === usedTokens[j]["(function)"]) {
-                  error("W038", usedTokens[j], usedLabelName);
-                }
-              }
-            }
-          }
-
           // mark the label used
           _current["(labels)"][usedLabelName]["(unused)"] = false;
 
@@ -739,7 +727,7 @@ var scopeManager = function(state, predefined, exported, declared) {
        * see block.add for block scoped
        */
       add: function(labelName, type, tok, unused) {
-        _current["(labels)"][labelName] = {
+        _currentFunctBody["(labels)"][labelName] = {
           "(type)" : type,
           "(token)": tok,
           "(blockscoped)": false,

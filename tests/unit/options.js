@@ -814,7 +814,6 @@ exports.unused = function (test) {
 
   var allErrors = [
     [22, "'i' is defined but never used."],
-    [101, "'inTry2' used out of scope."],
     [117, "'inTry9' was used before it was declared, which is illegal for 'let' variables."],
     [118, "'inTry10' was used before it was declared, which is illegal for 'const' variables."]
   ];
@@ -890,6 +889,23 @@ exports.unused = function (test) {
   test.ok(unused.some(function (err) { return err.line === 7 && err.character == 9 && err.name === "c"; }));
   test.ok(unused.some(function (err) { return err.line === 15 && err.character == 10 && err.name === "foo"; }));
   test.ok(unused.some(function (err) { return err.line === 68 && err.character == 5 && err.name === "y"; }));
+
+  test.done();
+};
+
+exports.unusedRedeclaration = function (test) {
+  var src = [
+    '(function() {',
+    '  var x;',
+    '  {',
+    '    var x;',
+    '    void x;',
+    '  }',
+    '}());'
+  ];
+
+  TestRun(test)
+    .test(src, { shadow: true, unused: true });
 
   test.done();
 };
@@ -1882,14 +1898,8 @@ exports.scope = function (test) {
   var src = fs.readFileSync(__dirname + '/fixtures/scope.js', 'utf8');
 
   TestRun(test, 1)
-    .addError(11, "'j' used out of scope.") // 3x
-    .addError(12, "'x' used out of scope.")
-    .addError(20, "'aa' used out of scope.")
-    .addError(27, "'bb' used out of scope.")
     .addError(37, "'cc' is not defined.")
     .addError(42, "'bb' is not defined.")
-    .addError(53, "'xx' used out of scope.")
-    .addError(54, "'yy' used out of scope.")
     .test(src, {es3: true});
 
   TestRun(test, 2)
