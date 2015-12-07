@@ -329,18 +329,25 @@ var JSHINT = (function() {
   }
 
   // Produce an error warning.
-  function quit(code, line, chr) {
+  function quit(code, token, a, b) {
+    var line = token.line || 0;
     var percentage = Math.floor((line / state.lines.length) * 100);
     var message = messages.errors[code].desc;
 
-    throw {
+    var descriptor = {
       name: "JSHintError",
       line: line,
-      character: chr,
-      message: message + " (" + percentage + "% scanned).",
+      character: token.from,
       raw: message,
-      code: code
+      code: code,
+      a: a,
+      b: b
     };
+
+    descriptor.reason = supplant(message, descriptor) + " (" + percentage +
+      "% scanned).";
+
+    throw descriptor;
   }
 
   function removeIgnoredMessages() {
@@ -392,7 +399,7 @@ var JSHINT = (function() {
     removeIgnoredMessages();
 
     if (JSHINT.errors.length >= state.option.maxerr)
-      quit("E043", l, ch);
+      quit("E043", { line: l, from: ch });
 
     return w;
   }
@@ -826,7 +833,7 @@ var JSHINT = (function() {
       state.tokens.next = lookahead.shift() || lex.token();
 
       if (!state.tokens.next) { // No more tokens left, give up
-        quit("E041", state.tokens.curr.line);
+        quit("E041", state.tokens.curr);
       }
 
       if (state.tokens.next.id === "(end)" || state.tokens.next.id === "(error)") {
@@ -1234,7 +1241,7 @@ var JSHINT = (function() {
       }
 
       if (!left || !right) {
-        quit("E041", state.tokens.curr.line);
+        quit("E041", state.tokens.curr);
       }
 
       if (left.id === "!") {
@@ -2313,7 +2320,7 @@ var JSHINT = (function() {
     this.right = expression(150);
 
     if (!this.right) { // '!' followed by nothing? Give up.
-      quit("E041", this.line || 0);
+      quit("E041", this);
     }
 
     if (bang[this.right.id] === true) {
@@ -2327,7 +2334,7 @@ var JSHINT = (function() {
     this.first = this.right = p;
 
     if (!p) { // 'typeof' followed by nothing? Give up.
-      quit("E041", this.line || 0, this.character || 0);
+      quit("E041", this);
     }
 
     // The `typeof` operator accepts unresolvable references, so the operand
@@ -5283,7 +5290,7 @@ var JSHINT = (function() {
     });
 
     lex.on("fatal", function(ev) {
-      quit("E041", ev.line, ev.from);
+      quit("E041", ev);
     });
 
     lex.on("Identifier", function(ev) {
@@ -5338,7 +5345,7 @@ var JSHINT = (function() {
       }
 
       if (state.tokens.next.id !== "(end)") {
-        quit("E041", state.tokens.curr.line);
+        quit("E041", state.tokens.curr);
       }
 
       state.funct["(scope)"].unstack();
@@ -5350,7 +5357,7 @@ var JSHINT = (function() {
           scope     : "(main)",
           raw       : err.raw,
           code      : err.code,
-          reason    : err.message,
+          reason    : err.reason,
           line      : err.line || nt.line,
           character : err.character || nt.from
         }, null);
