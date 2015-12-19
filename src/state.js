@@ -134,7 +134,7 @@ var state = {
       curr: null
     };
 
-    this.option = {};
+    this.option = { unstable: {} };
     this.esVersion = 5;
     this.funct = null;
     this.ignored = {};
