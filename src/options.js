@@ -971,7 +971,24 @@ exports.val = {
  * the presence and behavior of these options is volatile; JSHint reserves the
  * right to remove or modify them between major version releases.
  */
-exports.unstable = {};
+exports.unstable = {
+  /**
+   * Enable support for the proposed `function.sent` meta-property. From the
+   * proposal:
+   *
+   * > The value of `function.sent` within the body of a Generator Function is
+   * > the value passed to the generator by the `next` method that most
+   * > recently resumed execution of the generator. In particular, referencing
+   * > `function.sent` prior to the first evaluation of a yield operator
+   * > returns the argument value passed by the `next` call that started
+   * > evaluation of the *GeneratorBody*.
+   * >
+   * > `function.sent` can appear anywhere a *YieldExpress* would be legal.
+   * > Referencing `function.sent` outside of a GeneratorBody is a Syntax
+   * > Error.
+   */
+  gensent: true
+};
 
 // These are JSHint boolean options which are shared with JSLint
 // where the definition in JSHint is opposite JSLint
