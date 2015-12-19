@@ -1091,6 +1091,7 @@ var JSHINT = (function() {
    * Determine if a keyword is being used to access a meta property.
    */
   function parseMetaProperty(token) {
+    var base = state.tokens.curr;
     var prop;
 
     if (!checkPunctuator(state.tokens.next, ".")) {
@@ -1107,7 +1108,7 @@ var JSHINT = (function() {
     token.exps = false;
 
     if (token.metaProperties[prop.value]) {
-      token.metaProperties[prop.value]();
+      token.metaProperties[prop.value](base);
     } else {
       error("E057", state.tokens.prev, token.id, prop.value);
     }
@@ -3970,6 +3971,20 @@ var JSHINT = (function() {
     doFunction({ name: i, type: generator ? "generator" : null });
     return this;
   });
+  state.syntax["function"].metaProperties.sent = function(base) {
+    // The base `function` token's prototype classifies it as the beginning of
+    // a block. This is inaccurate when the token is used to access a
+    // meta-property, so the property value on this instance should be
+    // overridden.
+    base.block = false;
+
+    if (!state.option.unstable || !state.option.unstable.gensent) {
+      warning("W141", state.tokens.prev, "function.sent", "gensent");
+    }
+    if (!state.funct["(generator)"]) {
+      error("E046", state.tokens.curr, "function.sent");
+    }
+  };
 
   blockstmt("if", function() {
     var t = state.tokens.next;

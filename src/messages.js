@@ -61,7 +61,7 @@ var errors = {
   E043: "Too many errors.",
   E044: null,
   E045: "Invalid for each loop.",
-  E046: "Yield expressions may only occur within generator functions.",
+  E046: "'{a}' expressions may only occur within generator functions.",
   E047: null,
   E048: "{a} declaration not directly within block.",
   E049: "A {a} cannot be named '{b}'.",
@@ -224,7 +224,8 @@ var warnings = {
   W137: "Empty destructuring.",
   W138: "Regular parameters should not come after default parameters.",
   W139: "Function expressions should not be used as the second operand to instanceof.",
-  W140: "Missing comma."
+  W140: "Missing comma.",
+  W141: "'{a}' is a non-standard language feature. Enable it using the '{b}' unstable option."
 };
 
 var info = {

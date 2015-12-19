@@ -3551,12 +3551,12 @@ exports["mozilla generator as esnext"] = function (test) {
   ];
   TestRun(test)
     .addError(4,
-     "Yield expressions may only occur within generator functions.")
+     "'yield' expressions may only occur within generator functions.")
     .test(code, {esnext: true, unused: true, undef: true, predef: ["print", "Iterator"]});
 
   TestRun(test)
     .addError(4,
-     "Yield expressions may only occur within generator functions.")
+     "'yield' expressions may only occur within generator functions.")
     .test(code, {esnext: true, moz: true});
 
   test.done();
@@ -3803,7 +3803,7 @@ exports["moz-style array comprehension as esnext"] = function (test) {
     "print('evens:', evens);"
   ];
   TestRun(test)
-    .addError(3, "Yield expressions may only occur within generator functions.")
+    .addError(3, "'yield' expressions may only occur within generator functions.")
     .addError(6, "Expected 'for' and instead saw 'i'.")
     .addError(6, "'for each' is only available in Mozilla JavaScript extensions (use moz option).")
     .addError(7, "Expected 'for' and instead saw 'i'.")
@@ -3811,7 +3811,7 @@ exports["moz-style array comprehension as esnext"] = function (test) {
     .test(code, {esnext: true, unused: true, undef: true, predef: ["print"]});
 
   TestRun(test)
-    .addError(3, "Yield expressions may only occur within generator functions.")
+    .addError(3, "'yield' expressions may only occur within generator functions.")
     .test(code, {esnext: true, moz: true});
 
   test.done();
@@ -6531,7 +6531,7 @@ exports["test 'yield' in invalid positions"] = function (test) {
 
   TestRun(test, "As an invalid meta property")
     .addError(1, "Invalid meta property: 'yield.x'.")
-    .addError(1, "A generator function shall contain a yield statement.")
+    .addError(1, "A generator function should contain at least one yield expression.")
     .test("function* g() { yield.x; }", { esversion: 6, expr: true });
 
   TestRun(test, 'as a valid operand')
