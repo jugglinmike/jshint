@@ -96,16 +96,26 @@ var JSHINT = (function() {
     extraModules = [],
     emitter = new events.EventEmitter();
 
-  function checkOption(name, t) {
+  function checkOption(name, isStable, t) {
+    var type, validNames;
+
+    if (isStable) {
+      type = "";
+      validNames = options.validNames;
+    } else {
+      type = "unstable ";
+      validNames = options.unstableNames;
+    }
+
     name = name.trim();
 
     if (/^[+-]W\d{3}$/g.test(name)) {
       return true;
     }
 
-    if (options.validNames.indexOf(name) === -1) {
+    if (validNames.indexOf(name) === -1) {
       if (t.type !== "jslint" && !_.has(options.removed, name)) {
-        error("E001", t, name);
+        error("E001", t, type, name);
         return false;
       }
     }
@@ -499,13 +509,13 @@ var JSHINT = (function() {
       "indent"
     ];
 
-    if (nt.type === "jshint" || nt.type === "jslint") {
+    if (nt.type === "jshint" || nt.type === "jslint" || nt.type === "jshint.unstable") {
       body.forEach(function(g) {
         g = g.split(":");
         var key = (g[0] || "").trim();
         var val = (g[1] || "").trim();
 
-        if (!checkOption(key, nt)) {
+        if (!checkOption(key, nt.type !== "jshint.unstable", nt)) {
           return;
         }
 
@@ -685,6 +695,8 @@ var JSHINT = (function() {
             if (options.inverted[tn] !== undefined) {
               state.option[tn] = !state.option[tn];
             }
+          } else if (nt.type === "jshint.unstable") {
+            state.option.unstable[key] = (val === "true");
           } else {
             state.option[key] = (val === "true");
           }
@@ -5194,12 +5206,12 @@ var JSHINT = (function() {
   // The actual JSHINT function itself.
   var itself = function(s, o, g) {
     var x, reIgnoreStr, reIgnore;
-    var optionKeys;
-    var newOptionObj = {};
-    var newIgnoredObj = {};
+    var optionKeys, newOptionObj, newIgnoredObj;
 
     o = _.clone(o);
     state.reset();
+    newOptionObj = state.option;
+    newIgnoredObj = state.ignored;
 
     if (o && o.scope) {
       JSHINT.scope = o.scope;
@@ -5384,9 +5396,17 @@ var JSHINT = (function() {
     });
 
     // Check options
-    for (var name in o) {
+    var name;
+    for (name in o) {
       if (_.has(o, name)) {
-        checkOption(name, state.tokens.curr);
+        checkOption(name, true, state.tokens.curr);
+      }
+    }
+    if (o) {
+      for (name in o.unstable) {
+        if (_.has(o.unstable, name)) {
+          checkOption(name, false, state.tokens.curr);
+        }
       }
     }
 
