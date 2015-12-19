@@ -3912,6 +3912,16 @@ var JSHINT = (function() {
   });
 
   prefix("function", function() {
+    var mp = metaProperty("sent", function() {
+      if (!state.option.unstable || !state.option.unstable.gensent) {
+        warning("W139", state.tokens.prev, "function.sent", "gensent");
+      }
+      if (!state.funct["(generator)"]) {
+        error("E046", state.tokens.curr, "function.sent expression");
+      }
+    });
+    if (mp) { return mp; }
+
     var generator = false;
 
     if (state.tokens.next.value === "*") {
@@ -4457,7 +4467,7 @@ var JSHINT = (function() {
     if (state.inES6(true) && !state.funct["(generator)"]) {
       // If it's a yield within a catch clause inside a generator then that's ok
       if (!("(catch)" === state.funct["(name)"] && state.funct["(context)"]["(generator)"])) {
-        error("E046", state.tokens.curr, "yield");
+        error("E046", state.tokens.curr, "yield statement");
       }
     } else if (!state.inES6()) {
       warning("W104", state.tokens.curr, "yield", "6");

@@ -61,7 +61,7 @@ var errors = {
   E043: "Too many errors.",
   E044: null,
   E045: "Invalid for each loop.",
-  E046: "A yield statement shall be within a generator function (with syntax: `function*`)",
+  E046: "A {a} shall be within a generator function (with syntax: `function*`)",
   E047: null,
   E048: "{a} declaration not directly within block.",
   E049: "A {a} cannot be named '{b}'.",
@@ -219,7 +219,8 @@ var warnings = {
   W135: "{a} may not be supported by non-browser environments.",
   W136: "'{a}' must be in function scope.",
   W137: "Empty destructuring.",
-  W138: "Regular parameters should not come after default parameters."
+  W138: "Regular parameters should not come after default parameters.",
+  W139: "'{a}' is a non-standard language feature. Enable it using the '{b}' unstable option."
 };
 
 var info = {
