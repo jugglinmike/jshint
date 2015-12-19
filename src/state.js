@@ -50,7 +50,7 @@ var state = {
       curr: null
     };
 
-    this.option = {};
+    this.option = { unstable: {} };
     this.funct = null;
     this.ignored = {};
     this.directive = {};
