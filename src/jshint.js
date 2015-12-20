@@ -3905,6 +3905,16 @@ var JSHINT = (function() {
   }
 
   blockstmt("function", function(context) {
+    var mp = metaProperty("sent", function() {
+      if (!state.option.unstable || !state.option.unstable.gensent) {
+        warning("W139", state.tokens.prev, "function.sent", "gensent");
+      }
+      if (!state.funct["(generator)"]) {
+        error("E046", state.tokens.curr, "function.sent expression");
+      }
+    });
+    if (mp) { console.log(new Error().stack);return mp; }
+
     var inexport = context && context.inexport;
     var generator = false;
     if (state.tokens.next.value === "*") {
