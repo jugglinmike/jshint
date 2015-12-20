@@ -31,7 +31,7 @@ exports.context = function (test) {
     .test([
       "function* g() {",
       "  {",
-      "    yield function.sent + x + function.sent;",
+      "    yield function.sent;",
       "  }",
       "}"
     ], { esversion: 6, unstable: { gensent: true } });
@@ -59,23 +59,56 @@ exports.context = function (test) {
 
   TestRun(test, "Within a function body")
     .addError(2, "A function.sent expression shall be within a generator function (with syntax: `function*`)")
-    .addError(3, "A function.sent expression shall be within a generator function (with syntax: `function*`)")
     .test([
       "function f() {",
-      "  var x = function.sent;",
-      "  return function.sent + x + function.sent;",
+      "  return function.sent;",
       "}"
     ], { esversion: 6, unstable: { gensent: true } });
 
   TestRun(test)
     .addError(3, "A function.sent expression shall be within a generator function (with syntax: `function*`)")
-    .addError(4, "A function.sent expression shall be within a generator function (with syntax: `function*`)")
     .test([
       "function *g() {",
-      "  yield () => {",
-      "    var x = function.sent;",
-      "    return function.sent + x + function.sent;",
+      "  var x = () => {",
+      "    return function.sent;",
       "  };",
+      "  yield x;",
+      "}"
+    ], { esversion: 6, unstable: { gensent: true } });
+
+  test.done();
+};
+
+exports.usage = function (test) {
+  TestRun(test)
+    .test([
+      "function* g() {",
+      "  var x;",
+      "  x = function.sent;",
+      "  x = function.sent + 1;",
+      "  x = false ^ function.sent;",
+      "  x = !function.sent;",
+      "  x = function.sent ? 0 : 1;",
+      "  x = function.sent.prop;",
+      "  x = function.sent['-prop'];",
+      "  x = function.sent();",
+      "  x = function.sent`123`;",
+      "  yield x;",
+      "}"
+    ], { esversion: 6, unstable: { gensent: true } });
+
+  test.done();
+};
+
+exports.modification = function (test) {
+  TestRun(test)
+    //.addError(2, "Bad assignment.")
+    .addError(3, "Bad assignment.")
+    .test([
+      "function* g() {",
+      "  //++function.sent;",
+      "  function.sent -= 1;",
+      "  yield null;",
       "}"
     ], { esversion: 6, unstable: { gensent: true } });
 
