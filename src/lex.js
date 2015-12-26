@@ -19,6 +19,17 @@ var nonAsciiIdentifierPartTable = require("../data/non-ascii-identifier-part-onl
 // while others are specific to JSHint parser.
 // JS Parser API: https://developer.mozilla.org/en-US/docs/SpiderMonkey/Parser_API
 
+var TokenCtor = require('./token');
+var Comment = function(options) {
+  var propName;
+  TokenCtor.apply(this, arguments);
+
+  for (propName in options) {
+    this[propName] = options[propName];
+  }
+};
+Comment.prototype = Object.create(TokenCtor.prototype);
+
 var Token = {
   Identifier: 1,
   Punctuator: 2,
@@ -467,7 +478,7 @@ Lexer.prototype = {
         }
       });
 
-      return {
+      return new Comment({
         type: Token.Comment,
         commentType: commentType,
         value: value,
@@ -475,7 +486,7 @@ Lexer.prototype = {
         isSpecial: isSpecial,
         isMultiline: opt.isMultiline || false,
         isMalformed: opt.isMalformed || false
-      };
+      });
     }
 
     // End of unbegun comment. Raise an error and skip that input.
@@ -1826,7 +1837,7 @@ Lexer.prototype = {
         state.tokens.curr.comment = true;
 
         if (token.isSpecial) {
-          return {
+          return new Comment({
             id: '(comment)',
             value: token.value,
             body: token.body,
@@ -1835,7 +1846,7 @@ Lexer.prototype = {
             line: this.line,
             character: this.char,
             from: this.from
-          };
+          });
         }
 
         break;
