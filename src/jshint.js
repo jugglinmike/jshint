@@ -1093,7 +1093,7 @@ var JSHINT = (function() {
 
   function blockstmt(s, f) {
     var x = stmt(s, f);
-    x.block = true;
+    x.prototype.block = true;
     return x;
   }
 
@@ -1178,8 +1178,8 @@ var JSHINT = (function() {
   function infix(s, f, p, w) {
     var x = symbol(s, p);
     reserveName(x);
-    x.infix = true;
-    x.led = function(left) {
+    x.prototype.infix = true;
+    x.prototype.led = function(left) {
       if (!w) {
         nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
       }
@@ -1200,7 +1200,7 @@ var JSHINT = (function() {
   function application(s) {
     var x = symbol(s, 42);
 
-    x.led = function(left) {
+    x.prototype.led = function(left) {
       nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
 
       this.left = left;
@@ -1213,7 +1213,7 @@ var JSHINT = (function() {
   function relation(s, f) {
     var x = symbol(s, 100);
 
-    x.led = function(left) {
+    x.prototype.led = function(left) {
       nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
       this.left = left;
       var right = this.right = expression(100);
@@ -1423,8 +1423,8 @@ var JSHINT = (function() {
       error("E031", that);
     }, p);
 
-    x.exps = true;
-    x.assign = true;
+    x.prototype.exps = true;
+    x.prototype.assign = true;
     return x;
   }
 
@@ -1432,7 +1432,7 @@ var JSHINT = (function() {
   function bitwise(s, f, p) {
     var x = symbol(s, p);
     reserveName(x);
-    x.led = (typeof f === "function") ? f : function(left) {
+    x.prototype.led = (typeof f === "function") ? f : function(left) {
       if (state.option.bitwise) {
         warning("W016", this, this.id);
       }
@@ -1460,7 +1460,7 @@ var JSHINT = (function() {
   function suffix(s) {
     var x = symbol(s, 150);
 
-    x.led = function(left) {
+    x.prototype.led = function(left) {
       // this = suffix e.g. "++" punctuator
       // left = symbol operated e.g. "a" identifier or "a.b" punctuator
       if (state.option.plusplus) {
@@ -2010,23 +2010,23 @@ var JSHINT = (function() {
 
   delim("(endline)");
   (function(x) {
-    x.line = x.from = 0;
+    x.prototype.line = x.prototype.from = 0;
   })(delim("(begin)"));
-  delim("(end)").reach = true;
-  delim("(error)").reach = true;
-  delim("}").reach = true;
+  delim("(end)").prototype.reach = true;
+  delim("(error)").prototype.reach = true;
+  delim("}").prototype.reach = true;
   delim(")");
   delim("]");
-  delim("\"").reach = true;
-  delim("'").reach = true;
+  delim("\"").prototype.reach = true;
+  delim("'").prototype.reach = true;
   delim(";");
-  delim(":").reach = true;
+  delim(":").prototype.reach = true;
   delim("#");
 
   reserve("else");
-  reserve("case").reach = true;
+  reserve("case").prototype.reach = true;
   reserve("catch");
-  reserve("default").reach = true;
+  reserve("default").prototype.reach = true;
   reserve("finally");
   reservevar("arguments", function(x) {
     if (state.isStrict() && state.funct["(global)"]) {
@@ -2244,7 +2244,7 @@ var JSHINT = (function() {
       p.forgiveUndef = true;
     }
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
   prefix("~", function() {
     if (state.option.bitwise) {
@@ -3619,12 +3619,12 @@ var JSHINT = (function() {
   var conststatement = stmt("const", function(context) {
     return blockVariableStatement("const", this, context);
   });
-  conststatement.exps = true;
+  conststatement.prototype.exps = true;
 
   var letstatement = stmt("let", function(context) {
     return blockVariableStatement("let", this, context);
   });
-  letstatement.exps = true;
+  letstatement.prototype.exps = true;
 
   var varstatement = stmt("var", function(context) {
     var prefix = context && context.prefix;
@@ -3718,7 +3718,7 @@ var JSHINT = (function() {
 
     return this;
   });
-  varstatement.exps = true;
+  varstatement.prototype.exps = true;
 
   blockstmt("class", function() {
     return classdef.call(this, true);
@@ -4048,7 +4048,7 @@ var JSHINT = (function() {
     state.funct["(breakage)"] -= 1;
     state.funct["(loopage)"] -= 1;
     return this;
-  }).labelled = true;
+  }).prototype.labelled = true;
 
   blockstmt("with", function() {
     var t = state.tokens.next;
@@ -4176,14 +4176,14 @@ var JSHINT = (function() {
       }
     }
     return this;
-  }).labelled = true;
+  }).prototype.labelled = true;
 
   stmt("debugger", function() {
     if (!state.option.debug) {
       warning("W087", this);
     }
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
   (function() {
     var x = stmt("do", function() {
@@ -4201,8 +4201,8 @@ var JSHINT = (function() {
       state.funct["(loopage)"] -= 1;
       return this;
     });
-    x.labelled = true;
-    x.exps = true;
+    x.prototype.labelled = true;
+    x.prototype.exps = true;
   }());
 
   blockstmt("for", function() {
@@ -4375,7 +4375,7 @@ var JSHINT = (function() {
       state.funct["(scope)"].unstack();
     }
     return this;
-  }).labelled = true;
+  }).prototype.labelled = true;
 
 
   stmt("break", function() {
@@ -4399,7 +4399,7 @@ var JSHINT = (function() {
     reachable(this);
 
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
 
   stmt("continue", function() {
@@ -4426,7 +4426,7 @@ var JSHINT = (function() {
     reachable(this);
 
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
 
   stmt("return", function() {
@@ -4450,11 +4450,11 @@ var JSHINT = (function() {
     reachable(this);
 
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
   (function(x) {
-    x.exps = true;
-    x.lbp = 25;
+    x.prototype.exps = true;
+    x.prototype.lbp = 25;
   }(prefix("yield", function() {
     var prev = state.tokens.prev;
     if (state.inES6(true) && !state.funct["(generator)"]) {
@@ -4505,7 +4505,7 @@ var JSHINT = (function() {
     reachable(this);
 
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
   stmt("import", function() {
     if (!state.inES6()) {
@@ -4593,7 +4593,7 @@ var JSHINT = (function() {
     advance("from");
     advance("(string)");
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
   stmt("export", function() {
     var ok = true;
@@ -4718,7 +4718,7 @@ var JSHINT = (function() {
     }
 
     return this;
-  }).exps = true;
+  }).prototype.exps = true;
 
   // Future Reserved Words
 

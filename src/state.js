@@ -2,7 +2,7 @@
 var NameStack = require("./name-stack.js");
 
 var state = {
-  syntax: {},
+  syntax: Object.create(null),
 
   /**
    * Determine if the code currently being linted is strict mode code.
