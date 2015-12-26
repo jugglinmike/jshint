@@ -80,6 +80,10 @@ Token.prototype.isPropertyName = function() {
   return this.identifier || this.id === "(string)" || this.id === "(number)";
 };
 
+Token.prototype.firstLine = function() {
+  return this.startLine || this.line;
+};
+
 Token.extend = function(protoProps) {
   var Parent = this;
   var Child = function() { Token.apply(this, arguments); };

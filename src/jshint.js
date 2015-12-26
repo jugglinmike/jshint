@@ -837,7 +837,7 @@ var JSHINT = (function() {
       return true;
     }
     if (next.isInfix() === curr.isInfix() || (curr.id === "yield" && state.inMoz())) {
-      return curr.line !== startLine(next);
+      return curr.line !== next.firstLine();
     }
     return false;
   }
@@ -880,7 +880,7 @@ var JSHINT = (function() {
 
     var isDangerous =
       state.option.asi &&
-      state.tokens.prev.line !== startLine(state.tokens.curr) &&
+      state.tokens.prev.line !== state.tokens.curr.firstLine() &&
       _.contains(["]", ")"], state.tokens.prev.id) &&
       _.contains(["[", "("], state.tokens.curr.id);
 
@@ -957,27 +957,23 @@ var JSHINT = (function() {
 
   // Functions for conformance of style.
 
-  function startLine(token) {
-    return token.startLine || token.line;
-  }
-
   function nobreaknonadjacent(left, right) {
     left = left || state.tokens.curr;
     right = right || state.tokens.next;
-    if (!state.option.laxbreak && left.line !== startLine(right)) {
+    if (!state.option.laxbreak && left.line !== right.firstLine()) {
       warning("W014", right, right.value);
     }
   }
 
   function nolinebreak(t) {
     t = t || state.tokens.curr;
-    if (t.line !== startLine(state.tokens.next)) {
+    if (t.line !== state.tokens.next.firstLine()) {
       warning("E022", t, t.value);
     }
   }
 
   function nobreakcomma(left, right) {
-    if (left.line !== startLine(right)) {
+    if (left.line !== right.firstLine()) {
       if (!state.option.laxcomma) {
         if (comma.first) {
           warning("I001");
@@ -1543,7 +1539,7 @@ var JSHINT = (function() {
       // don't complain about unclosed templates / strings
       if (state.tokens.next.isUnclosed) return advance();
 
-      var sameLine = startLine(state.tokens.next) === state.tokens.curr.line &&
+      var sameLine = state.tokens.next.firstLine() === state.tokens.curr.line &&
                      state.tokens.next.id !== "(end)";
       var blockEnd = state.tokens.next.checkPunctuator("}");
 
@@ -2670,7 +2666,7 @@ var JSHINT = (function() {
       this.destructAssign = destructuringPattern({ openingParsed: true, assignment: true });
       return this;
     }
-    var b = state.tokens.curr.line !== startLine(state.tokens.next);
+    var b = state.tokens.curr.line !== state.tokens.next.firstLine();
     this.first = [];
     if (b) {
       indent += state.option.indent;
@@ -3171,7 +3167,7 @@ var JSHINT = (function() {
       var b, f, i, p, t, isGeneratorMethod = false, nextVal;
       var props = Object.create(null); // All properties, including accessors
 
-      b = state.tokens.curr.line !== startLine(state.tokens.next);
+      b = state.tokens.curr.line !== state.tokens.next.firstLine();
       if (b) {
         indent += state.option.indent;
         if (state.tokens.next.from === indent + state.option.indent) {
@@ -4329,7 +4325,7 @@ var JSHINT = (function() {
       nolinebreak(this);
 
     if (state.tokens.next.id !== ";" && !state.tokens.next.reach &&
-        state.tokens.curr.line === startLine(state.tokens.next)) {
+        state.tokens.curr.line === state.tokens.next.firstLine()) {
       if (!state.funct["(scope)"].funct.hasBreakLabel(v)) {
         warning("W090", state.tokens.next, v);
       }
@@ -4358,7 +4354,7 @@ var JSHINT = (function() {
       nolinebreak(this);
 
     if (state.tokens.next.id !== ";" && !state.tokens.next.reach) {
-      if (state.tokens.curr.line === startLine(state.tokens.next)) {
+      if (state.tokens.curr.line === state.tokens.next.firstLine()) {
         if (!state.funct["(scope)"].funct.hasBreakLabel(v)) {
           warning("W090", state.tokens.next, v);
         }
@@ -4374,7 +4370,7 @@ var JSHINT = (function() {
 
 
   stmt("return", function() {
-    if (this.line === startLine(state.tokens.next)) {
+    if (this.line === state.tokens.next.firstLine()) {
       if (state.tokens.next.id !== ";" && !state.tokens.next.reach) {
         this.first = expression(0);
 
@@ -4417,7 +4413,7 @@ var JSHINT = (function() {
       advance("*");
     }
 
-    if (this.line === startLine(state.tokens.next) || !state.inMoz()) {
+    if (this.line === state.tokens.next.firstLine() || !state.inMoz()) {
       if (delegatingYield ||
           (state.tokens.next.id !== ";" && !state.option.asi &&
            !state.tokens.next.reach && state.tokens.next.nud)) {
