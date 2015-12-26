@@ -830,24 +830,16 @@ var JSHINT = (function() {
     }
   }
 
-  function isInfix(token) {
-    return token.infix || (!token.identifier && !token.template && !!token.led);
-  }
-
   function isEndOfExpr() {
     var curr = state.tokens.curr;
     var next = state.tokens.next;
     if (next.id === ";" || next.id === "}" || next.id === ":") {
       return true;
     }
-    if (isInfix(next) === isInfix(curr) || (curr.id === "yield" && state.inMoz())) {
+    if (next.isInfix() === curr.isInfix() || (curr.id === "yield" && state.inMoz())) {
       return curr.line !== startLine(next);
     }
     return false;
-  }
-
-  function isBeginOfExpr(prev) {
-    return !prev.left && prev.arity !== "unary";
   }
 
   // This is the heart of JSHINT, the Pratt parser. In addition to parsing, it
@@ -2570,7 +2562,7 @@ var JSHINT = (function() {
       // first expression *or* the current group contains multiple expressions)
       if (!isNecessary && (first.left || first.right || ret.exprs)) {
         isNecessary =
-          (!isBeginOfExpr(preceeding) && first.lbp <= preceeding.lbp) ||
+          (!preceeding.isBeginOfExpr() && first.lbp <= preceeding.lbp) ||
           (!isEndOfExpr() && last.lbp < state.tokens.next.lbp);
       }
 

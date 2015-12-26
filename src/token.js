@@ -38,6 +38,10 @@ Token.prototype.checkPunctuator = function(value) {
   return this.type === "(punctuator)" && this.value === value;
 };
 
+Token.prototype.isBeginOfExpr = function() {
+  return !this.left && this.arity !== "unary";
+};
+
 Token.prototype.isGlobalEval = function(state) {
   var isGlobal = false;
 
@@ -57,6 +61,10 @@ Token.prototype.isGlobalEval = function(state) {
   }
 
   return isGlobal;
+};
+
+Token.prototype.isInfix = function(token) {
+  return this.infix || (!this.identifier && !this.template && !!this.led);
 };
 
 Token.prototype.isPoorRelation = function(eqnull) {
