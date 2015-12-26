@@ -1230,16 +1230,6 @@ var JSHINT = (function() {
     return x;
   }
 
-  function isPoorRelation(node) {
-    return node &&
-        ((node.type === "(number)" && +node.value === 0) ||
-         (node.type === "(string)" && node.value === "") ||
-         (node.type === "null" && !state.option.eqnull) ||
-        node.type === "true" ||
-        node.type === "false" ||
-        node.type === "undefined");
-  }
-
   var typeofValues = {};
   typeofValues.legacy = [
     // E4X extended the `typeof` operator to return "xml" for the XML and
@@ -1277,27 +1267,6 @@ var JSHINT = (function() {
       return !_.contains(values, left.value);
 
     return false;
-  }
-
-  function isGlobalEval(left, state) {
-    var isGlobal = false;
-
-    // permit methods to refer to an "eval" key in their own context
-    if (left.type === "this" && state.funct["(context)"] === null) {
-      isGlobal = true;
-    }
-    // permit use of "eval" members of objects
-    else if (left.type === "(identifier)") {
-      if (state.option.node && left.value === "global") {
-        isGlobal = true;
-      }
-
-      else if (state.option.browser && (left.value === "window" || left.value === "document")) {
-        isGlobal = true;
-      }
-    }
-
-    return isGlobal;
   }
 
   function findNativePrototype(left) {
@@ -2103,10 +2072,10 @@ var JSHINT = (function() {
         this.from = this.character;
         warning("W116", this, "===", "==");
         break;
-      case isPoorRelation(left):
+      case left.isPoorRelation(state.option.eqnull):
         warning("W041", this, "===", left.value);
         break;
-      case isPoorRelation(right):
+      case right.isPoorRelation(state.option.eqnull):
         warning("W041", this, "===", right.value);
         break;
       case isTypoTypeof(right, left, state):
@@ -2134,9 +2103,9 @@ var JSHINT = (function() {
     if (!eqnull && state.option.eqeqeq) {
       this.from = this.character;
       warning("W116", this, "!==", "!=");
-    } else if (isPoorRelation(left)) {
+    } else if (left.isPoorRelation(state.option.eqnull)) {
       warning("W041", this, "!==", left.value);
-    } else if (isPoorRelation(right)) {
+    } else if (right.isPoorRelation(state.option.eqnull)) {
       warning("W041", this, "!==", right.value);
     } else if (isTypoTypeof(right, left, state)) {
       warning("W122", this, right.value);
@@ -2415,7 +2384,7 @@ var JSHINT = (function() {
     }
 
     if (!state.option.evil && (m === "eval" || m === "execScript")) {
-      if (isGlobalEval(left, state)) {
+      if (left.isGlobalEval(state)) {
         warning("W061");
       }
     }
@@ -2621,7 +2590,7 @@ var JSHINT = (function() {
     var e = expression(10), s;
     if (e && e.type === "(string)") {
       if (!state.option.evil && (e.value === "eval" || e.value === "execScript")) {
-        if (isGlobalEval(left, state)) {
+        if (left.isGlobalEval(state)) {
           warning("W061");
         }
       }
@@ -2762,12 +2731,6 @@ var JSHINT = (function() {
     return state.funct["(statement)"] && state.funct["(statement)"].type === "class" ||
            state.funct["(context)"] && state.funct["(context)"]["(verb)"] === "class";
   }
-
-
-  function isPropertyName(token) {
-    return token.identifier || token.id === "(string)" || token.id === "(number)";
-  }
-
 
   function propertyName(preserveOrToken) {
     var id;
@@ -3784,7 +3747,7 @@ var JSHINT = (function() {
       if (name.id === "[") {
         name = computedPropertyName();
         computed = true;
-      } else if (isPropertyName(name)) {
+      } else if (name.isPropertyName()) {
         // Non-Computed PropertyName
         advance();
         computed = false;
@@ -3793,7 +3756,7 @@ var JSHINT = (function() {
             isGenerator = true;
             advance("*");
           }
-          if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
+          if (state.tokens.next.isPropertyName() || state.tokens.next.id === "[") {
             computed = state.tokens.next.id === "[";
             isStatic = true;
             name = state.tokens.next;
@@ -3804,7 +3767,7 @@ var JSHINT = (function() {
         }
 
         if (name.identifier && (name.value === "get" || name.value === "set")) {
-          if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
+          if (state.tokens.next.isPropertyName() || state.tokens.next.id === "[") {
             computed = state.tokens.next.id === "[";
             getset = name;
             name = state.tokens.next;
