@@ -42,6 +42,7 @@ var state        = require("./state.js").state;
 var style        = require("./style.js");
 var options      = require("./options.js");
 var scopeManager = require("./scope-manager.js");
+var Token = require('./token');
 
 // We need this module here because environments such as IE and Rhino
 // don't necessarilly expose the 'console' API and browserify uses
@@ -1053,23 +1054,11 @@ var JSHINT = (function() {
 
   // Functional constructors for making the symbols that will be inherited by
   // tokens.
-  var Token = function() {};
-  function createSyntax(protoProps) {
-    var syntax = function() { Token.apply(this, arguments); };
-    var prop;
-    syntax.prototype = Object.create(Token.prototype);
-
-    for (prop in protoProps) {
-      syntax.prototype[prop] = protoProps[prop];
-    }
-
-    return syntax;
-  }
 
   function symbol(s, p) {
     var x = state.syntax[s];
     if (!x || typeof x !== "function") {
-      state.syntax[s] = x = createSyntax({
+      state.syntax[s] = x = Token.extend({
         id: s,
         lbp: p,
         value: s
@@ -1939,7 +1928,7 @@ var JSHINT = (function() {
     return this;
   });
 
-  state.syntax["(identifier)"] = createSyntax({
+  state.syntax["(identifier)"] = Token.extend({
     type: "(identifier)",
     lbp: 0,
     identifier: true,
@@ -1975,26 +1964,26 @@ var JSHINT = (function() {
     identifier: false,
     template: true,
   };
-  state.syntax["(template)"] = createSyntax(_.extend({
+  state.syntax["(template)"] = Token.extend(_.extend({
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
     noSubst: false
   }, baseTemplateSyntax));
 
-  state.syntax["(template middle)"] = createSyntax(_.extend({
+  state.syntax["(template middle)"] = Token.extend(_.extend({
     type: "(template middle)",
     middle: true,
     noSubst: false
   }, baseTemplateSyntax));
 
-  state.syntax["(template tail)"] = createSyntax(_.extend({
+  state.syntax["(template tail)"] = Token.extend(_.extend({
     type: "(template tail)",
     tail: true,
     noSubst: false
   }, baseTemplateSyntax));
 
-  state.syntax["(no subst template)"] = createSyntax(_.extend({
+  state.syntax["(no subst template)"] = Token.extend(_.extend({
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
