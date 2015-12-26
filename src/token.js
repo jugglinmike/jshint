@@ -1,6 +1,34 @@
 "use strict";
 var _ = require("lodash");
 
+var natives = [
+  "Array", "ArrayBuffer", "Boolean", "Collator", "DataView", "Date",
+  "DateTimeFormat", "Error", "EvalError", "Float32Array", "Float64Array",
+  "Function", "Infinity", "Intl", "Int16Array", "Int32Array", "Int8Array",
+  "Iterator", "Number", "NumberFormat", "Object", "RangeError",
+  "ReferenceError", "RegExp", "StopIteration", "String", "SyntaxError",
+  "TypeError", "Uint16Array", "Uint32Array", "Uint8Array", "Uint8ClampedArray",
+  "URIError"
+];
+
+function walkPrototype(obj) {
+  if (typeof obj !== "object") {
+    return;
+  }
+
+  return obj.right === "prototype" ? obj : walkPrototype(obj.left);
+}
+
+function walkNative(obj) {
+  while (!obj.identifier && typeof obj.left === "object") {
+    obj = obj.left;
+  }
+
+  if (obj.identifier && natives.indexOf(obj.value) >= 0) {
+    return obj.value;
+  }
+}
+
 function Token(options) {
   for (var option in options) {
     if (options.hasOwnProperty(option)) {
@@ -36,6 +64,14 @@ Token.prototype.checkPunctuators = function(values) {
  */
 Token.prototype.checkPunctuator = function(value) {
   return this.type === "(punctuator)" && this.value === value;
+};
+
+Token.prototype.findNativePrototype = function(left) {
+  var prototype = walkPrototype(this);
+
+  if (prototype) {
+    return walkNative(prototype);
+  }
 };
 
 Token.prototype.isBeginOfExpr = function() {
