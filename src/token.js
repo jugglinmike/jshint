@@ -1,4 +1,5 @@
 "use strict";
+var _ = require("lodash");
 
 function Token(options) {
   for (var option in options) {
@@ -7,6 +8,35 @@ function Token(options) {
     }
   }
 }
+
+/**
+ * Test whether a given token is a punctuator matching one of the specified
+ * values
+ *
+ * @param {Token} token
+ * @param {Array.<string>} values
+ *
+ * @returns {boolean}
+ */
+Token.prototype.checkPunctuators = function(values) {
+  if (this.type === "(punctuator)") {
+    return _.contains(values, this.value);
+  }
+
+  return false;
+};
+
+/**
+ * Test whether a given token is a punctuator matching the specified value
+ *
+ * @param {Token} token
+ * @param {string} value
+ *
+ * @returns {boolean}
+ */
+Token.prototype.checkPunctuator = function(value) {
+  return this.type === "(punctuator)" && this.value === value;
+};
 
 Token.prototype.isGlobalEval = function(state) {
   var isGlobal = false;

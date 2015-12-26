@@ -1491,9 +1491,9 @@ var JSHINT = (function() {
       }
       advance();
 
-      if (checkPunctuator(state.tokens.next, "...")) {
+      if (state.tokens.next.checkPunctuator("...")) {
         warning("E024", state.tokens.next, "...");
-        while (checkPunctuator(state.tokens.next, "...")) {
+        while (state.tokens.next.checkPunctuator("...")) {
           advance();
         }
       }
@@ -1553,7 +1553,7 @@ var JSHINT = (function() {
 
       var sameLine = startLine(state.tokens.next) === state.tokens.curr.line &&
                      state.tokens.next.id !== "(end)";
-      var blockEnd = checkPunctuator(state.tokens.next, "}");
+      var blockEnd = state.tokens.next.checkPunctuator("}");
 
       if (sameLine && !blockEnd) {
         errorAt("E058", state.tokens.curr.line, state.tokens.curr.character);
@@ -2251,7 +2251,7 @@ var JSHINT = (function() {
     //
     if (!state.tokens.next.identifier &&
         state.tokens.next.type !== "(string)" &&
-          !checkPunctuators(state.tokens.next, ["[", "("])) {
+          !state.tokens.next.checkPunctuators(["[", "("])) {
 
       error("E030", state.tokens.next, state.tokens.next.value);
     }
@@ -2560,7 +2560,7 @@ var JSHINT = (function() {
           // Used to delineate an integer number literal from a dereferencing
           // punctuator (otherwise interpreted as a decimal point)
           (ret.type === "(number)" &&
-            checkPunctuator(pn, ".") && /^\d+$/.test(ret.value));
+            pn.checkPunctuator(".") && /^\d+$/.test(ret.value));
       }
     }
 
@@ -2821,14 +2821,14 @@ var JSHINT = (function() {
           }
         }
       } else {
-        if (checkPunctuator(state.tokens.next, "...")) pastRest = true;
+        if (state.tokens.next.checkPunctuator("...")) pastRest = true;
         ident = identifier(true);
         if (ident) {
           paramsIds.push(ident);
           currentParams.push([ident, state.tokens.curr]);
         } else {
           // Skip invalid parameter.
-          while (!checkPunctuators(state.tokens.next, [",", ")"])) advance();
+          while (!state.tokens.next.checkPunctuators([",", ")"])) advance();
         }
       }
 
@@ -3160,7 +3160,7 @@ var JSHINT = (function() {
   }
 
   function metaProperty(name, c) {
-    if (checkPunctuator(state.tokens.next, ".")) {
+    if (state.tokens.next.checkPunctuator(".")) {
       var left = state.tokens.curr.id;
       advance(".");
       var id = identifier();
@@ -3324,20 +3324,20 @@ var JSHINT = (function() {
 
     var nextInnerDE = function() {
       var ident;
-      if (checkPunctuators(state.tokens.next, ["[", "{"])) {
+      if (state.tokens.next.checkPunctuators(["[", "{"])) {
         ids = destructuringPatternRecursive(recursiveOptions);
         for (var id in ids) {
           id = ids[id];
           identifiers.push({ id: id.id, token: id.token });
         }
-      } else if (checkPunctuator(state.tokens.next, ",")) {
+      } else if (state.tokens.next.checkPunctuator(",")) {
         identifiers.push({ id: null, token: state.tokens.curr });
-      } else if (checkPunctuator(state.tokens.next, "(")) {
+      } else if (state.tokens.next.checkPunctuator("(")) {
         advance("(");
         nextInnerDE();
         advance(")");
       } else {
-        var is_rest = checkPunctuator(state.tokens.next, "...");
+        var is_rest = state.tokens.next.checkPunctuator("...");
 
         if (isAssignment) {
           var identifierToken = is_rest ? peek(0) : state.tokens.next;
@@ -3365,7 +3365,7 @@ var JSHINT = (function() {
     };
     var assignmentProperty = function() {
       var id;
-      if (checkPunctuator(state.tokens.next, "[")) {
+      if (state.tokens.next.checkPunctuator("[")) {
         advance("[");
         expression(10);
         advance("]");
@@ -3379,7 +3379,7 @@ var JSHINT = (function() {
       } else {
         // this id will either be the property name or the property name and the assigning identifier
         id = identifier();
-        if (checkPunctuator(state.tokens.next, ":")) {
+        if (state.tokens.next.checkPunctuator(":")) {
           advance(":");
           nextInnerDE();
         } else if (id) {
@@ -3393,22 +3393,22 @@ var JSHINT = (function() {
     };
 
     var id, value;
-    if (checkPunctuator(firstToken, "[")) {
+    if (firstToken.checkPunctuator("[")) {
       if (!openingParsed) {
         advance("[");
       }
-      if (checkPunctuator(state.tokens.next, "]")) {
+      if (state.tokens.next.checkPunctuator("]")) {
         warning("W137", state.tokens.curr);
       }
       var element_after_rest = false;
-      while (!checkPunctuator(state.tokens.next, "]")) {
+      while (!state.tokens.next.checkPunctuator("]")) {
         if (nextInnerDE() && !element_after_rest &&
-            checkPunctuator(state.tokens.next, ",")) {
+            state.tokens.next.checkPunctuator(",")) {
           warning("W130", state.tokens.next);
           element_after_rest = true;
         }
-        if (checkPunctuator(state.tokens.next, "=")) {
-          if (checkPunctuator(state.tokens.prev, "...")) {
+        if (state.tokens.next.checkPunctuator("=")) {
+          if (state.tokens.prev.checkPunctuator("...")) {
             advance("]");
           } else {
             advance("=");
@@ -3419,22 +3419,22 @@ var JSHINT = (function() {
             warning("W080", id, id.value);
           }
         }
-        if (!checkPunctuator(state.tokens.next, "]")) {
+        if (!state.tokens.next.checkPunctuator("]")) {
           advance(",");
         }
       }
       advance("]");
-    } else if (checkPunctuator(firstToken, "{")) {
+    } else if (firstToken.checkPunctuator("{")) {
 
       if (!openingParsed) {
         advance("{");
       }
-      if (checkPunctuator(state.tokens.next, "}")) {
+      if (state.tokens.next.checkPunctuator("}")) {
         warning("W137", state.tokens.curr);
       }
-      while (!checkPunctuator(state.tokens.next, "}")) {
+      while (!state.tokens.next.checkPunctuator("}")) {
         assignmentProperty();
-        if (checkPunctuator(state.tokens.next, "=")) {
+        if (state.tokens.next.checkPunctuator("=")) {
           advance("=");
           id = state.tokens.prev;
           value = expression(10);
@@ -3442,9 +3442,9 @@ var JSHINT = (function() {
             warning("W080", id, id.value);
           }
         }
-        if (!checkPunctuator(state.tokens.next, "}")) {
+        if (!state.tokens.next.checkPunctuator("}")) {
           advance(",");
-          if (checkPunctuator(state.tokens.next, "}")) {
+          if (state.tokens.next.checkPunctuator("}")) {
             // Trailing comma
             // ObjectBindingPattern: { BindingPropertyList , }
             break;
@@ -3752,7 +3752,7 @@ var JSHINT = (function() {
         advance();
         computed = false;
         if (name.identifier && name.value === "static") {
-          if (checkPunctuator(state.tokens.next, "*")) {
+          if (state.tokens.next.checkPunctuator("*")) {
             isGenerator = true;
             advance("*");
           }
@@ -3782,11 +3782,11 @@ var JSHINT = (function() {
         continue;
       }
 
-      if (!checkPunctuator(state.tokens.next, "(")) {
+      if (!state.tokens.next.checkPunctuator("(")) {
         // error --- class properties must be methods
         error("E054", state.tokens.next, state.tokens.next.value);
         while (state.tokens.next.id !== "}" &&
-               !checkPunctuator(state.tokens.next, "(")) {
+               !state.tokens.next.checkPunctuator("(")) {
           advance();
         }
         if (state.tokens.next.value !== "(") {
@@ -3935,7 +3935,7 @@ var JSHINT = (function() {
 
       state.funct["(scope)"].stack("catchparams");
 
-      if (checkPunctuators(state.tokens.next, ["[", "{"])) {
+      if (state.tokens.next.checkPunctuators(["[", "{"])) {
         var tokens = destructuringPattern();
         _.each(tokens, function(token) {
           if (token.id) {
@@ -4182,16 +4182,16 @@ var JSHINT = (function() {
     var initializer; // First initializer at level 0
 
     // If initial token is a BindingPattern, count it as such.
-    if (checkPunctuators(state.tokens.next, ["{", "["])) ++level;
+    if (state.tokens.next.checkPunctuators(["{", "["])) ++level;
     do {
       nextop = peek(i);
       ++i;
-      if (checkPunctuators(nextop, ["{", "["])) ++level;
-      else if (checkPunctuators(nextop, ["}", "]"])) --level;
+      if (nextop.checkPunctuators(["{", "["])) ++level;
+      else if (nextop.checkPunctuators(["}", "]"])) --level;
       if (level < 0) break;
       if (level === 0) {
-        if (!comma && checkPunctuator(nextop, ",")) comma = nextop;
-        else if (!initializer && checkPunctuator(nextop, "=")) initializer = nextop;
+        if (!comma && nextop.checkPunctuator(",")) comma = nextop;
+        else if (!initializer && nextop.checkPunctuator("=")) initializer = nextop;
       }
     } while (level > 0 || !_.contains(inof, nextop.value) && nextop.value !== ";" &&
     nextop.type !== "(end)"); // Is this a JSCS bug? This looks really weird.
@@ -4711,7 +4711,7 @@ var JSHINT = (function() {
     var i = -1;
     var bracketStack = 0;
     var ret = {};
-    if (checkPunctuators(state.tokens.curr, ["[", "{"])) {
+    if (state.tokens.curr.checkPunctuators(["[", "{"])) {
       bracketStack += 1;
     }
     do {
@@ -4719,18 +4719,21 @@ var JSHINT = (function() {
       pn = i === -1 ? state.tokens.next : peek(i);
       pn1 = peek(i + 1);
       i = i + 1;
-      if (checkPunctuators(pn, ["[", "{"])) {
+      if (!pn.checkPunctuators) {
+        console.log(pn);
+      }
+      if (pn.checkPunctuators(["[", "{"])) {
         bracketStack += 1;
-      } else if (checkPunctuators(pn, ["]", "}"])) {
+      } else if (pn.checkPunctuators(["]", "}"])) {
         bracketStack -= 1;
       }
       if (bracketStack === 1 && pn.identifier && pn.value === "for" &&
-          !checkPunctuator(prev, ".")) {
+          !prev.checkPunctuator(".")) {
         ret.isCompArray = true;
         ret.notJson = true;
         break;
       }
-      if (bracketStack === 0 && checkPunctuators(pn, ["}", "]"])) {
+      if (bracketStack === 0 && pn.checkPunctuators(["}", "]"])) {
         if (pn1.value === "=") {
           ret.isDestAssign = true;
           ret.notJson = true;
@@ -4740,7 +4743,7 @@ var JSHINT = (function() {
           break;
         }
       }
-      if (checkPunctuator(pn, ";")) {
+      if (pn.checkPunctuator(";")) {
         ret.isBlock = true;
         ret.notJson = true;
       }
@@ -4809,29 +4812,6 @@ var JSHINT = (function() {
     var value = expression(10);
     advance("]");
     return value;
-  }
-
-  /**
-   * Test whether a given token is a punctuator matching one of the specified values
-   * @param {Token} token
-   * @param {Array.<string>} values
-   * @returns {boolean}
-   */
-  function checkPunctuators(token, values) {
-    if (token.type === "(punctuator)") {
-      return _.contains(values, token.value);
-    }
-    return false;
-  }
-
-  /**
-   * Test whether a given token is a punctuator matching the specified value
-   * @param {Token} token
-   * @param {string} value
-   * @returns {boolean}
-   */
-  function checkPunctuator(token, value) {
-    return token.type === "(punctuator)" && token.value === value;
   }
 
   // Check whether this function has been reached for a destructuring assign with undeclared values
