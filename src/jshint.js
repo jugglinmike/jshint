@@ -829,20 +829,7 @@ var JSHINT = (function() {
     }
   }
 
-  function isInfix(token) {
-    return token.infix || (!token.identifier && !token.template && !!token.led);
-  }
-
   function isEndOfExpr() {
-    var curr = state.tokens.curr;
-    var next = state.tokens.next;
-    if (next.id === ";" || next.id === "}" || next.id === ":") {
-      return true;
-    }
-    if (isInfix(next) === isInfix(curr) || (curr.id === "yield" && state.inMoz())) {
-      return curr.line !== startLine(next);
-    }
-    return false;
   }
 
   function isBeginOfExpr(prev) {
@@ -910,9 +897,12 @@ var JSHINT = (function() {
         error("E030", state.tokens.curr, state.tokens.curr.id);
       }
 
+      var end_of_expr = state.tokens.next.identifier &&
+                                                      !state.tokens.curr.led &&
+                                                      state.tokens.curr.line !== state.tokens.next.line;
       // TODO: use pratt mechanics rather than special casing template tokens
       while ((rbp < state.tokens.next.lbp || state.tokens.next.type === "(template)") &&
-              !isEndOfExpr()) {
+              !end_of_expr) {
         isArray = state.tokens.curr.value === "Array";
         isObject = state.tokens.curr.value === "Object";
 
@@ -971,7 +961,7 @@ var JSHINT = (function() {
     left = left || state.tokens.curr;
     right = right || state.tokens.next;
     if (!state.option.laxbreak && left.line !== startLine(right)) {
-      warning("W014", right, right.value);
+      warning("W014", right, right.id);
     }
   }
 
@@ -982,26 +972,26 @@ var JSHINT = (function() {
     }
   }
 
-  function nobreakcomma(left, right) {
-    if (left.line !== startLine(right)) {
-      if (!state.option.laxcomma) {
-        if (comma.first) {
-          warning("I001");
-          comma.first = false;
-        }
-        warning("W014", left, right.value);
-      }
-    }
-  }
 
   function comma(opts) {
     opts = opts || {};
 
     if (!opts.peek) {
-      nobreakcomma(state.tokens.curr, state.tokens.next);
+      if (state.tokens.curr.line !== startLine(state.tokens.next)) {
+        if (!state.option.laxcomma) {
+          if (comma.first) {
+            warning("I001");
+            comma.first = false;
+          }
+          warning("W014", state.tokens.curr, state.tokens.next.value);
+        }
+      } else if (!state.tokens.curr.comment &&
+                state.tokens.curr.character !== state.tokens.next.from && state.option.white) {
+        state.tokens.curr.from += (state.tokens.curr.character - state.tokens.curr.from);
+        warning("W011", state.tokens.curr, state.tokens.curr.value);
+      }
+
       advance(",");
-    } else {
-      nobreakcomma(state.tokens.prev, state.tokens.curr);
     }
 
     if (state.tokens.next.identifier && !(opts.property && state.inES5())) {
@@ -1020,6 +1010,7 @@ var JSHINT = (function() {
       case "in":
       case "instanceof":
       case "return":
+      case "yield":
       case "switch":
       case "throw":
       case "try":
@@ -1165,7 +1156,6 @@ var JSHINT = (function() {
   function infix(s, f, p, w) {
     var x = symbol(s, p);
     reserveName(x);
-    x.infix = true;
     x.led = function(left) {
       if (!w) {
         nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
@@ -1398,8 +1388,10 @@ var JSHINT = (function() {
     return false;
   }
 
-  function assignop(s, f, p) {
-    var x = infix(s, typeof f === "function" ? f : function(left, that) {
+  function assignop(s) {
+    symbol(s, 20).exps = true;
+
+    return infix(s, function(left, that) {
       that.left = left;
 
       if (left && checkLeftSideAssign(left, that, { allowDestructuring: true })) {
@@ -1408,11 +1400,7 @@ var JSHINT = (function() {
       }
 
       error("E031", that);
-    }, p);
-
-    x.exps = true;
-    x.assign = true;
-    return x;
+    }, 20);
   }
 
 
@@ -1431,7 +1419,8 @@ var JSHINT = (function() {
   }
 
   function bitwiseassignop(s) {
-    return assignop(s, function(left, that) {
+    symbol(s, 20).exps = true;
+    return infix(s, function(left, that) {
       if (state.option.bitwise) {
         warning("W016", that, that.id);
       }
@@ -4439,12 +4428,8 @@ var JSHINT = (function() {
     return this;
   }).exps = true;
 
-  (function(x) {
-    x.exps = true;
-    x.lbp = 25;
-  }(prefix("yield", function() {
-    var prev = state.tokens.prev;
-    if (state.inES6(true) && !state.funct["(generator)"]) {
+  stmt("yield", function() {
+    if (state.inES6(true) && state.funct["(generator)"] !== true) {
       // If it's a yield within a catch clause inside a generator then that's ok
       if (!("(catch)" === state.funct["(name)"] && state.funct["(context)"]["(generator)"])) {
         error("E046", state.tokens.curr, "yield");
@@ -4460,29 +4445,24 @@ var JSHINT = (function() {
       advance("*");
     }
 
-    if (this.line === startLine(state.tokens.next) || !state.inMoz()) {
+    if (this.line === startLine(state.tokens.next)) {
       if (delegatingYield ||
           (state.tokens.next.id !== ";" && !state.option.asi &&
-           !state.tokens.next.reach && state.tokens.next.nud)) {
+           !state.tokens.next.reach)) {
 
         nobreaknonadjacent(state.tokens.curr, state.tokens.next);
-        this.first = expression(10);
+        this.first = expression(0);
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
             !this.first.paren && !state.option.boss) {
           warningAt("W093", this.first.line, this.first.character);
         }
       }
-
-      if (state.inMoz() && state.tokens.next.id !== ")" &&
-          (prev.lbp > 30 || (!prev.assign && !isEndOfExpr()) || prev.id === "yield")) {
-        error("E050", this);
-      }
     } else if (!state.option.asi) {
       nolinebreak(this); // always warn (Line breaking error)
     }
     return this;
-  })));
+  }).exps = true;
 
 
   stmt("throw", function() {
