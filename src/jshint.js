@@ -997,14 +997,10 @@ var JSHINT = (function() {
   function comma(opts) {
     opts = opts || {};
 
-    if (!opts.peek) {
-      nobreakcomma(state.tokens.curr, state.tokens.next);
-      advance(",");
-    } else {
-      nobreakcomma(state.tokens.prev, state.tokens.curr);
-    }
+    nobreakcomma(state.tokens.curr, state.tokens.next);
+    advance(",");
 
-    if (state.tokens.next.identifier && !(opts.property && state.inES5())) {
+    if (state.tokens.next.identifier && !state.inES5()) {
       // Keywords that cannot follow a comma operator.
       switch (state.tokens.next.value) {
       case "break":
@@ -1671,6 +1667,15 @@ var JSHINT = (function() {
       } else if (state.option.nonew && r && r.left && r.id === "(" && r.left.id === "new") {
         warning("W031", t);
       }
+
+      while (state.tokens.next.id === ",") {
+        if (comma()) {
+          r = expression(0, true);
+        } else {
+          return;
+        }
+      }
+
       parseFinalSemicolon();
     }
 
@@ -2008,6 +2013,7 @@ var JSHINT = (function() {
   delim("'").reach = true;
   delim(";");
   delim(":").reach = true;
+  delim(",");
   delim("#");
 
   reserve("else");
@@ -2049,29 +2055,6 @@ var JSHINT = (function() {
   bitwiseassignop("<<=");
   bitwiseassignop(">>=");
   bitwiseassignop(">>>=");
-  infix(",", function(left, that) {
-    var expr;
-    that.exprs = [left];
-
-    if (state.option.nocomma) {
-      warning("W127");
-    }
-
-    if (!comma({ peek: true })) {
-      return that;
-    }
-    while (true) {
-      if (!(expr = expression(10))) {
-        break;
-      }
-      that.exprs.push(expr);
-      if (state.tokens.next.value !== "," || !comma()) {
-        break;
-      }
-    }
-    return that;
-  }, 10, true);
-
   infix("?", function(left, that) {
     increaseComplexityCount();
     that.left = left;
@@ -2552,12 +2535,8 @@ var JSHINT = (function() {
       }
     }
 
-    if (!exprs.length) {
-      return;
-    }
     if (exprs.length > 1) {
-      ret = Object.create(state.syntax[","]);
-      ret.exprs = exprs;
+      ret = exprs[0];
 
       first = exprs[0];
       last = exprs[exprs.length - 1];
@@ -3153,17 +3132,8 @@ var JSHINT = (function() {
   // Parse assignments that were found instead of conditionals.
   // For example: if (a = 1) { ... }
 
-  function checkCondAssignment(expr) {
-    var id, paren;
-    if (expr) {
-      id = expr.id;
-      paren = expr.paren;
-      if (id === "," && (expr = expr.exprs[expr.exprs.length - 1])) {
-        id = expr.id;
-        paren = paren || expr.paren;
-      }
-    }
-    switch (id) {
+  function parseCondAssignment() {
+    switch (state.tokens.next.id) {
     case "=":
     case "+=":
     case "-=":
@@ -3173,9 +3143,12 @@ var JSHINT = (function() {
     case "|=":
     case "^=":
     case "/=":
-      if (!paren && !state.option.boss) {
+      if (!state.option.boss) {
         warning("W084");
       }
+
+      advance(state.tokens.next.id);
+      expression(20);
     }
   }
 
@@ -3314,7 +3287,7 @@ var JSHINT = (function() {
         countMember(i);
 
         if (state.tokens.next.id === ",") {
-          comma({ allowTrailing: true, property: true });
+          comma({ allowTrailing: true });
           if (state.tokens.next.id === ",") {
             warning("W070", state.tokens.curr);
           } else if (state.tokens.next.id === "}" && !state.inES5()) {
@@ -3920,10 +3893,9 @@ var JSHINT = (function() {
   blockstmt("if", function() {
     var t = state.tokens.next;
     increaseComplexityCount();
-    state.condition = true;
     advance("(");
     var expr = expression(0);
-    checkCondAssignment(expr);
+    parseCondAssignment(expr);
 
     // When the if is within a for-in loop, check if the condition
     // starts with a negation operator
@@ -3939,7 +3911,6 @@ var JSHINT = (function() {
     }
 
     advance(")", t);
-    state.condition = false;
     var s = block(true, true);
 
     // When the if is within a for-in loop and the condition has a negative form,
@@ -4029,7 +4000,8 @@ var JSHINT = (function() {
     state.funct["(loopage)"] += 1;
     increaseComplexityCount();
     advance("(");
-    checkCondAssignment(expression(0));
+    expression(0);
+    parseCondAssignment();
     advance(")", t);
     block(true, true);
     state.funct["(breakage)"] -= 1;
@@ -4060,7 +4032,7 @@ var JSHINT = (function() {
 
     state.funct["(breakage)"] += 1;
     advance("(");
-    checkCondAssignment(expression(0));
+    this.condition = expression(0);
     advance(")", t);
     t = state.tokens.next;
     advance("{");
@@ -4182,7 +4154,8 @@ var JSHINT = (function() {
       advance("while");
       var t = state.tokens.next;
       advance("(");
-      checkCondAssignment(expression(0));
+      expression(0);
+      parseCondAssignment();
       advance(")", t);
       state.funct["(breakage)"] -= 1;
       state.funct["(loopage)"] -= 1;
@@ -4334,7 +4307,8 @@ var JSHINT = (function() {
       // on every loop
       state.funct["(loopage)"] += 1;
       if (state.tokens.next.id !== ";") {
-        checkCondAssignment(expression(0));
+        expression(0);
+        parseCondAssignment();
       }
       nolinebreak(state.tokens.curr);
       advance(";");
