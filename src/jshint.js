@@ -1927,9 +1927,7 @@ var JSHINT = (function() {
   // ECMAScript parser
 
   delim("(endline)");
-  (function(x) {
-    x.prototype.line = x.prototype.from = 0;
-  })(delim("(begin)"));
+  state.syntax["(begin)"] = require("./tokens/delimeters/begin");
   delim("(end)").prototype.reach = true;
   delim("(error)").prototype.reach = true;
   delim("}").prototype.reach = true;
@@ -1937,8 +1935,8 @@ var JSHINT = (function() {
   delim("]");
   delim("\"").prototype.reach = true;
   delim("'").prototype.reach = true;
-  delim(";");
-  delim(":").prototype.reach = true;
+  state.syntax[";"] = require("./tokens/delimeters/semicolon");
+  state.syntax[":"] = require("./tokens/delimeters/colon");
   delim("#");
 
   reserve("else");

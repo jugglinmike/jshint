@@ -132,6 +132,8 @@ Token.extend = function(protoProps) {
     Child[prop] = Parent[prop];
   }
 
+  Child.extend = this.extend;
+
   for (prop in protoProps) {
     Child.prototype[prop] = protoProps[prop];
   }
