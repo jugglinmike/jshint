@@ -247,5 +247,19 @@
     "character": 25,
     "last": 76,
     "lastcharacter": 29
+  },
+  {
+    "name": "methodFirst",
+    "line": 81,
+    "character": 15,
+    "last": 81,
+    "lastcharacter": 19
+  },
+  {
+    "name": "ConstructorLast",
+    "line": 82,
+    "character": 15,
+    "last": 82,
+    "lastcharacter": 19
   }
 ]
