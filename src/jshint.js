@@ -1061,10 +1061,48 @@ var JSHINT = (function() {
     return x;
   }
 
+  /**
+   * Determine if a keyword is being used to access a meta property.
+   */
+  function checkMeta(token) {
+    var id, prop;
+
+    if (!checkPunctuator(state.tokens.next, ".")) {
+      return;
+    }
+
+    prop = peek();
+    if (!prop.identifier) {
+      return;
+    }
+
+    advance(".");
+    token.right = identifier();
+    token.exps = false;
+    state.tokens.curr.isMetaProperty = true;
+
+    if (token.metaProperties[prop.value]) {
+      token.metaProperties[prop.value]();
+    } else {
+      error("E057", state.tokens.prev, token.id, prop.value);
+    }
+
+    return true;
+  }
+
   function stmt(s, f) {
     var x = delim(s);
-    x.identifier = x.reserved = true;
-    x.fud = f;
+    reserveName(x);
+    //x.fud = f;
+    x.fud = function() {
+      // Metaproperties are left-hand side expressions, so if a keyword was
+      // initially interpreted as 
+      var metaProp = checkMeta(this);
+      if (metaProp) {
+        return this;
+      }
+      return f.apply(this, arguments);
+    }
     return x;
   }
 
@@ -1078,6 +1116,7 @@ var JSHINT = (function() {
     var c = x.id.charAt(0);
     if ((c >= "a" && c <= "z") || (c >= "A" && c <= "Z")) {
       x.identifier = x.reserved = true;
+      x.metaProperties = x.metaProperties || {};
     }
     return x;
   }
@@ -1086,7 +1125,7 @@ var JSHINT = (function() {
     var x = symbol(s, 150);
     reserveName(x);
 
-    x.nud = (typeof f === "function") ? f : function() {
+    var nud = (typeof f === "function") ? f : function() {
       this.arity = "unary";
       this.right = expression(150);
 
@@ -1108,6 +1147,14 @@ var JSHINT = (function() {
       }
 
       return this;
+    };
+
+    x.nud = function() {
+      if (checkMeta(this)) {
+        return this;
+      }
+
+      return nud.apply(this, arguments);
     };
 
     return x;
@@ -2309,22 +2356,6 @@ var JSHINT = (function() {
     return this;
   }));
   prefix("new", function() {
-    var mp = metaProperty("target", function() {
-      if (!state.inES6(true)) {
-        warning("W119", state.tokens.prev, "new.target", "6");
-      }
-      var inFunction, c = state.funct;
-      while (c) {
-        inFunction = !c["(global)"];
-        if (!c["(arrow)"]) { break; }
-        c = c["(context)"];
-      }
-      if (!inFunction) {
-        warning("W136", state.tokens.prev, "new.target");
-      }
-    });
-    if (mp) { return mp; }
-
     var c = expression(155), i;
     if (c && c.id !== "function") {
       if (c.identifier) {
@@ -2376,6 +2407,20 @@ var JSHINT = (function() {
     return this;
   });
   state.syntax["new"].exps = true;
+  state.syntax["new"].metaProperties.target = function() {
+    if (!state.inES6(true)) {
+      warning("W119", state.tokens.prev, "new.target", "6");
+    }
+    var inFunction, c = state.funct;
+    while (c) {
+      inFunction = !c["(global)"];
+      if (!c["(arrow)"]) { break; }
+      c = c["(context)"];
+    }
+    if (!inFunction) {
+      warning("W136", state.tokens.prev, "new.target");
+    }
+  };
 
   prefix("void").exps = true;
 
@@ -3182,21 +3227,6 @@ var JSHINT = (function() {
           warning("W078", props[name].setterToken);
         }
       }
-    }
-  }
-
-  function metaProperty(name, c) {
-    if (checkPunctuator(state.tokens.next, ".")) {
-      var left = state.tokens.curr.id;
-      advance(".");
-      var id = identifier();
-      state.tokens.curr.isMetaProperty = true;
-      if (name !== id) {
-        error("E057", state.tokens.prev, left, id);
-      } else {
-        c();
-      }
-      return state.tokens.curr;
     }
   }
 
