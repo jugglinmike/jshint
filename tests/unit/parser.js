@@ -6519,7 +6519,6 @@ exports["test 'yield' in invalid positions"] = function (test) {
   testRun = TestRun(test, "with an invalid operand")
     .addError(1, "Bad operand.");
 
-  testRun.test("function* g() { yield.x; }", { esversion: 6, expr: true });
   testRun.test("function* g() { yield*.x; }", { esversion: 6, expr: true });
   testRun.test("function* g() { yield ? null : null; }", { esversion: 6, expr: true });
   testRun.test("function* g() { yield* ? null : null; }", { esversion: 6, expr: true });
@@ -6529,6 +6528,11 @@ exports["test 'yield' in invalid positions"] = function (test) {
     .addError(1, "Unclosed regular expression.")
     .addError(1, "Unrecoverable syntax error. (100% scanned).")
     .test("function* g() { yield* / 1; }", { esversion: 6, expr: true });
+
+  TestRun(test, "As an invalid meta property")
+    .addError(1, "Invalid meta property: 'yield.x'.")
+    .addError(1, "A generator function shall contain a yield statement.")
+    .test("function* g() { yield.x; }", { esversion: 6, expr: true });
 
   TestRun(test, 'as a valid operand')
     .test([
@@ -7470,8 +7474,7 @@ exports.testStrictDirectiveASI = function (test) {
 
 exports.dereferenceDelete = function (test) {
   TestRun(test)
-    .addError(1, "Expected an identifier and instead saw '.'.")
-    .addError(1, "Missing semicolon.")
+    .addError(1, "Invalid meta property: 'delete.foo'.")
     .test("delete.foo();");
 
   test.done();
@@ -7800,11 +7803,13 @@ exports["new.target"] = function (test) {
     .test(code2, { esnext: true });
 
   var code3 = [
-    "var x = new.meta;"
+    "var x = new.meta;",
+    "var x = new.hasOwnProperty;"
   ];
 
   TestRun(test, "invalid meta property")
     .addError(1, "Invalid meta property: 'new.meta'.")
+    .addError(2, "Invalid meta property: 'new.hasOwnProperty'.")
     .test(code3);
 
   var code4 = [
@@ -7823,9 +7828,12 @@ exports["new.target"] = function (test) {
     .addError(3, "Bad assignment.")
     .addError(4, "Bad assignment.")
     .addError(5, "Bad assignment.")
-    .addError(6, "Bad assignment.")
-    .addError(7, "Bad assignment.")
+    .addError(6, "Bad operand.")
+    .addError(7, "Bad operand.")
     .test(code4, { esnext: true });
+
+  TestRun(test, "treatment as composed from tokens")
+    .test("(function() { return new  .  target; }());", { esnext: true });
 
   test.done();
 };

@@ -1087,6 +1087,34 @@ var JSHINT = (function() {
     return x;
   }
 
+  /**
+   * Determine if a keyword is being used to access a meta property.
+   */
+  function parseMetaProperty(token) {
+    var prop;
+
+    if (!checkPunctuator(state.tokens.next, ".")) {
+      return;
+    }
+
+    prop = peek();
+    if (!prop.identifier) {
+      return;
+    }
+
+    advance(".");
+    token.right = identifier();
+    token.exps = false;
+
+    if (token.metaProperties[prop.value]) {
+      token.metaProperties[prop.value]();
+    } else {
+      error("E057", state.tokens.prev, token.id, prop.value);
+    }
+
+    return true;
+  }
+
   function stmt(s, f) {
     var x = delim(s);
     x.identifier = x.reserved = true;
@@ -1104,6 +1132,7 @@ var JSHINT = (function() {
     var c = x.id.charAt(0);
     if ((c >= "a" && c <= "z") || (c >= "A" && c <= "Z")) {
       x.identifier = x.reserved = true;
+      x.metaProperties = x.metaProperties || Object.create(null);
     }
     return x;
   }
@@ -1112,7 +1141,7 @@ var JSHINT = (function() {
     var x = symbol(s, 150);
     reserveName(x);
 
-    x.nud = (typeof f === "function") ? f : function() {
+    var nud = (typeof f === "function") ? f : function() {
       this.arity = "unary";
       this.right = expression(150);
 
@@ -1124,16 +1153,22 @@ var JSHINT = (function() {
           warning("W017", this);
         }
 
-        if (this.right && this.right.isMetaProperty) {
-          error("E031", this);
         // detect increment/decrement of a const
         // in the case of a.b, right will be the "." punctuator
-        } else if (this.right && this.right.identifier) {
+        if (this.right && this.right.identifier) {
           state.funct["(scope)"].block.modify(this.right.value, this);
         }
       }
 
       return this;
+    };
+
+    x.nud = function() {
+      if (parseMetaProperty(this)) {
+        return this;
+      }
+
+      return nud.apply(this, arguments);
     };
 
     return x;
@@ -1359,7 +1394,7 @@ var JSHINT = (function() {
       left = left.right;
     }
 
-    if (left.identifier && !left.isMetaProperty) {
+    if (left.identifier) {
       // reassign also calls modify
       // but we are specific in order to catch function re-assignment
       // and globals re-assignment
@@ -1387,7 +1422,7 @@ var JSHINT = (function() {
       }
 
       return true;
-    } else if (left.identifier && !isReserved(left) && !left.isMetaProperty) {
+    } else if (left.identifier && !isReserved(left)) {
       if (state.funct["(scope)"].labeltype(left.value) === "exception") {
         warning("W022", left);
       }
@@ -1462,11 +1497,9 @@ var JSHINT = (function() {
         warning("W017", this);
       }
 
-      if (left.isMetaProperty) {
-        error("E031", this);
       // detect increment/decrement of a const
       // in the case of a.b, left will be the "." punctuator
-      } else if (left && left.identifier) {
+      if (left && left.identifier) {
         state.funct["(scope)"].block.modify(left.value, left);
       }
 
@@ -2339,22 +2372,6 @@ var JSHINT = (function() {
     return this;
   }));
   prefix("new", function() {
-    var mp = metaProperty("target", function() {
-      if (!state.inES6(true)) {
-        warning("W119", state.tokens.prev, "new.target", "6");
-      }
-      var inFunction, c = state.funct;
-      while (c) {
-        inFunction = !c["(global)"];
-        if (!c["(arrow)"]) { break; }
-        c = c["(context)"];
-      }
-      if (!inFunction) {
-        warning("W136", state.tokens.prev, "new.target");
-      }
-    });
-    if (mp) { return mp; }
-
     var c = expression(155), i;
     if (c && c.id !== "function") {
       if (c.identifier) {
@@ -2406,6 +2423,20 @@ var JSHINT = (function() {
     return this;
   });
   state.syntax["new"].exps = true;
+  state.syntax["new"].metaProperties.target = function() {
+    if (!state.inES6(true)) {
+      warning("W119", state.tokens.prev, "new.target", "6");
+    }
+    var inFunction, c = state.funct;
+    while (c) {
+      inFunction = !c["(global)"];
+      if (!c["(arrow)"]) { break; }
+      c = c["(context)"];
+    }
+    if (!inFunction) {
+      warning("W136", state.tokens.prev, "new.target");
+    }
+  };
 
   prefix("void").exps = true;
 
@@ -3226,21 +3257,6 @@ var JSHINT = (function() {
           warning("W078", props[name].setterToken);
         }
       }
-    }
-  }
-
-  function metaProperty(name, c) {
-    if (checkPunctuator(state.tokens.next, ".")) {
-      var left = state.tokens.curr.id;
-      advance(".");
-      var id = identifier();
-      state.tokens.curr.isMetaProperty = true;
-      if (name !== id) {
-        error("E057", state.tokens.prev, left, id);
-      } else {
-        c();
-      }
-      return state.tokens.curr;
     }
   }
 
