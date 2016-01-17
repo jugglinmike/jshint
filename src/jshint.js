@@ -896,7 +896,30 @@ var JSHINT = (function() {
       state.tokens.curr.beginsStmt = true;
     }
 
-    if (initial === true && state.tokens.curr.fud) {
+    if (!state.foo) {
+      state.foo = function() {
+        var current = this.tokens.curr;
+        if (!current.fud) {
+          return false;
+        }
+
+        if (!current.identifier || !current.reserved) {
+          return true;
+        }
+
+        if (!checkPunctuator(this.tokens.next, ".")) {
+          return true;
+        }
+
+        if (peek().identifier) {
+          return false;
+        }
+
+        return true;
+      };
+    }
+
+    if (initial === true && state.foo()) {
       left = state.tokens.curr.fud();
     } else {
       if (state.tokens.curr.nud) {
@@ -1068,6 +1091,7 @@ var JSHINT = (function() {
    * Determine if a keyword is being used to access a meta property.
    */
   function parseMetaProperty(token) {
+    var base = state.tokens.curr;
     var id, prop;
 
     if (!checkPunctuator(state.tokens.next, ".")) {
@@ -1084,7 +1108,7 @@ var JSHINT = (function() {
     token.exps = false;
 
     if (token.metaProperties[prop.value]) {
-      token.metaProperties[prop.value]();
+      token.metaProperties[prop.value](base);
     } else {
       error("E057", state.tokens.prev, token.id, prop.value);
     }
@@ -3874,16 +3898,6 @@ var JSHINT = (function() {
   }
 
   blockstmt("function", function(context) {
-    var mp = metaProperty("sent", function() {
-      if (!state.option.unstable || !state.option.unstable.gensent) {
-        warning("W139", state.tokens.prev, "function.sent", "gensent");
-      }
-      if (!state.funct["(generator)"]) {
-        error("E046", state.tokens.curr, "function.sent expression");
-      }
-    });
-    if (mp) { console.log(new Error().stack);return mp; }
-
     var inexport = context && context.inexport;
     var generator = false;
     if (state.tokens.next.value === "*") {
@@ -3922,16 +3936,6 @@ var JSHINT = (function() {
   });
 
   prefix("function", function() {
-    var mp = metaProperty("sent", function() {
-      if (!state.option.unstable || !state.option.unstable.gensent) {
-        warning("W139", state.tokens.prev, "function.sent", "gensent");
-      }
-      if (!state.funct["(generator)"]) {
-        error("E046", state.tokens.curr, "function.sent expression");
-      }
-    });
-    if (mp) { return mp; }
-
     var generator = false;
 
     if (state.tokens.next.value === "*") {
@@ -3946,6 +3950,20 @@ var JSHINT = (function() {
     doFunction({ name: i, type: generator ? "generator" : null });
     return this;
   });
+  state.syntax["function"].metaProperties.sent = function(base) {
+    // The base `function` token's prototype classifies it as the beginning of
+    // a block. This is inaccurate when the token is used to access a
+    // meta-property, so the property value on this instance should be
+    // overridden.
+    base.block = false;
+
+    if (!state.option.unstable || !state.option.unstable.gensent) {
+      warning("W139", state.tokens.prev, "function.sent", "gensent");
+    }
+    if (!state.funct["(generator)"]) {
+      error("E046", state.tokens.curr, "function.sent expression");
+    }
+  };
 
   blockstmt("if", function() {
     var t = state.tokens.next;

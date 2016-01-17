@@ -93,6 +93,8 @@ exports.usage = function (test) {
       "  x = function.sent['-prop'];",
       "  x = function.sent();",
       "  x = function.sent`123`;",
+      "  function.sent();",
+      "  function.sent.call(null);",
       "  yield x;",
       "}"
     ], { esversion: 6, unstable: { gensent: true } });
@@ -102,11 +104,11 @@ exports.usage = function (test) {
 
 exports.modification = function (test) {
   TestRun(test)
-    //.addError(2, "Bad assignment.")
+    .addError(2, "Bad operand.")
     .addError(3, "Bad assignment.")
     .test([
       "function* g() {",
-      "  //++function.sent;",
+      "  ++function.sent;",
       "  function.sent -= 1;",
       "  yield null;",
       "}"
