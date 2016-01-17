@@ -7400,9 +7400,12 @@ exports["new.target"] = function (test) {
     .addError(3, "Bad assignment.")
     .addError(4, "Bad assignment.")
     .addError(5, "Bad assignment.")
-    .addError(6, "Bad assignment.")
-    .addError(7, "Bad assignment.")
+    .addError(6, "Bad operand.")
+    .addError(7, "Bad operand.")
     .test(code4, { esnext: true });
+
+  TestRun(test, "treatment as composed from tokens")
+    .test("(function() { return new  .  target; }());", { esnext: true });
 
   test.done();
 };
