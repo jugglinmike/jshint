@@ -851,6 +851,32 @@ var JSHINT = (function() {
     return !prev.left && prev.arity !== "unary";
   }
 
+  /**
+   * Determine if the current token begins an ExpressionStatement. This is
+   * necessary to select the appropriate parsing mechanics when encountering
+   * keywords that may begin either a statement or a statement.
+   */
+  function isExprStmt() {
+    var current = state.tokens.curr;
+    if (!current.fud) {
+      return true;
+    }
+
+    if (!current.identifier || !current.reserved) {
+      return false;
+    }
+
+    if (!checkPunctuator(state.tokens.next, ".")) {
+      return false;
+    }
+
+    if (peek().identifier) {
+      return true;
+    }
+
+    return false;
+  };
+
   // This is the heart of JSHINT, the Pratt parser. In addition to parsing, it
   // is looking for ad hoc lint patterns. We add .fud to Pratt's model, which is
   // like .nud except that it is only used on the first token of a statement.
@@ -903,30 +929,7 @@ var JSHINT = (function() {
       state.tokens.curr.beginsStmt = true;
     }
 
-    if (!state.foo) {
-      state.foo = function() {
-        var current = this.tokens.curr;
-        if (!current.fud) {
-          return false;
-        }
-
-        if (!current.identifier || !current.reserved) {
-          return true;
-        }
-
-        if (!checkPunctuator(this.tokens.next, ".")) {
-          return true;
-        }
-
-        if (peek().identifier) {
-          return false;
-        }
-
-        return true;
-      };
-    }
-
-    if (initial === true && state.foo()) {
+    if (initial === true && !isExprStmt()) {
       left = state.tokens.curr.fud();
     } else {
       if (state.tokens.curr.nud) {
