@@ -1064,7 +1064,7 @@ var JSHINT = (function() {
   /**
    * Determine if a keyword is being used to access a meta property.
    */
-  function checkMeta(token) {
+  function parseMetaProperty(token) {
     var id, prop;
 
     if (!checkPunctuator(state.tokens.next, ".")) {
@@ -1092,17 +1092,8 @@ var JSHINT = (function() {
 
   function stmt(s, f) {
     var x = delim(s);
-    reserveName(x);
-    //x.fud = f;
-    x.fud = function() {
-      // Metaproperties are left-hand side expressions, so if a keyword was
-      // initially interpreted as 
-      var metaProp = checkMeta(this);
-      if (metaProp) {
-        return this;
-      }
-      return f.apply(this, arguments);
-    }
+    x.identifier = x.reserved = true;
+    x.fud = f;
     return x;
   }
 
@@ -1116,7 +1107,7 @@ var JSHINT = (function() {
     var c = x.id.charAt(0);
     if ((c >= "a" && c <= "z") || (c >= "A" && c <= "Z")) {
       x.identifier = x.reserved = true;
-      x.metaProperties = x.metaProperties || {};
+      x.metaProperties = x.metaProperties || Object.create(null);
     }
     return x;
   }
@@ -1150,7 +1141,7 @@ var JSHINT = (function() {
     };
 
     x.nud = function() {
-      if (checkMeta(this)) {
+      if (parseMetaProperty(this)) {
         return this;
       }
 

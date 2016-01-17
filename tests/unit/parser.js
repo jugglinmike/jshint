@@ -7006,8 +7006,7 @@ exports.testStrictDirectiveASI = function (test) {
 
 exports.dereferenceDelete = function (test) {
   TestRun(test)
-    .addError(1, "Expected an identifier and instead saw '.'.")
-    .addError(1, "Missing semicolon.")
+    .addError(1, "Invalid meta property: 'delete.foo'.")
     .test("delete.foo();");
 
   test.done();
@@ -7334,11 +7333,13 @@ exports["new.target"] = function (test) {
     .test(code2, { esnext: true });
 
   var code3 = [
-    "var x = new.meta;"
+    "var x = new.meta;",
+    "var x = new.hasOwnProperty;"
   ];
 
   TestRun(test, "invalid meta property")
     .addError(1, "Invalid meta property: 'new.meta'.")
+    .addError(2, "Invalid meta property: 'new.hasOwnProperty'.")
     .test(code3);
 
   var code4 = [
