@@ -3,9 +3,6 @@
 var TestRun = require("../../helpers/testhelper").setup.testRun;
 
 exports.enabling = function (test) {
-  //TestRun(test)
-  //  .addError("The 'gensent' option is only available when linting ECMAScript 6 code.")
-  //  .test('', { unstable: { gensent: true } });
   var code = [
     "function* g() {",
     "  yield function.sent;",
