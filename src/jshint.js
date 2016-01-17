@@ -854,23 +854,19 @@ var JSHINT = (function() {
   /**
    * Determine if the current token begins an ExpressionStatement. This is
    * necessary to select the appropriate parsing mechanics when encountering
-   * keywords that may begin either a statement or a statement.
+   * keywords that may begin either a statement or an expression.
    */
   function isExprStmt() {
     var current = state.tokens.curr;
+
     if (!current.fud) {
       return true;
     }
 
-    if (!current.identifier || !current.reserved) {
-      return false;
-    }
-
-    if (!checkPunctuator(state.tokens.next, ".")) {
-      return false;
-    }
-
-    if (peek().identifier) {
+    // Keywords that define a `fud` method may actually begin an expression if
+    // they are referenced to access meta-property values.
+    if (current.identifier && current.reserved &&
+      checkPunctuator(state.tokens.next, ".") && peek().identifier) {
       return true;
     }
 
