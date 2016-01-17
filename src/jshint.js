@@ -1070,7 +1070,6 @@ var JSHINT = (function() {
     advance(".");
     token.right = identifier();
     token.exps = false;
-    state.tokens.curr.isMetaProperty = true;
 
     if (token.metaProperties[prop.value]) {
       token.metaProperties[prop.value]();
@@ -1119,11 +1118,9 @@ var JSHINT = (function() {
           warning("W017", this);
         }
 
-        if (this.right && this.right.isMetaProperty) {
-          error("E031", this);
         // detect increment/decrement of a const
         // in the case of a.b, right will be the "." punctuator
-        } else if (this.right && this.right.identifier) {
+        if (this.right && this.right.identifier) {
           state.funct["(scope)"].block.modify(this.right.value, this);
         }
       }
@@ -1370,7 +1367,7 @@ var JSHINT = (function() {
       left = left.right;
     }
 
-    if (left.identifier && !left.isMetaProperty) {
+    if (left.identifier) {
       // reassign also calls modify
       // but we are specific in order to catch function re-assignment
       // and globals re-assignment
@@ -1404,7 +1401,7 @@ var JSHINT = (function() {
       }
 
       return true;
-    } else if (left.identifier && !isReserved(left) && !left.isMetaProperty) {
+    } else if (left.identifier && !isReserved(left)) {
       if (state.funct["(scope)"].labeltype(left.value) === "exception") {
         warning("W022", left);
       }
@@ -1478,11 +1475,9 @@ var JSHINT = (function() {
         warning("W017", this);
       }
 
-      if (left.isMetaProperty) {
-        error("E031", this);
       // detect increment/decrement of a const
       // in the case of a.b, left will be the "." punctuator
-      } else if (left && left.identifier) {
+      if (left && left.identifier) {
         state.funct["(scope)"].block.modify(left.value, left);
       }
 
