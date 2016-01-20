@@ -1733,6 +1733,15 @@ exports.strict = function (test) {
     .addError(1, "Missing \"use strict\" statement.")
     .test("a = 2;", { strict: "global" });
 
+  TestRun(test, "goobar")
+    .addError(2, "Missing \"use strict\" statement.")
+    .test([
+      "(function() {",
+      "  void 0;",
+      "  void 0;",
+      "}());",
+    ], { strict: true });
+
   test.done();
 };
 
@@ -1864,6 +1873,22 @@ exports.globalstrict = function (test) {
 
   TestRun(test, "gh-2661")
     .test("'use strict';", { strict: false, globalstrict: true });
+
+  TestRun(test, "gh-2836 (1)")
+    .test([
+      "// jshint globalstrict: true",
+      // The specific option set by the following directive is not relevant.
+      // Any option set by another directive will trigger the regression.
+      "// jshint undef: true"
+    ]);
+
+  TestRun(test, "gh-2836 (2)")
+    .test([
+      "// jshint strict: true, globalstrict: true",
+      // The specific option set by the following directive is not relevant.
+      // Any option set by another directive will trigger the regression.
+      "// jshint undef: true"
+    ]);
 
   test.done();
 };

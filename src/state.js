@@ -14,6 +14,42 @@ var state = {
       this.option.module || this.option.strict === "implied";
   },
 
+  /**
+   * Determine if the configuration requires strict mode.
+   *
+   * @param {boolean} isGlobalCode
+   */
+  requiresStrict: function(isGlobalCode) {
+    if (this.option.strict === "global") {
+      return true;
+    }
+
+    if (this.option.strict === false) {
+      return false;
+    }
+
+    if (this.option.globalstrict) {
+      return true;
+    }
+
+    /**
+     * TODO: Figure out why this condition is not necessary (the answer will
+     * most likely suggest a new name for this method. Add a test that verifies
+     * it.
+     */
+    //if (this.option.strict === true && !isGlobalCode) {
+    //  return true;
+    //}
+
+    return false;
+  },
+
+  allowsGlobalUsd: function() {
+    return this.option.strict === "global" || this.option.globalstrict ||
+      this.option.module || this.option.node || this.option.phantom ||
+      this.option.browserify;
+  },
+
   // Assumption: chronologically ES3 < ES5 < ES6 < Moz
 
   inMoz: function() {
