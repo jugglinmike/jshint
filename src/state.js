@@ -14,6 +14,20 @@ var state = {
       this.option.module || this.option.strict === "implied";
   },
 
+  requiresStrict: function() {
+    //return this.option.strict === "global" || this.option.strict === true || (this.option.strict !== false && this.option.globalstrict);
+    return this.option.strict === "global" || this.option.strict === true || (
+        (this.funct["(global)"] && this.option.globalstrict && this.option.strict !== false) ||
+        (!this.funct["(global)"]));
+  },
+
+  allowsGlobalUsd: function() {
+    return this.option.strict === "global" ||
+        ((
+          this.option.globalstrict || this.option.module || this.option.node ||
+          this.option.phantom || this.option.browserify));
+  },
+
   // Assumption: chronologically ES3 < ES5 < ES6 < Moz
 
   inMoz: function() {
@@ -78,6 +92,32 @@ var state = {
     return null;
   },
 
+  /**
+   * Determine if the 
+   */
+  currentIsExprStatement: function() {
+    var current = this.tokens.curr;
+    var next = this.tokens.next;
+
+    if (!current.fud) {
+      return true;
+    }
+
+    if (!current.identifier || !current.reserved) {
+      return false;
+    }
+
+    if (next.type === "(punctuator)" && next.value === ".") {
+      return false;
+    }
+
+    if (peek().identifier) {
+      return true;
+    }
+
+    return false;
+  },
+
   reset: function() {
     this.tokens = {
       prev: null,
@@ -85,7 +125,7 @@ var state = {
       curr: null
     };
 
-    this.option = {};
+    this.option = { unstable: {} };
     this.esVersion = 5;
     this.funct = null;
     this.ignored = {};
