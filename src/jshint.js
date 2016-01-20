@@ -302,7 +302,34 @@ var JSHINT = (function() {
       combine(predefined, vars.wsh);
     }
 
+    /**
+     * The `globalstrict` option has been deprecated in favor of the
+     * recently-introduced `strict: global` configuration. In order to avoid
+     * maintaining internal logic based on deprecated values, `globalstrict`
+     * should be translated to `strict: global` as appropriate (i.e. in all
+     * cases where it is set to `true` and the `strict` option has *not* been
+     * explicitly set to `false`).
+     *
+     *      |    Input Values       |    |   Interpreted Values  |
+     * case | globalstrict | strict | -> | globalstrict | strict |
+     * -----|--------------|--------|----|--------------|--------|
+     *  #1  | true         |        |    |              | global |
+     *  #2  | true         | false  |    | true         | false  | (no change)
+     *  #3  | true         | true   |    |              | global |
+     *  #4  | true         | global |    | true         | global | (no change)
+     *
+     * The input values in cases #1 and #3 are valid, so the `globalstrict`
+     * option must be explicitly removed in order to maintain validity.
+     *
+     * The input values in case #4 are invalid, so the interpreted values
+     * should not be modified so this erroneous configuration may be reported
+     * later.
+     */
     if (state.option.globalstrict && state.option.strict !== false) {
+      if (state.option.strict === true) {
+        delete state.option.globalstrict;
+      }
+
       state.option.strict = "global";
     }
 
