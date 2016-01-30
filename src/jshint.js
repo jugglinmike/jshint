@@ -1982,7 +1982,7 @@ var JSHINT = (function() {
     template: true,
   };
   state.syntax["(template)"] = _.extend({
-    lbp: 15,
+    lbp: 155,
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
@@ -2004,7 +2004,7 @@ var JSHINT = (function() {
   }, baseTemplateSyntax);
 
   state.syntax["(no subst template)"] = _.extend({
-    lbp: 15,
+    lbp: 155,
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
