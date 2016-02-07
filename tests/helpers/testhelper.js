@@ -31,12 +31,13 @@
 'use strict';
 
 var JSHINT = require("../..").JSHINT;
+var assert = require("chai").assert;
 
 if (exports.setup === undefined || exports.setup === null) {
   exports.setup = {};
 }
 
-exports.setup.testRun = function (test, name) {
+exports.setup.testRun = function (name) {
   var definedErrors = [];
 
   var helperObj = {
@@ -126,7 +127,7 @@ exports.setup.testRun = function (test, name) {
         });
       });
 
-      test.ok(
+      assert(
         undefinedErrors.length === 0
           && unthrownErrors.length === 0 && wrongLineNumbers.length === 0,
 

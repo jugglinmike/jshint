@@ -13,7 +13,8 @@ var mainPath = path.resolve(
 );
 var contentTypes = {
   ".html": "text/html",
-  ".js": "application/javascript"
+  ".js": "application/javascript",
+  ".css": "text/css"
 };
 
 var streams = {
@@ -89,6 +90,14 @@ var streams = {
 var build = {
   "index.html": function(done) {
     fs.readFile(__dirname + "/index.html", done);
+  },
+
+  "node_modules/mocha/mocha.js": function(done) {
+    fs.readFile(__dirname + "/../../../node_modules/mocha/mocha.js", done);
+  },
+
+  "node_modules/mocha/mocha.css": function(done) {
+    fs.readFile(__dirname + "/../../../node_modules/mocha/mocha.css", done);
   },
 
   "jshint.js": function(done) {
@@ -175,6 +184,7 @@ module.exports = function(port, done) {
     if (!Object.hasOwnProperty.call(build, pathname)) {
       res.statusCode = 404;
       res.end("not found");
+      return;
     }
 
     build[pathname](function(err, src) {

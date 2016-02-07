@@ -7,37 +7,38 @@
 var JSHINT  = require("../..").JSHINT;
 var fs      = require('fs');
 var TestRun = require("../helpers/testhelper").setup.testRun;
+var assert  = require('assert');
 
 function wrap(globals) {
   return '(function () { return [ ' + globals.join(',') + ' ]; }());';
 }
 
-function globalsKnown(test, globals, options) {
+function globalsKnown(globals, options) {
   JSHINT(wrap(globals), options || {});
   var report = JSHINT.data();
 
-  test.ok(report.implied === undefined);
-  test.equal(report.globals.length, globals.length);
+  assert(report.implied === undefined);
+  assert.equal(report.globals.length, globals.length);
 
   for (var i = 0, g; g = report.globals[i]; i += 1)
     globals[g] = true;
 
   for (i = 0, g = null; g = globals[i]; i += 1)
-    test.ok(g in globals);
+    assert(g in globals);
 }
 
-function globalsImplied(test, globals, options) {
+function globalsImplied(globals, options) {
   JSHINT(wrap(globals), options || {});
   var report = JSHINT.data();
 
-  test.ok(report.implieds != null);
-  test.ok(report.globals === undefined);
+  assert(report.implieds != null);
+  assert(report.globals === undefined);
 
   var implieds = [];
   for (var i = 0, warn; warn = report.implieds[i]; i += 1)
     implieds.push(warn.name);
 
-  test.equal(implieds.length, globals.length);
+  assert.equal(implieds.length, globals.length);
 }
 
 /*
@@ -46,28 +47,28 @@ function globalsImplied(test, globals, options) {
  * More info:
  *  + http://nodejs.org/docs/v0.5.9/api/globals.html
  */
-exports.node = function (test) {
+exports.node = function () {
   // Node environment assumes `globalstrict`
   var globalStrict = [
     '"use strict";',
     "function test() { return; }",
   ].join('\n');
 
-  TestRun(test)
+  TestRun()
     .addError(1, 'Use the function form of "use strict".')
     .test(globalStrict, { es3: true, strict: true });
 
-  TestRun(test)
+  TestRun()
     .test(globalStrict, { es3: true, node: true, strict: true });
 
-  TestRun(test)
+  TestRun()
     .test(globalStrict, { es3: true, browserify: true, strict: true });
 
   // Don't assume strict:true for Node environments. See bug GH-721.
-  TestRun(test)
+  TestRun()
     .test("function test() { return; }", { es3: true, node: true });
 
-  TestRun(test)
+  TestRun()
     .test("function test() { return; }", { es3: true, browserify: true });
 
   // Make sure that we can do fancy Node export
@@ -78,21 +79,20 @@ exports.node = function (test) {
     "exports = module.exports = {};"
   ];
 
-  TestRun(test)
+  TestRun()
     .addError(1, "Read only.")
     .test(overwrites, { es3: true, node: true });
 
-  TestRun(test)
+  TestRun()
     .addError(1, "Read only.")
     .test(overwrites, { es3: true, browserify: true });
 
-  TestRun(test, "gh-2657")
+  TestRun( "gh-2657")
     .test("'use strict';var a;", { node: true });
 
-  test.done();
 };
 
-exports.typed = function (test) {
+exports.typed = function () {
   var globals = [
     "ArrayBuffer",
     "ArrayBufferView",
@@ -108,18 +108,17 @@ exports.typed = function (test) {
     "Uint8ClampedArray"
   ];
 
-  globalsImplied(test, globals);
-  globalsKnown(test, globals, { browser: true });
-  globalsKnown(test, globals, { node: true });
-  globalsKnown(test, globals, { typed: true });
+  globalsImplied(globals);
+  globalsKnown(globals, { browser: true });
+  globalsKnown(globals, { node: true });
+  globalsKnown(globals, { typed: true });
 
-  test.done();
 };
 
-exports.es5 = function (test) {
+exports.es5 = function () {
   var src = fs.readFileSync(__dirname + "/fixtures/es5.js", "utf8");
 
-  TestRun(test)
+  TestRun()
     .addError(3, "Extra comma. (it breaks older versions of IE)")
     .addError(8, "Extra comma. (it breaks older versions of IE)")
     .addError(15, "get/set are ES5 features.")
@@ -159,7 +158,7 @@ exports.es5 = function (test) {
     .addError(80, "get/set are ES5 features.")
     .test(src, { es3: true });
 
-  TestRun(test)
+  TestRun()
     .addError(36, "Setter is defined without getter.")
     .addError(43, "Duplicate key 'x'.")
     .addError(48, "Duplicate key 'x'.")
@@ -175,7 +174,7 @@ exports.es5 = function (test) {
 
   // JSHint should not throw "Missing property name" error on nameless getters/setters
   // using Method Definition Shorthand if esnext flag is enabled.
-  TestRun(test)
+  TestRun()
     .addError(36, "Setter is defined without getter.")
     .addError(43, "Duplicate key 'x'.")
     .addError(48, "Duplicate key 'x'.")
@@ -190,25 +189,23 @@ exports.es5 = function (test) {
   // Make sure that JSHint parses getters/setters as function expressions
   // (https://github.com/jshint/jshint/issues/96)
   src = fs.readFileSync(__dirname + "/fixtures/es5.funcexpr.js", "utf8");
-  TestRun(test).test(src, {  }); // es5
+  TestRun().test(src, {  }); // es5
 
-  test.done();
 };
 
-exports.phantom = function (test) {
+exports.phantom = function () {
   // Phantom environment assumes `globalstrict`
   var globalStrict = [
     '"use strict";',
     "function test() { return; }",
   ].join('\n');
 
-  TestRun(test)
+  TestRun()
     .addError(1, 'Use the function form of "use strict".')
     .test(globalStrict, { es3: true, strict: true });
 
-  TestRun(test)
+  TestRun()
     .test(globalStrict, { es3: true, phantom: true, strict: true });
 
 
-  test.done();
 };
