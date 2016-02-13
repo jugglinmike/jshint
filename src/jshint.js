@@ -1789,7 +1789,7 @@ var JSHINT = (function() {
           }
           directives();
 
-          if (state.option.strict && state.funct["(context)"]["(global)"]) {
+          if (state.option.strict && isTopLevel(state.funct["(context)"])) {
             if (!m["use strict"] && !state.isStrict()) {
               warning("E007");
             }
@@ -1833,7 +1833,7 @@ var JSHINT = (function() {
         }
         expression(10);
 
-        if (state.option.strict && state.funct["(context)"]["(global)"]) {
+        if (state.option.strict && isTopLevel(state.funct["(context)"])) {
           if (!m["use strict"] && !state.isStrict()) {
             warning("E007");
           }
@@ -2928,6 +2928,23 @@ var JSHINT = (function() {
 
   function isFunctor(token) {
     return "(scope)" in token;
+  }
+
+  /**
+   * Determine if the provided "functor" instance describes "top level" code.
+   * This typically means the global scope, but in environments that make use
+   * of an implied closure, it is equivalent to that closure.
+   *
+   * This is necessary to maintain backwards compatability for strict mode
+   * enforcement across environments.
+   *
+   * @param {functor} funct
+   *
+   * @returns {boolean}
+   */
+  function isTopLevel(funct) {
+    var name = funct["(name)"];
+    return name === "(global)" || name === "(implied)";
   }
 
   /**
@@ -5285,6 +5302,17 @@ var JSHINT = (function() {
         destructuringAssignOrJsonValue();
         break;
       default:
+        if (state.impliedClosure()) {
+          state.funct = functor("(implied)", null, {
+            "(scope)": scopeManagerInst,
+            "(context)":   state.funct,
+            "(metrics)": createMetrics(state.tokens.next)
+          });
+          functions.push(state.funct);
+          state.funct["(scope)"].stack("functionparams");
+          state.funct["(scope)"].stack();
+        }
+
         directives();
 
         if (state.directive["use strict"]) {
@@ -5298,6 +5326,22 @@ var JSHINT = (function() {
 
       if (state.tokens.next.id !== "(end)") {
         quit("E041", state.tokens.curr);
+      }
+
+      /**
+       * If "environment" linting options were set after executable code, the
+       * expected "implied" closure will not be defined. Because parsing has
+       * already taken place, top-level declarations have already been
+       * interpreted as global.
+       *
+       * A future version of JSHint should explicitly disallow setting
+       * environmental options following executable code to prevent conditions
+       * like this.
+       */
+      if (state.impliedClosure() && state.funct["(name)"] === "(implied)") {
+        state.funct["(scope)"].unstack();
+        state.funct["(scope)"].unstack();
+        state.funct = state.funct["(context)"];
       }
 
       state.funct["(scope)"].unstack();
