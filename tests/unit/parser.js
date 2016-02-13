@@ -5151,6 +5151,30 @@ exports["automatic comma insertion GH-950"] = function (test) {
   test.done();
 };
 
+exports.asiPostfix = function (test) {
+  TestRun(test)
+    .addError(2, 'Missing semicolon.')
+    .addError(2, 'Expected an assignment or function call and instead saw an expression.')
+    .test([
+        'var x;',
+        '0',
+        '++x;'
+      ], {});
+
+  TestRun(test)
+    .addError(2, 'Missing semicolon.')
+    .addError(2, 'Expected an assignment or function call and instead saw an expression.')
+    .test([
+        'var x;',
+        '0',
+        '',
+        '++x;'
+      ], {});
+
+
+  test.done();
+};
+
 exports["fat arrows support"] = function (test) {
   var code = [
     "let empty = () => {};",

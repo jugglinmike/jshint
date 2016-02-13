@@ -816,15 +816,30 @@ var JSHINT = (function() {
     return token.infix || (!token.identifier && !token.template && !!token.led);
   }
 
-  function isEndOfExpr() {
-    var curr = state.tokens.curr;
-    var next = state.tokens.next;
+  function isEndOfExpr(curr, next) {
+    curr = curr || state.tokens.curr;
+    next = next || state.tokens.next;
     if (next.id === ";" || next.id === "}" || next.id === ":") {
       return true;
     }
+
     if (isInfix(next) === isInfix(curr) || (curr.id === "yield" && state.inMoz())) {
       return curr.line !== startLine(next);
     }
+
+    // The grammar for PostfixExpression is defined as follows:
+    //
+    // > PostfixExpression :
+    // >     LeftHandSideExpression
+    // >     LeftHandSideExpression [no LineTerminator here] ++
+    // >     LeftHandSideExpression [no LineTerminator here] --
+    //
+    // Meaning that when the `++` and `--` tokens appear on a new line, they
+    // *always* belong to a UnaryExpression, and the current
+    if (checkPunctuators(next, ['++', '--'])) {
+      return curr.line !== startLine(next);
+    }
+
     return false;
   }
 
@@ -1693,8 +1708,7 @@ var JSHINT = (function() {
   function directives() {
     while (state.tokens.next.id === "(string)") {
       var p = peekIgnoreEOL();
-      if (p.lbp > 0 && p.lbp !== 150 ||
-          (startLine(p) === state.tokens.next.line && checkPunctuators(p, ["++", "--"]))) {
+      if (!isEndOfExpr(state.tokens.next, p)) {
         break;
       }
 

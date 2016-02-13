@@ -619,8 +619,8 @@ exports.asi = function (test) {
   TestRun(test, "gh-2714")
     .addError(2, "Unnecessary directive \"code\".")
     .addError(3, "Expected an assignment or function call and instead saw an expression.")
-    .addError(6, "Unnecessary directive \"code\".")
     .addError(6, "Missing semicolon.", { code: "E058" })
+    .addError(6, "Expected an assignment or function call and instead saw an expression.")
     .test(code, { asi: true });
 
   test.done();
