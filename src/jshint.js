@@ -1480,7 +1480,7 @@ var JSHINT = (function() {
       return val;
     }
 
-    warning("W024", state.tokens.curr, state.tokens.curr.id);
+    warning("E060", state.tokens.curr, state.tokens.curr.id);
     return val;
   }
 
@@ -1595,7 +1595,7 @@ var JSHINT = (function() {
     // anyway.
 
     if (res && t.meta && t.meta.isFutureReservedWord && peek().id === ":") {
-      warning("W024", t, t.id);
+      warning("E060", t, t.id);
       res = false;
     }
 
@@ -3864,7 +3864,7 @@ var JSHINT = (function() {
       token: state.tokens.curr });
 
     if (i === undefined) {
-      warning("W025");
+      warning("E061");
     } else if (inexport) {
       state.funct["(scope)"].setExported(i, state.tokens.prev);
     }

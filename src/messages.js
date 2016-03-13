@@ -74,7 +74,9 @@ var errors = {
   E056: "'{a}' was used before it was declared, which is illegal for '{b}' variables.",
   E057: "Invalid meta property: '{a}.{b}'.",
   E058: "Missing semicolon.",
-  E059: "Incompatible values for the '{a}' and '{b}' linting options."
+  E059: "Incompatible values for the '{a}' and '{b}' linting options.",
+  E060: "Expected an identifier and instead saw '{a}' (a reserved word).",
+  E061: "Missing name in function declaration."
 };
 
 var warnings = {
@@ -102,8 +104,8 @@ var warnings = {
     "Use 'var' or 'let' to declare bindings that may change.",
   W022: "Do not assign to the exception parameter.",
   W023: null,
-  W024: "Expected an identifier and instead saw '{a}' (a reserved word).",
-  W025: "Missing name in function declaration.",
+  W024: null,
+  W025: null,
   W026: "Inner functions should be listed at the top of the outer function.",
   W027: "Unreachable '{a}' after '{b}'.",
   W028: "Label '{a}' on {b} statement.",
