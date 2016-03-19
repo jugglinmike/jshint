@@ -403,12 +403,13 @@ var JSHINT = (function() {
   }
 
   // Tracking of "internal" scripts, like eval containing a static string
-  function addInternalSrc(elem, src) {
+  function addInternalSrc(elem, token) {
     var i;
     i = {
       id: "(internal)",
       elem: elem,
-      value: src
+      token: token,
+      code: token.value.replace(/([^\\])(\\*)\2\\n/g, '$1\n')
     };
     JSHINT.internals.push(i);
     return i;
@@ -1512,7 +1513,7 @@ var JSHINT = (function() {
       }
 
       if (!state.tokens.next.identifier) {
-        warning("E024", state.tokens.curr, "...");
+        warning("E024", state.tokens.curr, state.tokens.next.id);
         return;
       }
 
@@ -2152,6 +2153,8 @@ var JSHINT = (function() {
     that.right = right = expression(130);
 
     if (left && right && left.id === "(string)" && right.id === "(string)") {
+      left.parts = left.parts || [];
+      left.parts.push(right);
       left.value += right.value;
       left.character = right.character;
       if (!state.option.scripturl && reg.javascriptURL.test(left.value)) {
@@ -2451,14 +2454,14 @@ var JSHINT = (function() {
             left.value === "execScript") {
           warning("W061", left);
 
-          if (p[0] && [0].id === "(string)") {
-            addInternalSrc(left, p[0].value);
+          if (p[0] && p[0].id === "(string)") {
+            addInternalSrc(left, p[0]);
           }
         } else if (p[0] && p[0].id === "(string)" &&
              (left.value === "setTimeout" ||
             left.value === "setInterval")) {
           warning("W066", left);
-          addInternalSrc(left, p[0].value);
+          addInternalSrc(left, p[0]);
 
         // window.setTimeout/setInterval
         } else if (p[0] && p[0].id === "(string)" &&
@@ -2467,7 +2470,7 @@ var JSHINT = (function() {
              (left.right === "setTimeout" ||
             left.right === "setInterval")) {
           warning("W066", left);
-          addInternalSrc(left, p[0].value);
+          addInternalSrc(left, p[0]);
         }
       }
       if (!left.identifier && left.id !== "." && left.id !== "[" && left.id !== "=>" &&
@@ -4376,10 +4379,9 @@ var JSHINT = (function() {
   stmt("continue", function() {
     var v = state.tokens.next.value;
 
-    if (state.funct["(breakage)"] === 0)
+    if (state.funct["(breakage)"] === 0 || !state.funct["(loopage)"]) {
       warning("W052", state.tokens.next, this.value);
-    if (!state.funct["(loopage)"])
-      warning("W052", state.tokens.next, this.value);
+    }
 
     if (!state.option.asi)
       nolinebreak(this);
@@ -5325,15 +5327,25 @@ var JSHINT = (function() {
     if (JSHINT.scope === "(main)") {
       o = o || {};
 
+      var priorErrorCount;
       for (i = 0; i < JSHINT.internals.length; i += 1) {
         k = JSHINT.internals[i];
         o.scope = k.elem;
-        itself(k.value, o, g);
+        priorErrorCount = JSHINT.errors.length;
+        k.token.code = k.token.value.replace(/\\n/g, '\n');
+        itself(k.token.code, o, g);
+        for (var j = priorErrorCount; j < JSHINT.errors.length; j += 1) {
+          ohNo(JSHINT.errors[j], k.token);
+        }
       }
     }
 
     return JSHINT.errors.length === 0;
   };
+
+  function ohNo(error, token) {
+    console.log(error, token);
+  }
 
   // Modules.
   itself.addModule = function(func) {
