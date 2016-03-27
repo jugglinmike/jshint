@@ -166,6 +166,21 @@ exports.bool = {
     iterator    : true,
 
     /**
+     * This option suppresses most of the warnings about possibly unsafe line
+     * breakings in your code. It doesn't suppress warnings about comma-first
+     * coding style. To suppress those you have to use `laxcomma` (see below).
+     *
+     * For historical reasons, this enforcing option is only enabled when set
+     * to `false`.
+     *
+     * @deprecated JSHint is limiting its scope to issues of code correctness.
+     *             If you would like to enforce rules relating to code style,
+     *             check out [the JSCS
+     *             project](https://github.com/jscs-dev/node-jscs).
+     */
+    laxbreak    : true,
+
+    /**
      * This option requires you to capitalize names of constructor functions.
      * Capitalizing functions that are intended to be used with `new` operator
      * is just a convention that helps programmers to visually distinguish
@@ -412,18 +427,6 @@ exports.bool = {
      *     };
      */
     supernew    : true,
-
-    /**
-     * This option suppresses most of the warnings about possibly unsafe line
-     * breakings in your code. It doesn't suppress warnings about comma-first
-     * coding style. To suppress those you have to use `laxcomma` (see below).
-     *
-     * @deprecated JSHint is limiting its scope to issues of code correctness.
-     *             If you would like to enforce rules relating to code style,
-     *             check out [the JSCS
-     *             project](https://github.com/jscs-dev/node-jscs).
-     */
-    laxbreak    : true,
 
     /**
      * This option suppresses warnings about comma-first coding style:

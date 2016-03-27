@@ -1932,7 +1932,7 @@ exports.laxbreak = function (test) {
     .addError(2, "Bad line breaking before ','.")
     .addError(3, "Comma warnings can be turned off with 'laxcomma'.")
     .addError(12, "Bad line breaking before ','.")
-    .test(src, { es3: true });
+    .test(src, { es3: true, laxbreak: false });
 
   var ops = [ '||', '&&', '*', '/', '%', '+', '-', '>=',
         '==', '===', '!=', '!==', '>', '<', '<=', 'instanceof' ];
@@ -1941,17 +1941,17 @@ exports.laxbreak = function (test) {
     code = ['var a = b ', op + ' c;'];
     TestRun(test)
       .addError(2, "Bad line breaking before '" + op + "'.")
-      .test(code, { es3: true });
+      .test(code, { es3: true, laxbreak: false });
 
-    TestRun(test).test(code, { es3: true, laxbreak: true });
+    TestRun(test).test(code, { es3: true });
   }
 
   code = [ 'var a = b ', '? c : d;' ];
   TestRun(test)
     .addError(2, "Bad line breaking before '?'.")
-    .test(code, { es3: true });
+    .test(code, { es3: true, laxbreak: false });
 
-  TestRun(test).test(code, { es3: true, laxbreak: true });
+  TestRun(test).test(code, { es3: true });
 
   test.done();
 };
