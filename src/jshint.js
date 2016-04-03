@@ -178,7 +178,7 @@ var JSHINT = (function() {
   /**
    * Apply all linting options according to the status of the `state` object.
    */
-  function applyOptions(dirToken) {
+  function applyOptions() {
     var badESOpt = null;
     processenforceall();
 
@@ -413,7 +413,6 @@ var JSHINT = (function() {
    * @param {Token} previous - the token that preceeds the directive
    */
   function lintingDirective(dirToken, previous) {
-    var dirToken = state.tokens.next;
     var body = dirToken.body.split(",").map(function(s) { return s.trim(); });
     var predef = {};
 
@@ -5015,7 +5014,6 @@ var JSHINT = (function() {
   var itself = function(s, o, g) {
     var i, k, x, reIgnoreStr, reIgnore;
     var optionKeys;
-    var newOptionObj = {};
     var newIgnoredObj = {};
 
     o = _.clone(o);

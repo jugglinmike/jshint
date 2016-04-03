@@ -125,7 +125,12 @@ var state = {
   },
 
   /**
+   * Update the value of the specified linting option. If the value is invalid,
+   * no state change will be made.
    *
+   * @param {string} name - option name
+   * @param {mixed} value - option value
+   * @param {function} error - error reporting function
    * @param {Token} [token] - optional!
    */
   setOption: function(name, value, error, token) {

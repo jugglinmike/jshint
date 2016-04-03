@@ -1023,7 +1023,6 @@ var values = {
 };
 
 exports.validate = function(name, value, isJSLint) {
-  // TODO: test (possibly move this out to the call site)
   name = name.trim();
 
   // TODO: Make more strict
@@ -1046,7 +1045,6 @@ exports.validate = function(name, value, isJSLint) {
       return "invalid";
     }
   }
-
 
   return true;
 };
