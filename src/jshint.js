@@ -97,23 +97,6 @@ var JSHINT = (function() {
     extraModules = [],
     emitter = new events.EventEmitter();
 
-  function checkOption(name, t) {
-    name = name.trim();
-
-    if (/^[+-]W\d{3}$/g.test(name)) {
-      return true;
-    }
-
-    if (options.validNames.indexOf(name) === -1) {
-      if (t.type !== "jslint" && !_.has(options.removed, name)) {
-        error("E001", t, name);
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   function isString(obj) {
     return Object.prototype.toString.call(obj) === "[object String]";
   }
@@ -195,7 +178,7 @@ var JSHINT = (function() {
   /**
    * Apply all linting options according to the status of the `state` object.
    */
-  function applyOptions() {
+  function applyOptions(dirToken) {
     var badESOpt = null;
     processenforceall();
 
@@ -522,10 +505,6 @@ var JSHINT = (function() {
         var key = (g[0] || "").trim();
         var val = (g[1] || "").trim();
 
-        if (!checkOption(key, dirToken)) {
-          return;
-        }
-
         if (numvals.indexOf(key) >= 0) {
           // GH988 - numeric options can be disabled by setting them to `false`
           if (val !== "false") {
@@ -561,68 +540,41 @@ var JSHINT = (function() {
           switch (val) {
           case "true":
           case "false":
-            state.option.quotmark = (val === "true");
-            break;
-          case "double":
-          case "single":
-            state.option.quotmark = val;
-            break;
-          default:
-            error("E002", dirToken);
+            val = (val === "true");
           }
+          state.setOption("quotmark", val, error, dirToken);
           return;
         }
 
         if (key === "shadow") {
           switch (val) {
           case "true":
-            state.option.shadow = true;
-            break;
-          case "outer":
-            state.option.shadow = "outer";
+            val = true;
             break;
           case "false":
-          case "inner":
-            state.option.shadow = "inner";
-            break;
-          default:
-            error("E002", dirToken);
+            val = "inner";
           }
+          state.setOption("shadow", val, error, dirToken);
           return;
         }
 
         if (key === "unused") {
           switch (val) {
           case "true":
-            state.option.unused = true;
-            break;
           case "false":
-            state.option.unused = false;
-            break;
-          case "vars":
-          case "strict":
-            state.option.unused = val;
-            break;
-          default:
-            error("E002", dirToken);
+            val = val === "true";
           }
+          state.setOption("unused", val, error, dirToken);
           return;
         }
 
         if (key === "latedef") {
           switch (val) {
           case "true":
-            state.option.latedef = true;
-            break;
           case "false":
-            state.option.latedef = false;
-            break;
-          case "nofunc":
-            state.option.latedef = "nofunc";
-            break;
-          default:
-            error("E002", dirToken);
+            val = val === "true";
           }
+          state.setOption("latedef", val, error, dirToken);
           return;
         }
 
@@ -641,18 +593,10 @@ var JSHINT = (function() {
         if (key === "strict") {
           switch (val) {
           case "true":
-            state.option.strict = true;
-            break;
           case "false":
-            state.option.strict = false;
-            break;
-          case "global":
-          case "implied":
-            state.option.strict = val;
-            break;
-          default:
-            error("E002", dirToken);
+            val = val === "true";
           }
+          state.setOption("strict", val, error, dirToken);
           return;
         }
 
@@ -667,19 +611,16 @@ var JSHINT = (function() {
 
         if (key === "esversion") {
           switch (val) {
+          case "2015":
+            val = 6;
+            break;
           case "3":
           case "5":
           case "6":
-            state.option.moz = false;
-            state.option.esversion = +val;
-            break;
-          case "2015":
-            state.option.moz = false;
-            state.option.esversion = 6;
-            break;
-          default:
-            error("E002", dirToken);
+            val = +val;
           }
+          state.setOption("moz", false, error, dirToken);
+          state.setOption("esversion", val, error, dirToken);
           if (!hasParsedCode(state.funct)) {
             error("E055", state.tokens.next, "esversion");
           }
@@ -697,22 +638,22 @@ var JSHINT = (function() {
         if (val === "true" || val === "false") {
           if (dirToken.type === "jslint") {
             tn = options.renamed[key] || key;
-            state.option[tn] = (val === "true");
+            state.setOption(tn, val === "true", error, dirToken);
 
             if (options.inverted[tn] !== undefined) {
-              state.option[tn] = !state.option[tn];
+              state.setOption(tn, !state.option[tn], error, dirToken);
             }
           } else {
-            state.option[key] = (val === "true");
+            state.setOption(key, val === "true", error, dirToken);
           }
 
           return;
         }
 
-        error("E002", dirToken);
+        state.setOption(key, val, error, dirToken);
       });
 
-      applyOptions();
+      applyOptions(dirToken);
     }
   }
 
@@ -5109,6 +5050,8 @@ var JSHINT = (function() {
       obj.forEach(cb);
     }
 
+    state.option = {};
+
     if (o) {
       each(o.predef || null, function(item) {
         var slice, prop;
@@ -5132,17 +5075,17 @@ var JSHINT = (function() {
       delete o.exported;
 
       optionKeys = Object.keys(o);
+      var fakeToken = { line: 0, char: 0 };
       for (x = 0; x < optionKeys.length; x++) {
         if (/^-W\d{3}$/g.test(optionKeys[x])) {
           newIgnoredObj[optionKeys[x].slice(1)] = true;
         } else {
           var optionKey = optionKeys[x];
-          newOptionObj[optionKey] = o[optionKey];
+          state.setOption(optionKey, o[optionKey], error, fakeToken);
         }
       }
     }
 
-    state.option = newOptionObj;
     state.ignored = newIgnoredObj;
 
     state.option.indent = state.option.indent || 4;
@@ -5263,13 +5206,6 @@ var JSHINT = (function() {
     });
 
     lex.start();
-
-    // Check options
-    for (var name in o) {
-      if (_.has(o, name)) {
-        checkOption(name, state.tokens.curr);
-      }
-    }
 
     try {
       applyOptions();

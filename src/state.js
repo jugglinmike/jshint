@@ -1,5 +1,6 @@
 "use strict";
 var NameStack = require("./name-stack.js");
+var options = require("./options");
 
 var state = {
   syntax: {},
@@ -121,6 +122,26 @@ var state = {
     }
 
     return null;
+  },
+
+  /**
+   *
+   * @param {Token} [token] - optional!
+   */
+  setOption: function(name, value, error, token) {
+    var result = options.validate(name, value, token && token.type === "jslint");
+
+    if (result === "not found") {
+      error("E001", token, name);
+      return;
+    }
+
+    if (result === "invalid") {
+      error("E002", token);
+      return;
+    }
+
+    state.option[name] = value;
   },
 
   reset: function() {
