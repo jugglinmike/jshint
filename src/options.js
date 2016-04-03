@@ -1,4 +1,5 @@
 "use strict";
+var _ = require("lodash");
 
 // These are the JSHint boolean options.
 exports.bool = {
@@ -1010,4 +1011,39 @@ exports.removed = {
 exports.noenforceall = {
   varstmt: true,
   strict: true
+};
+
+var values = {
+  quotmark: ["single", "double", true, false],
+  shadow: ["inner", "outer", true, false],
+  unused: ["vars", "strict", true, false],
+  esversion: [3, 5, 6],
+  latedef: ["nofunc", true, false],
+  strict: ["global", "implied", true, false]
+};
+
+exports.validate = function(name, value, isJSLint) {
+  name = name.trim();
+
+  if (/^[+-]W\d{3}$/g.test(name)) {
+    return true;
+  }
+
+  if (exports.validNames.indexOf(name) === -1) {
+    if (!isJSLint && !_.has(exports.removed, name)) {
+      return "not found";
+    }
+  }
+
+  if (_.has(values, name)) {
+    if (values[name].indexOf(value) === -1) {
+      return "invalid";
+    }
+  } else if (!_.has(exports.val, name)) {
+    if (typeof value !== "boolean") {
+      return "invalid";
+    }
+  }
+
+  return true;
 };

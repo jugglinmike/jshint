@@ -44,6 +44,10 @@ exports.shadow = function (test) {
   TestRun(test)
     .test(src, { es3: true, shadow: true });
 
+  TestRun(test)
+    .addError(0, "Bad option value.")
+    .test("", { shadow: "foo" });
+
   test.done();
 };
 
@@ -1167,6 +1171,10 @@ exports['unused overrides'] = function (test) {
     .addError(3, "'i' is defined but never used.")
     .test(code, {es3: true, unused: "strict"});
 
+  TestRun(test)
+    .addError(0, "Bad option value.")
+    .test("", { unused: "badoption" });
+
   test.done();
 };
 
@@ -1742,6 +1750,10 @@ exports.strict = function (test) {
     .addError(1, "Bad option value.")
     .test("/*jshint strict: foo */");
 
+  TestRun(test)
+    .addError(0, "Bad option value.")
+    .test("", { strict: "foo" });
+
   TestRun(test, "environments have precedence over 'strict: true'")
     .test(code3, { strict: true, node: true });
 
@@ -2012,6 +2024,10 @@ exports.validthis = function (test) {
     .addError(2, "Bad option value.")
     .test(code, {es3: true});
 
+  TestRun(test)
+    .addError(0, "Bad option value.")
+    .test("", { validthis: "heya" });
+
   test.done();
 };
 
@@ -2065,6 +2081,10 @@ exports.quotes = function (test) {
   TestRun(test)
     .addError(2, "Strings must use doublequote.")
     .test(src, { es3: true, quotmark: 'double' });
+
+  TestRun(test)
+    .addError(0, "Bad option value.")
+    .test("", { quotmark: "triple" });
 
   // test multiple runs (must have the same result)
   var run = TestRun(test);
@@ -3764,9 +3784,13 @@ exports.esversion = function(test) {
     "// jshint esversion: 2015"
   ];
 
-  TestRun(test, "Value")
+  TestRun(test, "Value via inline directive")
     .addError(2, "Bad option value.")
     .test(code);
+
+  TestRun(test, "Value via config")
+    .addError(0, "Bad option value.")
+    .test("", { esversion: 4 });
 
   var es5code = [
     "var a = {",
