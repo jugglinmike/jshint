@@ -420,12 +420,23 @@ var JSHINT = (function() {
     return i;
   }
 
-  function doOption() {
-    var nt = state.tokens.next;
-    var body = nt.body.split(",").map(function(s) { return s.trim(); });
-
+  /**
+   * Process an inline linting directive
+   *
+   * @param {Token} dirToken - the directive-bearing comment token
+   * @param {Token} previous - the token that preceeds the directive
+   */
+  function lintingDirective(dirToken, previous) {
+    var dirToken = state.tokens.next;
+    var body = dirToken.body.split(",").map(function(s) { return s.trim(); });
     var predef = {};
-    if (nt.type === "globals") {
+
+    if (dirToken.type === "falls through") {
+      previous.caseFallsThrough = true;
+      return;
+    }
+
+    if (dirToken.type === "globals") {
       body.forEach(function(g, idx) {
         g = g.split(":");
         var key = (g[0] || "").trim();
@@ -436,7 +447,7 @@ var JSHINT = (function() {
           if (idx > 0 && idx === body.length - 1) {
             return;
           }
-          error("E002", nt);
+          error("E002", dirToken);
           return;
         }
 
@@ -455,19 +466,19 @@ var JSHINT = (function() {
 
       for (var key in predef) {
         if (_.has(predef, key)) {
-          declared[key] = nt;
+          declared[key] = dirToken;
         }
       }
     }
 
-    if (nt.type === "exported") {
+    if (dirToken.type === "exported") {
       body.forEach(function(e, idx) {
         if (!e.length) {
           // Ignore trailing comma
           if (idx > 0 && idx === body.length - 1) {
             return;
           }
-          error("E002", nt);
+          error("E002", dirToken);
           return;
         }
 
@@ -475,7 +486,7 @@ var JSHINT = (function() {
       });
     }
 
-    if (nt.type === "members") {
+    if (dirToken.type === "members") {
       membersOnly = membersOnly || {};
 
       body.forEach(function(m) {
@@ -502,13 +513,13 @@ var JSHINT = (function() {
       "indent"
     ];
 
-    if (nt.type === "jshint" || nt.type === "jslint") {
+    if (dirToken.type === "jshint" || dirToken.type === "jslint") {
       body.forEach(function(g) {
         g = g.split(":");
         var key = (g[0] || "").trim();
         var val = (g[1] || "").trim();
 
-        if (!checkOption(key, nt)) {
+        if (!checkOption(key, dirToken)) {
           return;
         }
 
@@ -518,7 +529,7 @@ var JSHINT = (function() {
             val = +val;
 
             if (typeof val !== "number" || !isFinite(val) || val <= 0 || Math.floor(val) !== val) {
-              error("E032", nt, g[1].trim());
+              error("E032", dirToken, g[1].trim());
               return;
             }
 
@@ -537,7 +548,7 @@ var JSHINT = (function() {
             return void error("E009");
 
           if (val !== "true" && val !== "false")
-            return void error("E002", nt);
+            return void error("E002", dirToken);
 
           state.option.validthis = (val === "true");
           return;
@@ -554,7 +565,7 @@ var JSHINT = (function() {
             state.option.quotmark = val;
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           return;
         }
@@ -572,7 +583,7 @@ var JSHINT = (function() {
             state.option.shadow = "inner";
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           return;
         }
@@ -590,7 +601,7 @@ var JSHINT = (function() {
             state.option.unused = val;
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           return;
         }
@@ -607,7 +618,7 @@ var JSHINT = (function() {
             state.option.latedef = "nofunc";
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           return;
         }
@@ -615,11 +626,11 @@ var JSHINT = (function() {
         if (key === "ignore") {
           switch (val) {
           case "line":
-            state.ignoredLines[nt.line] = true;
+            state.ignoredLines[dirToken.line] = true;
             removeIgnoredMessages();
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           return;
         }
@@ -637,7 +648,7 @@ var JSHINT = (function() {
             state.option.strict = val;
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           return;
         }
@@ -664,7 +675,7 @@ var JSHINT = (function() {
             state.option.esversion = 6;
             break;
           default:
-            error("E002", nt);
+            error("E002", dirToken);
           }
           if (!hasParsedCode(state.funct)) {
             error("E055", state.tokens.next, "esversion");
@@ -681,7 +692,7 @@ var JSHINT = (function() {
 
         var tn;
         if (val === "true" || val === "false") {
-          if (nt.type === "jslint") {
+          if (dirToken.type === "jslint") {
             tn = options.renamed[key] || key;
             state.option[tn] = (val === "true");
 
@@ -695,7 +706,7 @@ var JSHINT = (function() {
           return;
         }
 
-        error("E002", nt);
+        error("E002", dirToken);
       });
 
       assume();
@@ -792,11 +803,7 @@ var JSHINT = (function() {
       }
 
       if (state.tokens.next.isSpecial) {
-        if (state.tokens.next.type === "falls through") {
-          state.tokens.curr.caseFallsThrough = true;
-        } else {
-          doOption();
-        }
+        lintingDirective(state.tokens.next, state.tokens.curr);
       } else {
         if (state.tokens.next.id !== "(endline)") {
           break;
