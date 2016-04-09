@@ -1017,7 +1017,7 @@ var values = {
   quotmark: ["single", "double", true, false],
   shadow: ["inner", "outer", true, false],
   unused: ["vars", "strict", true, false],
-  esversion: [3, 5, 6],
+  esversion: [3, 5, 6, 2015],
   latedef: ["nofunc", true, false],
   strict: ["global", "implied", true, false]
 };

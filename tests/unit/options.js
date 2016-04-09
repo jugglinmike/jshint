@@ -3808,6 +3808,9 @@ exports.esversion = function(test) {
   TestRun(test, "ES5 syntax as ES6")
     .test(es5code, { esversion: 6 });
 
+  TestRun(test, "ES5 syntax as ES6 (via option value `2015`)")
+    .test(es5code, { esversion: 2015 });
+
   var es6code = [
     "var a = {",
     "  ['b']: 1",

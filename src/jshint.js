@@ -606,13 +606,7 @@ var JSHINT = (function() {
         }
 
         if (key === "esversion") {
-          switch (val) {
-          case "2015":
-            val = 6;
-            break;
-          case "3":
-          case "5":
-          case "6":
+          if (String(+val) === val) {
             val = +val;
           }
           state.setOption("moz", false, error, dirToken);
