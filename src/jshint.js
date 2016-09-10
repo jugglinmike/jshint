@@ -2835,7 +2835,7 @@ var JSHINT = (function() {
       var currentParams = [];
 
       if (_.contains(["{", "["], state.tokens.next.id)) {
-        tokens = destructuringPattern();
+        tokens = destructuringPattern({ initialize: addParam });
         for (t in tokens) {
           t = tokens[t];
           if (t.id) {
@@ -3343,7 +3343,6 @@ var JSHINT = (function() {
   }
 
   function destructuringPatternRecursive(options) {
-    var ids;
     var identifiers = [];
     var openingParsed = options && options.openingParsed;
     var isAssignment = options && options.assignment;
@@ -3351,22 +3350,17 @@ var JSHINT = (function() {
     var firstToken = openingParsed ? state.tokens.curr : state.tokens.next;
 
     var nextInnerDE = function() {
-      var ident;
+      var identifiers = [];
+      var id;
       if (checkPunctuators(state.tokens.next, ["[", "{"])) {
-        ids = destructuringPatternRecursive(recursiveOptions);
-        for (var id in ids) {
-          id = ids[id];
-          identifiers.push({ id: id.id, token: id.token });
-        }
+        identifiers.push.apply(identifiers, destructuringPatternRecursive(recursiveOptions));
       } else if (checkPunctuator(state.tokens.next, ",")) {
         identifiers.push({ id: null, token: state.tokens.curr });
       } else if (checkPunctuator(state.tokens.next, "(")) {
         advance("(");
-        nextInnerDE();
+        identifiers.push.apply(identifiers, nextInnerDE());
         advance(")");
       } else {
-        var is_rest = checkPunctuator(state.tokens.next, "...");
-
         if (isAssignment) {
           var assignTarget = expression(20);
           if (assignTarget) {
@@ -3374,38 +3368,38 @@ var JSHINT = (function() {
 
             // if the target was a simple identifier, add it to the list to return
             if (assignTarget.identifier) {
-              ident = assignTarget.value;
+              id = assignTarget.value;
             }
           }
         } else {
-          ident = identifier();
+          id = identifier();
         }
-        if (ident) {
-          identifiers.push({ id: ident, token: state.tokens.curr });
+        if (id) {
+          identifiers.push({ id: id, token: state.tokens.curr });
         }
-        return is_rest;
       }
-      return false;
+      return identifiers;
     };
     var assignmentProperty = function() {
+      var identifiers = [];
       var id;
       if (checkPunctuator(state.tokens.next, "[")) {
         advance("[");
         expression(10);
         advance("]");
         advance(":");
-        nextInnerDE();
+        identifiers.push.apply(identifiers, nextInnerDE());
       } else if (state.tokens.next.id === "(string)" ||
                  state.tokens.next.id === "(number)") {
         advance();
         advance(":");
-        nextInnerDE();
+        identifiers.push.apply(identifiers, nextInnerDE());
       } else {
         // this id will either be the property name or the property name and the assigning identifier
         id = identifier();
         if (checkPunctuator(state.tokens.next, ":")) {
           advance(":");
-          nextInnerDE();
+          identifiers.push.apply(identifiers, nextInnerDE());
         } else if (id) {
           // in this case we are assigning (not declaring), so check assignment
           if (isAssignment) {
@@ -3414,6 +3408,7 @@ var JSHINT = (function() {
           identifiers.push({ id: id, token: state.tokens.curr });
         }
       }
+      return identifiers;
     };
 
     var id, value;
@@ -3426,7 +3421,9 @@ var JSHINT = (function() {
       }
       var element_after_rest = false;
       while (!checkPunctuator(state.tokens.next, "]")) {
-        if (nextInnerDE() && !element_after_rest &&
+        var isRest = checkPunctuator(state.tokens.next, "...");
+        identifiers.push.apply(identifiers, nextInnerDE());
+        if (isRest && !element_after_rest &&
             checkPunctuator(state.tokens.next, ",")) {
           warning("W130", state.tokens.next);
           element_after_rest = true;
@@ -3457,7 +3454,7 @@ var JSHINT = (function() {
         warning("W137", state.tokens.curr);
       }
       while (!checkPunctuator(state.tokens.next, "}")) {
-        assignmentProperty();
+        identifiers.push.apply(identifiers, assignmentProperty());
         if (checkPunctuator(state.tokens.next, "=")) {
           advance("=");
           id = state.tokens.prev;
