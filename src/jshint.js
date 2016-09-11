@@ -3373,7 +3373,6 @@ var JSHINT = (function() {
   }
 
   function destructuringPatternRecursive(options) {
-    var ids;
     var identifiers = [];
     var openingParsed = options && options.openingParsed;
     var isAssignment = options && options.assignment;
@@ -3381,7 +3380,7 @@ var JSHINT = (function() {
     var firstToken = openingParsed ? state.tokens.curr : state.tokens.next;
 
     var nextInnerDE = function() {
-      var ident;
+      var ident, ids;
       if (checkPunctuators(state.tokens.next, ["[", "{"])) {
         ids = destructuringPatternRecursive(recursiveOptions);
         for (var id in ids) {
