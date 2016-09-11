@@ -7802,3 +7802,90 @@ exports.forInExpr = function (test) {
 
   test.done();
 };
+
+exports.destructuringInitialize = function (test) {
+  var code;
+
+  code = [
+    "var { v1, v2 = v1 } = {};",
+    "var { _: { v3 }, v4 = v3 } = {};",
+    "var { v5 = v6, v6 } = {};",
+    "var { v7 = v7 } = {};",
+    "var [ v8, v9 = v8 ] = [];",
+    "var [ [ v10 ], v11 = v10 ] = [];",
+    "var [ v12 = v13, v13 ] = [];",
+    "var [ v14 = v14 ] = [];"
+  ];
+  TestRun(test)
+    .test(code, { esversion: 6 });
+
+  code = [
+    "let { l1, l2 = l1 } = {};",
+    "let { _: { l3 }, l4 = l3 } = {};",
+    "let { l5 = l6, l6 } = {};",
+    "let { l7 = l7 } = {};",
+    "let [ l8, l9 = l8 ] = [];",
+    "let [ [ l10 ], l11 = l10 ] = [];",
+    "let [ l12 = l13, l13 ] = [];",
+    "let [ l14 = l14 ] = [];"
+  ];
+  TestRun(test)
+    .addError(3, "'l6' was used before it was declared, which is illegal for 'let' variables.")
+    .addError(4, "'l7' was used before it was declared, which is illegal for 'let' variables.")
+    .addError(7, "'l13' was used before it was declared, which is illegal for 'let' variables.")
+    .addError(8, "'l14' was used before it was declared, which is illegal for 'let' variables.")
+    .test(code, { esversion: 6 });
+
+  code = [
+    "const { c1, c2 = c1 } = {};",
+    "const { _: { c3 }, c4 = c3 } = {};",
+    "const { c5 = c6, c6 } = {};",
+    "const { c7 = c7 } = {};",
+    "const [ c8, c9 = c8 ] = [];",
+    "const [ [ c10 ], c11 = c10 ] = [];",
+    "const [ c12 = c13, c13 ] = [];",
+    "const [ c14 = c14 ] = [];"
+  ];
+  TestRun(test)
+    .addError(3, "'c6' was used before it was declared, which is illegal for 'const' variables.")
+    .addError(4, "'c7' was used before it was declared, which is illegal for 'const' variables.")
+    .addError(7, "'c13' was used before it was declared, which is illegal for 'const' variables.")
+    .addError(8, "'c14' was used before it was declared, which is illegal for 'const' variables.")
+    .test(code, { esversion: 6 });
+
+  //code = [
+  //  "try {} catch ( { e1, e2 = e1 } ) {}",
+  //  "try {} catch ( { _: { e3 }, e4 = e3 } ) {}",
+  //  "try {} catch ( { e5 = e6, e6 } ) {}",
+  //  "try {} catch ( { e7 = e7 } ) {}",
+  //  "try {} catch ( [ e8, e9 = e8 ] ) {}",
+  //  "try {} catch ( [ [ e10 ], e11 = e10 ] ) {}",
+  //  "try {} catch ( [ e12 = e13, e13 ] ) {}",
+  //  "try {} catch ( [ e14 = e14 ] ) {}"
+  //];
+  //TestRun(test)
+  //  .addError(3, "'e6' was used before it was declared, which is illegal for 'exception' variables.")
+  //  .addError(4, "'e7' was used before it was declared, which is illegal for 'exception' variables.")
+  //  .addError(7, "'e13' was used before it was declared, which is illegal for 'exception' variables.")
+  //  .addError(8, "'e14' was used before it was declared, which is illegal for 'exception' variables.")
+  //  .test(code, { esversion: 6 });
+
+  code = [
+    "function f1 ( { p1, p2 = p1 } ) {}",
+    "function f2 ( { _: { p3 }, p4 = p3 } ) {}",
+    "function f3 ( { p5 = p6, p6 } ) {}",
+    "function f4 ( { p7 = p7 } ) {}",
+    "function f5 ( [ p8, p9 = p8 ] ) {}",
+    "function f6 ( [ [ p10 ], p11 = p10 ] ) {}",
+    "function f7 ( [ p12 = p13, p13 ] ) {}",
+    "function f8 ( [ p14 = p14 ] ) {}"
+  ];
+  TestRun(test)
+    .addError(3, "'p6' was used before it was declared, which is illegal for 'param' variables.")
+    .addError(4, "'p7' was used before it was declared, which is illegal for 'param' variables.")
+    .addError(7, "'p13' was used before it was declared, which is illegal for 'param' variables.")
+    .addError(8, "'p14' was used before it was declared, which is illegal for 'param' variables.")
+    .test(code, { esversion: 6 });
+
+  test.done();
+};

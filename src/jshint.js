@@ -2692,7 +2692,7 @@ var JSHINT = (function() {
       }
       return comprehensiveArrayExpression();
     } else if (blocktype.isDestAssign) {
-      this.destructAssign = destructuringPattern({ openingParsed: true, assignment: true });
+      this.destructAssign = destructuringPattern({ openingParsed: true });
       return this;
     }
     var b = state.tokens.curr.line !== startLine(state.tokens.next);
@@ -2825,30 +2825,24 @@ var JSHINT = (function() {
       return;
     }
 
-    function addParam(addParamArgs) {
-      state.funct["(scope)"].addParam.apply(state.funct["(scope)"], addParamArgs);
+    function addParam(id, token) {
+      paramsIds.push(id);
+      state.funct["(scope)"].addParam(id, token);
     }
 
     for (;;) {
       arity++;
       // are added to the param scope
-      var currentParams = [];
 
       if (_.contains(["{", "["], state.tokens.next.id)) {
-        tokens = destructuringPattern();
-        for (t in tokens) {
-          t = tokens[t];
-          if (t.id) {
-            paramsIds.push(t.id);
-            currentParams.push([t.id, t.token]);
-          }
-        }
+        tokens = destructuringPattern({
+          initialize: addParam
+        });
       } else {
         if (checkPunctuator(state.tokens.next, "...")) pastRest = true;
         ident = identifier(true);
         if (ident) {
-          paramsIds.push(ident);
-          currentParams.push([ident, state.tokens.curr]);
+          addParam(ident, state.tokens.curr);
         } else {
           // Skip invalid parameter.
           while (!checkPunctuators(state.tokens.next, [",", ")"])) advance();
@@ -2873,7 +2867,6 @@ var JSHINT = (function() {
       }
 
       // now we have evaluated the default expression, add the variable to the param scope
-      currentParams.forEach(addParam);
 
       if (state.tokens.next.id === ",") {
         if (pastRest) {
@@ -3217,7 +3210,7 @@ var JSHINT = (function() {
 
       var blocktype = lookupBlockType();
       if (blocktype.isDestAssign) {
-        this.destructAssign = destructuringPattern({ openingParsed: true, assignment: true });
+        this.destructAssign = destructuringPattern({ openingParsed: true });
         return this;
       }
 
@@ -3343,7 +3336,7 @@ var JSHINT = (function() {
    *                                 pattern assigns a value
    */
   function destructuringPattern(options) {
-    var isAssignment = options && options.assignment;
+    var isAssignment = !options || !options.initialize;
 
     if (!state.inES6()) {
       warning("W104", state.tokens.curr,
@@ -3356,8 +3349,9 @@ var JSHINT = (function() {
   function destructuringPatternRecursive(options) {
     var identifiers = [];
     var openingParsed = options && options.openingParsed;
-    var isAssignment = options && options.assignment;
-    var recursiveOptions = isAssignment ? { assignment: isAssignment } : null;
+    var initialize = options && options.initialize;
+    var isAssignment = !initialize;
+    var recursiveOptions = !isAssignment ? { initialize: initialize } : null;
     var firstToken = openingParsed ? state.tokens.curr : state.tokens.next;
 
     var nextInnerDE = function() {
@@ -3389,6 +3383,7 @@ var JSHINT = (function() {
           }
         } else {
           ident = identifier();
+          initialize(ident, state.tokens.curr);
         }
         if (ident) {
           identifiers.push({ id: ident, token: state.tokens.curr });
@@ -3420,6 +3415,8 @@ var JSHINT = (function() {
           // in this case we are assigning (not declaring), so check assignment
           if (isAssignment) {
             checkLeftSideAssign(state.tokens.curr);
+          } else {
+            initialize(id, state.tokens.curr);
           }
           identifiers.push({ id: id, token: state.tokens.curr });
         }
@@ -3532,39 +3529,40 @@ var JSHINT = (function() {
     }
 
     statement.first = [];
+    var initialize = function(names, id, token) {
+      if (state.funct["(scope)"].block.isGlobal()) {
+        if (predefined[id] === false) {
+          warning("W079", token, id);
+        }
+      }
+      if (id && !state.funct["(noblockscopedvar)"]) {
+        state.funct["(scope)"].addlabel(id, {
+          type: type,
+          token: token });
+        names.push(token);
+
+        //console.log('foo', lone, inexport);
+        if (lone && inexport) {
+          state.funct["(scope)"].setExported(token.value, token);
+        }
+      }
+    };
+
     for (;;) {
       var names = [];
       if (_.contains(["{", "["], state.tokens.next.value)) {
-        tokens = destructuringPattern();
         lone = false;
+        tokens = destructuringPattern({
+          initialize: initialize.bind(null, names)
+        });
       } else {
         tokens = [ { id: identifier(), token: state.tokens.curr } ];
         lone = true;
+        initialize(names, tokens[0].id, tokens[0].token);
       }
 
       if (!prefix && isConst && state.tokens.next.id !== "=") {
         warning("E012", state.tokens.curr, state.tokens.curr.value);
-      }
-
-      for (var t in tokens) {
-        if (tokens.hasOwnProperty(t)) {
-          t = tokens[t];
-          if (state.funct["(scope)"].block.isGlobal()) {
-            if (predefined[t.id] === false) {
-              warning("W079", t.token, t.id);
-            }
-          }
-          if (t.id && !state.funct["(noblockscopedvar)"]) {
-            state.funct["(scope)"].addlabel(t.id, {
-              type: type,
-              token: t.token });
-            names.push(t.token);
-
-            if (lone && inexport) {
-              state.funct["(scope)"].setExported(t.token.value, t.token);
-            }
-          }
-        }
       }
 
       if (state.tokens.next.id === "=") {
@@ -3622,14 +3620,48 @@ var JSHINT = (function() {
     var report = !(context && context.ignore);
 
     this.first = [];
+    var initialize = function(names, id, token) {
+      if (!implied && state.funct["(global)"] && !state.impliedClosure()) {
+        if (predefined[id] === false) {
+          warning("W079", token, id);
+        } else if (state.option.futurehostile === false) {
+          if ((!state.inES5() && vars.ecmaIdentifiers[5][id] === false) ||
+            (!state.inES6() && vars.ecmaIdentifiers[6][id] === false)) {
+            warning("W129", token, id);
+          }
+        }
+      }
+      if (id) {
+        if (implied === "for") {
+
+          if (!state.funct["(scope)"].has(id)) {
+            if (report) warning("W088", token, id);
+          }
+          state.funct["(scope)"].block.use(id, token);
+        } else {
+          state.funct["(scope)"].addlabel(id, {
+            type: "var",
+            token: token });
+
+          if (lone && inexport) {
+            state.funct["(scope)"].setExported(id, token);
+          }
+        }
+        names.push(token);
+      }
+    };
+
     for (;;) {
       var names = [];
       if (_.contains(["{", "["], state.tokens.next.value)) {
-        tokens = destructuringPattern();
         lone = false;
+        tokens = destructuringPattern({
+          initialize: initialize.bind(null, names)
+        });
       } else {
         tokens = [ { id: identifier(), token: state.tokens.curr } ];
         lone = true;
+        initialize(names, tokens[0].id, tokens[0].token);
       }
 
       if (!(prefix && implied) && report && state.option.varstmt) {
@@ -3637,40 +3669,6 @@ var JSHINT = (function() {
       }
 
       this.first = this.first.concat(names);
-
-      for (var t in tokens) {
-        if (tokens.hasOwnProperty(t)) {
-          t = tokens[t];
-          if (!implied && state.funct["(global)"] && !state.impliedClosure()) {
-            if (predefined[t.id] === false) {
-              warning("W079", t.token, t.id);
-            } else if (state.option.futurehostile === false) {
-              if ((!state.inES5() && vars.ecmaIdentifiers[5][t.id] === false) ||
-                (!state.inES6() && vars.ecmaIdentifiers[6][t.id] === false)) {
-                warning("W129", t.token, t.id);
-              }
-            }
-          }
-          if (t.id) {
-            if (implied === "for") {
-
-              if (!state.funct["(scope)"].has(t.id)) {
-                if (report) warning("W088", t.token, t.id);
-              }
-              state.funct["(scope)"].block.use(t.id, t.token);
-            } else {
-              state.funct["(scope)"].addlabel(t.id, {
-                type: "var",
-                token: t.token });
-
-              if (lone && inexport) {
-                state.funct["(scope)"].setExported(t.id, t.token);
-              }
-            }
-            names.push(t.token);
-          }
-        }
-      }
 
       if (state.tokens.next.id === "=") {
         state.nameStack.set(state.tokens.curr);
@@ -3970,9 +3968,8 @@ var JSHINT = (function() {
       state.funct["(scope)"].stack("catchparams");
 
       if (checkPunctuators(state.tokens.next, ["[", "{"])) {
-        var tokens = destructuringPattern();
-        _.each(tokens, function(token) {
-          if (token.id) {
+        var tokens = destructuringPattern({
+          initialize: function(id, token) {
             state.funct["(scope)"].addParam(token.id, token, "exception");
           }
         });
