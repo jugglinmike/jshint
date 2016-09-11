@@ -3331,6 +3331,17 @@ var JSHINT = (function() {
     };
   }(delim("{")));
 
+  /**
+   * Parse a destructuring binding pattern.
+   *
+   * @param {boolean} assignment - `true` if the pattern describes a
+   *                               destructuring assignment expression
+   * @param {boolean} openingParsed - `true` if the initial token (`[` or `{`)
+   *                                  has already been consumed
+   *
+   * @returns {array<string, token>} a collection of the bindings to which the
+   *                                 pattern assigns a value
+   */
   function destructuringPattern(options) {
     var isAssignment = options && options.assignment;
 
