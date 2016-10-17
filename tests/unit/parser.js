@@ -6675,10 +6675,12 @@ exports["test for line breaks with 'yield'"] = function (test) {
   ];
 
   TestRun(test, "gh-2530 (asi: true)")
+    .addError(5, "Misleading line break before 'fn'; readers may interpret this as an expression boundary.")
     .test(code2, { esnext: true, undef: false, asi: true });
 
   TestRun(test, "gh-2530 (asi: false)")
     .addError(2, "Missing semicolon.")
+    .addError(5, "Misleading line break before 'fn'; readers may interpret this as an expression boundary.")
     .test(code2, { esnext: true, undef: false });
 
   test.done();

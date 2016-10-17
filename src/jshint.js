@@ -4476,6 +4476,7 @@ var JSHINT = (function() {
     if (!isEndOfExpr() && state.tokens.next.id !== ",") {
       if (state.tokens.next.nud) {
 
+        nobreaknonadjacent(state.tokens.curr, state.tokens.next);
         this.first = expression(10);
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
