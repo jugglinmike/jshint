@@ -805,10 +805,15 @@ var JSHINT = (function() {
     }
   }
 
-  // An "infix" operator is one that requires an operand before the token.
-  function isInfix(token) {
-    return token.infix;// ||
-      //(!token.identifier && !token.template && !!token.led);
+  /**
+   * Determine whether a given token is an operator.
+   *
+   * @param {token} token
+   *
+   * @returns {boolean}
+   */
+  function isOperator(token) {
+    return token.first || token.id === "yield" || token.right || token.left;
   }
 
   function isEndOfExpr(curr, next) {
@@ -820,7 +825,7 @@ var JSHINT = (function() {
     if (next.id === ";" || next.id === "}" || next.id === ":") {
       return true;
     }
-    if (isInfix(next) === isInfix(curr) || curr.ltBoundary === "after" ||
+    if (next.infix === curr.infix || curr.ltBoundary === "after" ||
       next.ltBoundary === "before") {
       return curr.line !== startLine(next);
     }
@@ -2585,8 +2590,7 @@ var JSHINT = (function() {
       // The operator may be necessary to override the default binding power of
       // neighboring operators (whenever there is an operator in use within the
       // first expression *or* the current group contains multiple expressions)
-      if (!isNecessary && (first.first || first.id === "yield" || first.right ||
-        first.left || ret.exprs)) {
+      if (!isNecessary && (isOperator(first) || ret.exprs)) {
         isNecessary =
           (rbp > first.lbp) ||
           (rbp > 0 && rbp === first.lbp) ||
