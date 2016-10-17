@@ -805,12 +805,10 @@ var JSHINT = (function() {
     }
   }
 
+  // An "infix" operator is one that requires an operand before the token.
   function isInfix(token) {
-    return token.infix ||
-      (!token.identifier && !token.template && !!token.led) ||
-      // Although implemented as an Identifier, the `yield` keyword behaves as
-      // an operator when it appears in the body of a generator function.
-      (token.id === "yield" && !!state.funct["(generator)"]);
+    return token.infix;// ||
+      //(!token.identifier && !token.template && !!token.led);
   }
 
   function isEndOfExpr(curr, next) {
@@ -1165,6 +1163,7 @@ var JSHINT = (function() {
   function application(s) {
     var x = symbol(s, 42);
 
+    x.infix = true;
     x.led = function(left) {
       nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
 
@@ -1178,6 +1177,7 @@ var JSHINT = (function() {
   function relation(s, f) {
     var x = symbol(s, 100);
 
+    x.infix = true;
     x.led = function(left) {
       nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
       this.left = left;
@@ -1400,6 +1400,7 @@ var JSHINT = (function() {
   function bitwise(s, f, p) {
     var x = symbol(s, p);
     reserveName(x);
+    x.infix = true;
     x.led = (typeof f === "function") ? f : function(left) {
       if (state.option.bitwise) {
         warning("W016", this, this.id);
@@ -2584,7 +2585,8 @@ var JSHINT = (function() {
       // The operator may be necessary to override the default binding power of
       // neighboring operators (whenever there is an operator in use within the
       // first expression *or* the current group contains multiple expressions)
-      if (!isNecessary && (isInfix(first) || first.right || ret.exprs)) {
+      if (!isNecessary && (first.first || first.id === "yield" || first.right ||
+        first.left || ret.exprs)) {
         isNecessary =
           (rbp > first.lbp) ||
           (rbp > 0 && rbp === first.lbp) ||
@@ -4474,7 +4476,6 @@ var JSHINT = (function() {
     if (!isEndOfExpr() && state.tokens.next.id !== ",") {
       if (state.tokens.next.nud) {
 
-        nobreaknonadjacent(state.tokens.curr, state.tokens.next);
         this.first = expression(10);
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
