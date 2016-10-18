@@ -410,15 +410,12 @@ var JSHINT = (function() {
 
   // Tracking of "internal" scripts, like eval containing a static string
   function addInternalSrc(elem, token) {
-    var i;
-    i = {
+    JSHINT.internals.push({
       id: "(internal)",
       elem: elem,
       token: token,
       code: token.value.replace(/([^\\])(\\*)\2\\n/g, '$1\n')
-    };
-    JSHINT.internals.push(i);
-    return i;
+    });
   }
 
   function doOption() {
@@ -5135,6 +5132,38 @@ var JSHINT = (function() {
     }
   }
 
+  /**
+   * Lint dynamically-evaluated code, appending any resulting errors/warnings
+   * into the global `errors` array.
+   *
+   * @param {array} internals - collection of "internals" objects describing
+   *                            string tokens that contain evaluated code
+   * @param {object} options - linting options to apply
+   * @param {object} globals - globally-defined bindings for the evaluated code
+   */
+  function lintEvaled(internals, options, globals) {
+    var priorErrorCount, idx, jdx, internal, err;
+
+    for (idx = 0; idx < internals.length; idx += 1) {
+      internal = internals[idx];
+      options.scope = internal.elem;
+      priorErrorCount = JSHINT.errors.length;
+
+      itself(internal.code, options, globals);
+
+      for (jdx = priorErrorCount; jdx < JSHINT.errors.length; jdx += 1) {
+        err = JSHINT.errors[jdx];
+
+        if (!err) {
+          console.log('wa', idx, jdx, JSHINT.errors.length);
+          continue;
+        }
+
+        err.line += internal.token.line - 1;
+      }
+    }
+  };
+
   var escapeRegex = function(str) {
     return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
   };
@@ -5388,29 +5417,12 @@ var JSHINT = (function() {
     }
 
     // Loop over the listed "internals", and check them as well.
-
     if (JSHINT.scope === "(main)") {
-      o = o || {};
-
-      var priorErrorCount;
-      for (i = 0; i < JSHINT.internals.length; i += 1) {
-        k = JSHINT.internals[i];
-        o.scope = k.elem;
-        priorErrorCount = JSHINT.errors.length;
-        k.token.code = k.token.value.replace(/\\n/g, '\n');
-        itself(k.token.code, o, g);
-        for (var j = priorErrorCount; j < JSHINT.errors.length; j += 1) {
-          ohNo(JSHINT.errors[j], k.token);
-        }
-      }
+      lintEvaled(JSHINT.internals, o || {}, g);
     }
 
     return JSHINT.errors.length === 0;
   };
-
-  function ohNo(error, token) {
-    console.log(error, token);
-  }
 
   // Modules.
   itself.addModule = function(func) {
