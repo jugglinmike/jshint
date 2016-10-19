@@ -2844,30 +2844,22 @@ var JSHINT = (function() {
       return;
     }
 
-    function addParam(addParamArgs) {
-      state.funct["(scope)"].addParam.apply(state.funct["(scope)"], addParamArgs);
+    function addParam(id, token) {
+      paramsIds.push(id);
+      state.funct["(scope)"].addParam(id, token);
     }
 
     for (;;) {
       arity++;
       // are added to the param scope
-      var currentParams = [];
 
       if (_.contains(["{", "["], state.tokens.next.id)) {
-        tokens = destructuringPattern({ declare: function() {} });
-        for (t in tokens) {
-          t = tokens[t];
-          if (t.id) {
-            paramsIds.push(t.id);
-            currentParams.push([t.id, t.token]);
-          }
-        }
+        tokens = destructuringPattern({ declare: addParam });
       } else {
         if (checkPunctuator(state.tokens.next, "...")) pastRest = true;
         ident = identifier(true);
         if (ident) {
-          paramsIds.push(ident);
-          currentParams.push([ident, state.tokens.curr]);
+          addParam(ident, state.tokens.curr);
         } else {
           // Skip invalid parameter.
           while (!checkPunctuators(state.tokens.next, [",", ")"])) advance();
@@ -2890,9 +2882,6 @@ var JSHINT = (function() {
         pastDefault = true;
         expression(10);
       }
-
-      // now we have evaluated the default expression, add the variable to the param scope
-      currentParams.forEach(addParam);
 
       if (state.tokens.next.id === ",") {
         if (pastRest) {
@@ -4026,10 +4015,9 @@ var JSHINT = (function() {
       state.funct["(scope)"].stack("catchparams");
 
       if (checkPunctuators(state.tokens.next, ["[", "{"])) {
-        var tokens = destructuringPattern({ declare: function() {} });
-        _.each(tokens, function(token) {
-          if (token.id) {
-            state.funct["(scope)"].addParam(token.id, token, "exception");
+        var tokens = destructuringPattern({
+          declare: function(id, token) {
+            state.funct["(scope)"].addParam(id, token, "exception");
           }
         });
       } else if (state.tokens.next.type !== "(identifier)") {
