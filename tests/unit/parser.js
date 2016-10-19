@@ -7997,22 +7997,22 @@ exports.destructuringInitialize = function (test) {
     .addError(8, "'c14' was used before it was declared, which is illegal for 'const' variables.")
     .test(code, { esversion: 6 });
 
-  //code = [
-  //  "try {} catch ( { e1, e2 = e1 } ) {}",
-  //  "try {} catch ( { _: { e3 }, e4 = e3 } ) {}",
-  //  "try {} catch ( { e5 = e6, e6 } ) {}",
-  //  "try {} catch ( { e7 = e7 } ) {}",
-  //  "try {} catch ( [ e8, e9 = e8 ] ) {}",
-  //  "try {} catch ( [ [ e10 ], e11 = e10 ] ) {}",
-  //  "try {} catch ( [ e12 = e13, e13 ] ) {}",
-  //  "try {} catch ( [ e14 = e14 ] ) {}"
-  //];
-  //TestRun(test)
-  //  .addError(3, "'e6' was used before it was declared, which is illegal for 'exception' variables.")
-  //  .addError(4, "'e7' was used before it was declared, which is illegal for 'exception' variables.")
-  //  .addError(7, "'e13' was used before it was declared, which is illegal for 'exception' variables.")
-  //  .addError(8, "'e14' was used before it was declared, which is illegal for 'exception' variables.")
-  //  .test(code, { esversion: 6 });
+  code = [
+    "try {} catch ( { e1, e2 = e1 } ) {}",
+    "try {} catch ( { _: { e3 }, e4 = e3 } ) {}",
+    "try {} catch ( { e5 = e6, e6 } ) {}",
+    "try {} catch ( { e7 = e7 } ) {}",
+    "try {} catch ( [ e8, e9 = e8 ] ) {}",
+    "try {} catch ( [ [ e10 ], e11 = e10 ] ) {}",
+    "try {} catch ( [ e12 = e13, e13 ] ) {}",
+    "try {} catch ( [ e14 = e14 ] ) {}"
+  ];
+  TestRun(test)
+    .addError(3, "'e6' was used before it was declared, which is illegal for 'exception' variables.")
+    .addError(4, "'e7' was used before it was declared, which is illegal for 'exception' variables.")
+    .addError(7, "'e13' was used before it was declared, which is illegal for 'exception' variables.")
+    .addError(8, "'e14' was used before it was declared, which is illegal for 'exception' variables.")
+    .test(code, { esversion: 6 });
 
   code = [
     "function f1 ( { p1, p2 = p1 } ) {}",

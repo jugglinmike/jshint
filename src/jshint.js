@@ -2854,7 +2854,7 @@ var JSHINT = (function() {
       var currentParams = [];
 
       if (_.contains(["{", "["], state.tokens.next.id)) {
-        tokens = destructuringPattern();
+        tokens = destructuringPattern({ declare: function() {} });
         for (t in tokens) {
           t = tokens[t];
           if (t.id) {
@@ -3376,7 +3376,8 @@ var JSHINT = (function() {
     var identifiers = [];
     var openingParsed = options && options.openingParsed;
     var isAssignment = options && options.assignment;
-    var recursiveOptions = isAssignment ? { assignment: isAssignment } : null;
+    var declare = options && options.declare;
+    var recursiveOptions = isAssignment ? { assignment: isAssignment } : { declare: declare };
     var firstToken = openingParsed ? state.tokens.curr : state.tokens.next;
 
     var nextInnerDE = function() {
@@ -3471,7 +3472,14 @@ var JSHINT = (function() {
           if (value && value.type === "undefined") {
             warning("W080", id, id.value);
           }
+        } else {
+          id = state.tokens.curr;
         }
+
+        if (!isAssignment) {
+          declare(id.value, id);
+        }
+
         if (!checkPunctuator(state.tokens.next, "]")) {
           advance(",");
         }
@@ -3494,7 +3502,14 @@ var JSHINT = (function() {
           if (value && value.type === "undefined") {
             warning("W080", id, id.value);
           }
+        } else {
+          id = state.tokens.curr;
         }
+
+        if (!isAssignment) {
+          declare(id.value, id);
+        }
+
         if (!checkPunctuator(state.tokens.next, "}")) {
           advance(",");
           if (checkPunctuator(state.tokens.next, "}")) {
@@ -3551,14 +3566,32 @@ var JSHINT = (function() {
     }
 
     statement.first = [];
+    var declare = function(names, id, token) {
+      if (state.funct["(scope)"].block.isGlobal()) {
+        if (predefined[id] === false) {
+          warning("W079", token, id);
+        }
+      }
+
+      if (id && !state.funct["(noblockscopedvar)"]) {
+        state.funct["(scope)"].addlabel(id, {
+          type: type,
+          token: token });
+        names.push(token);
+      }
+      state.funct["(scope)"].initialize(id);
+    };
+
     for (;;) {
       var names = [];
+
       if (_.contains(["{", "["], state.tokens.next.value)) {
-        tokens = destructuringPattern();
         lone = false;
+        tokens = destructuringPattern({ declare: declare.bind(null, names) });
       } else {
-        tokens = [ { id: identifier(), token: state.tokens.curr } ];
         lone = true;
+        tokens = [ { id: identifier(), token: state.tokens.curr } ];
+        declare(names, tokens[0].id, tokens[0].token);
       }
 
       if (!prefix && isConst && state.tokens.next.id !== "=") {
@@ -3568,17 +3601,6 @@ var JSHINT = (function() {
       for (var t in tokens) {
         if (tokens.hasOwnProperty(t)) {
           t = tokens[t];
-          if (state.funct["(scope)"].block.isGlobal()) {
-            if (predefined[t.id] === false) {
-              warning("W079", t.token, t.id);
-            }
-          }
-          if (t.id && !state.funct["(noblockscopedvar)"]) {
-            state.funct["(scope)"].addlabel(t.id, {
-              type: type,
-              token: t.token });
-            names.push(t.token);
-          }
         }
       }
 
@@ -3604,7 +3626,6 @@ var JSHINT = (function() {
         for (t in tokens) {
           if (tokens.hasOwnProperty(t)) {
             t = tokens[t];
-            state.funct["(scope)"].initialize(t.id);
 
             if (lone && inexport) {
               state.funct["(scope)"].setExported(t.token.value, t.token);
@@ -3653,7 +3674,7 @@ var JSHINT = (function() {
     for (;;) {
       var names = [];
       if (_.contains(["{", "["], state.tokens.next.value)) {
-        tokens = destructuringPattern();
+        tokens = destructuringPattern({ declare: function() {} });
         lone = false;
       } else {
         tokens = [ { id: identifier(), token: state.tokens.curr } ];
@@ -4005,7 +4026,7 @@ var JSHINT = (function() {
       state.funct["(scope)"].stack("catchparams");
 
       if (checkPunctuators(state.tokens.next, ["[", "{"])) {
-        var tokens = destructuringPattern();
+        var tokens = destructuringPattern({ declare: function() {} });
         _.each(tokens, function(token) {
           if (token.id) {
             state.funct["(scope)"].addParam(token.id, token, "exception");
