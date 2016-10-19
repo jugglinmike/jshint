@@ -3592,12 +3592,6 @@ var JSHINT = (function() {
         warning("E012", state.tokens.curr, state.tokens.curr.value);
       }
 
-      for (var t in tokens) {
-        if (tokens.hasOwnProperty(t)) {
-          t = tokens[t];
-        }
-      }
-
       if (state.tokens.next.id === "=") {
         advance("=");
         if (!prefix && peek(0).id === "=" && state.tokens.next.identifier) {
@@ -3617,7 +3611,7 @@ var JSHINT = (function() {
       }
 
       if (!prefix) {
-        for (t in tokens) {
+        for (var t in tokens) {
           if (tokens.hasOwnProperty(t)) {
             t = tokens[t];
 
