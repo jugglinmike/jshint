@@ -2820,7 +2820,7 @@ var JSHINT = (function() {
   function functionparams(options) {
     var next;
     var paramsIds = [];
-    var ident;
+    var ident, idToken;
     var tokens = [];
     var t;
     var pastDefault = false;
@@ -2851,6 +2851,7 @@ var JSHINT = (function() {
 
     for (;;) {
       arity++;
+      idToken = null;
       // are added to the param scope
 
       if (_.contains(["{", "["], state.tokens.next.id)) {
@@ -2859,7 +2860,8 @@ var JSHINT = (function() {
         if (checkPunctuator(state.tokens.next, "...")) pastRest = true;
         ident = identifier(true);
         if (ident) {
-          addParam(ident, state.tokens.curr);
+          idToken = state.tokens.curr;
+          //addParam(ident, state.tokens.curr);
         } else {
           // Skip invalid parameter.
           while (!checkPunctuators(state.tokens.next, [",", ")"])) advance();
@@ -2881,6 +2883,9 @@ var JSHINT = (function() {
         advance("=");
         pastDefault = true;
         expression(10);
+      }
+      if (idToken) {
+        addParam(ident, idToken);
       }
 
       if (state.tokens.next.id === ",") {
@@ -3465,7 +3470,7 @@ var JSHINT = (function() {
           id = state.tokens.curr;
         }
 
-        if (!isAssignment) {
+        if (!isAssignment && id.identifier) {
           declare(id.value, id);
         }
 
@@ -3495,7 +3500,7 @@ var JSHINT = (function() {
           id = state.tokens.curr;
         }
 
-        if (!isAssignment) {
+        if (!isAssignment && id.identifier) {
           declare(id.value, id);
         }
 
