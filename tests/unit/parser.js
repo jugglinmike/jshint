@@ -7980,13 +7980,40 @@ exports.exponentiation.whitespace = function (test) {
   test.done();
 };
 
-exports.exponentiation.precedence = function (test) {
-  TestRun(test)
+exports.exponentiation.leftPrecedence = function (test) {
+  TestRun(test, "UpdateExpressions")
     .test([
       "++x ** y;",
       "--x ** y;",
       "x++ ** y;",
       "x-- ** y;",
+      "x + mike ** y;"
+    ], { expr: true, esversion: 7 });
+
+  TestRun(test, "UnaryExpressions")
+    .addError(1, "Bad operand.")
+    .addError(2, "Bad operand.")
+    .addError(3, "Bad operand.")
+    .addError(4, "Bad operand.")
+    .addError(5, "Bad operand.")
+    .addError(6, "Bad operand.")
+    .addError(7, "Bad operand.")
+    .test([
+      "delete 2 ** 3;",
+      "void 2 ** 3;",
+      "typeof 2 ** 3;",
+      "+2 ** 3;",
+      "-2 ** 3;",
+      "~2 ** 3;",
+      "!2 ** 3;"
+    ], { expr: true, esversion: 7 });
+
+  test.done();
+};
+
+exports.exponentiation.rightPrecedence = function (test) {
+  TestRun(test, "ExponentiationExpression")
+    .test([
       "x ** x ** y;",
       "x ** ++x ** y;",
       "x ** --x ** y;",
@@ -7994,12 +8021,15 @@ exports.exponentiation.precedence = function (test) {
       "x ** x-- ** y;"
     ], { expr: true, esversion: 7 });
 
-  TestRun(test, "negative")
-    .addError(1, "Bad operand.")
-    .addError(2, "Bad operand.")
+  TestRun(test, "UnaryExpression")
     .test([
-      "-2 ** 3;",
-      "void 2 ** 3;"
+      "x ** delete x.y;",
+      "x ** void y;",
+      "x ** typeof y;",
+      "x ** +y;",
+      "x ** -y;",
+      "x ** ~y;",
+      "x ** !y;"
     ], { expr: true, esversion: 7 });
 
   test.done();

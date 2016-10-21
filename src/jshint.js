@@ -2055,8 +2055,11 @@ var JSHINT = (function() {
     if (!state.inES7()) {
       warning("W119", that, "Exponentiation operator", "7");
     }
-    if (left.lbp > 150) {
-      error("W017", that);
+    console.log(">> " + [
+      left.id, left.value, left.arity || 'null', left.lbp
+    ].join("\t"));
+    if (left.lbp > 120) {
+      warning("W017", that);
     }
     that.left = left;
     that.right = expression(10);
@@ -2178,7 +2181,7 @@ var JSHINT = (function() {
 
     return that;
   }, 130);
-  prefix("+", "num");
+  prefix("+", null, 155);
   prefix("+++", function() {
     warning("W007");
     this.arity = "unary";
@@ -2192,7 +2195,7 @@ var JSHINT = (function() {
     return this;
   }, 130);
   infix("-", "sub", 130);
-  prefix("-", "neg");
+  prefix("-", null, 155);
   prefix("---", function() {
     warning("W006");
     this.arity = "unary";
@@ -2220,7 +2223,8 @@ var JSHINT = (function() {
   state.syntax["--"].ltBoundary = "before";
 
   prefix("delete", function() {
-    var p = expression(10);
+    var p = expression(150);
+    console.log('delete', p);
     if (!p) {
       return this;
     }
@@ -2236,7 +2240,7 @@ var JSHINT = (function() {
       p.forgiveUndef = true;
     }
     return this;
-  }).exps = true;
+  }, 150).exps = true;
 
   prefix("~", function() {
     if (state.option.bitwise) {
@@ -2244,8 +2248,9 @@ var JSHINT = (function() {
     }
     this.arity = "unary";
     this.right = expression(150);
+    console.log('tilde', this.right);
     return this;
-  });
+  }, 155);
 
   prefix("...", function() {
     if (!state.inES6(true)) {
@@ -2305,9 +2310,9 @@ var JSHINT = (function() {
       warning("W018", this, "!");
     }
     return this;
-  });
+  }, 155);
 
-  prefix("typeof", (function() {
+  prefix("typeof", function() {
     var p = expression(150);
     this.first = this.right = p;
 
@@ -2321,7 +2326,7 @@ var JSHINT = (function() {
       p.forgiveUndef = true;
     }
     return this;
-  }));
+  }, 155);
   prefix("new", function() {
     var mp = metaProperty("target", function() {
       if (!state.inES6(true)) {
