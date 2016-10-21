@@ -4033,7 +4033,7 @@ var JSHINT = (function() {
           warning("W118", state.tokens.curr, "catch filter");
         }
         advance("if");
-        expression("Exprssion");
+        expression("Expression");
       }
 
       advance(")");
