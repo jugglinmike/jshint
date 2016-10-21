@@ -653,6 +653,7 @@ var JSHINT = (function() {
           case "3":
           case "5":
           case "6":
+          case "7":
             state.option.moz = false;
             state.option.esversion = +val;
             break;
@@ -1070,8 +1071,8 @@ var JSHINT = (function() {
     return x;
   }
 
-  function prefix(s, f) {
-    var x = symbol(s, 150);
+  function prefix(s, f, lbp) {
+    var x = symbol(s, lbp || 150);
     reserveName(x);
 
     x.nud = (typeof f === "function") ? f : function() {
@@ -2049,6 +2050,18 @@ var JSHINT = (function() {
     return that;
   }, orPrecendence);
   infix("&&", "and", 50);
+  // exponentiation
+  infix("**", function(left, that) {
+    if (!state.inES7()) {
+      warning("W119", that, "Exponentiation operator", "7");
+    }
+    if (left.lbp > 150) {
+      error("W017", that);
+    }
+    that.left = left;
+    that.right = expression(10);
+    return that;
+  }, 150);
   bitwise("|", "bitor", 70);
   bitwise("^", "bitxor", 80);
   bitwise("&", "bitand", 90);
@@ -2378,7 +2391,7 @@ var JSHINT = (function() {
   });
   state.syntax["new"].exps = true;
 
-  prefix("void").exps = true;
+  prefix("void", null, 155).exps = true;
 
   infix(".", function(left, that) {
     var m = identifier(false, true);

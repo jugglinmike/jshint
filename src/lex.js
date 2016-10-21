@@ -351,7 +351,7 @@ Lexer.prototype = {
     }
 
     if ("<>=!+-*%&|^/".indexOf(ch1) >= 0) {
-      if (ch2 === "=") {
+      if (ch2 === "=" || ch2 === "*") {
         return {
           type: Token.Punctuator,
           value: ch1 + ch2

@@ -7944,3 +7944,63 @@ exports.forInExpr = function (test) {
 
   test.done();
 };
+
+exports.exponentiation = {};
+
+exports.exponentiation.esversion = function (test) {
+  var src = "x = 2 ** 3;";
+
+  TestRun(test)
+    .addError(1, "'Exponentiation operator' is only available in ES7 (use 'esversion: 7').")
+    .test(src);
+
+  TestRun(test)
+    .addError(1, "'Exponentiation operator' is only available in ES7 (use 'esversion: 7').")
+    .test(src, { esversion: 6 });
+
+  TestRun(test)
+    .test(src, { esversion: 7 });
+
+  test.done();
+};
+
+exports.exponentiation.whitespace = function (test) {
+  TestRun(test)
+    .addError(5, "Misleading line break before '**'; readers may interpret this as an expression boundary.")
+    .test([
+      "2 ** 3;",
+      "2** 3;",
+      "2 **3;",
+      "2",
+      "** 3;",
+      "2 **",
+      "3;"
+    ], { expr: true, esversion: 7 });
+
+  test.done();
+};
+
+exports.exponentiation.precedence = function (test) {
+  TestRun(test)
+    .test([
+      "++x ** y;",
+      "--x ** y;",
+      "x++ ** y;",
+      "x-- ** y;",
+      "x ** x ** y;",
+      "x ** ++x ** y;",
+      "x ** --x ** y;",
+      "x ** x++ ** y;",
+      "x ** x-- ** y;"
+    ], { expr: true, esversion: 7 });
+
+  TestRun(test, "negative")
+    .addError(1, "Bad operand.")
+    .addError(2, "Bad operand.")
+    .test([
+      "-2 ** 3;",
+      "void 2 ** 3;"
+    ], { expr: true, esversion: 7 });
+
+  test.done();
+};

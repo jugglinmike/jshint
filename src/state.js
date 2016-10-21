@@ -65,6 +65,10 @@ var state = {
     return this.option.moz;
   },
 
+  inES7: function() {
+    return this.esVersion === 7;
+  },
+
   /**
    * @param {boolean} strict - When `true`, only consider ES6 when in
    *                           "esversion: 6" code.
