@@ -1129,7 +1129,7 @@ var JSHINT = (function() {
   }
 
   function type(s, f) {
-    var x = delim(s);
+    var x = symbol(s, "Identifier");
     x.type = s;
     x.nud = f;
     return x;
