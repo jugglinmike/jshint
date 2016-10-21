@@ -1946,7 +1946,7 @@ var JSHINT = (function() {
     template: true,
   };
   state.syntax["(template)"] = _.extend({
-    lbp: prec.TemplateLiteral,
+    lbp: prec.PrimaryExpression,
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,
@@ -1954,21 +1954,23 @@ var JSHINT = (function() {
   }, baseTemplateSyntax);
 
   state.syntax["(template middle)"] = _.extend({
-    lbp: 0,
+    lbp: prec.Expression,
+    delim: true,
     type: "(template middle)",
     middle: true,
     noSubst: false
   }, baseTemplateSyntax);
 
   state.syntax["(template tail)"] = _.extend({
-    lbp: 0,
+    lbp: prec.Expression,
+    delim: true,
     type: "(template tail)",
     tail: true,
     noSubst: false
   }, baseTemplateSyntax);
 
   state.syntax["(no subst template)"] = _.extend({
-    lbp: 155,
+    lbp: prec.PrimaryExpression,
     type: "(template)",
     nud: doTemplateLiteral,
     led: doTemplateLiteral,

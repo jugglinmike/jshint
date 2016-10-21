@@ -3,7 +3,6 @@
   "Identifier",
   "PrimaryExpression",
   "Literal",
-  "TemplateLiteral",
   "MemberExpression",
   "NewExpression",
   "CallExpression",
