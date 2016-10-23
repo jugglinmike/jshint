@@ -7991,6 +7991,7 @@ exports.exponentiation.leftPrecedence = function (test) {
     ], { expr: true, esversion: 7 });
 
   TestRun(test, "UnaryExpressions")
+    .addError(1, "Variables should not be deleted.")
     .addError(1, "Bad operand.")
     .addError(2, "Bad operand.")
     .addError(3, "Bad operand.")

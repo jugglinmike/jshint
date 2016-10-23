@@ -1094,6 +1094,8 @@ var JSHINT = (function() {
         } else if (this.right && this.right.identifier) {
           state.funct["(scope)"].block.modify(this.right.value, this);
         }
+      } else if (this.id === "+" || this.id === "-") {
+        this.lbp = lbp;
       }
 
       return this;
@@ -2055,10 +2057,10 @@ var JSHINT = (function() {
     if (!state.inES7()) {
       warning("W119", that, "Exponentiation operator", "7");
     }
-    console.log(">> " + [
-      left.id, left.value, left.arity || 'null', left.lbp
-    ].join("\t"));
-    if (left.lbp > 120) {
+    //console.log(">> " + [
+    //  left.id, left.value, left.arity || 'null', left.lbp
+    //].join("\t"));
+    if (left.lbp === 155) {
       warning("W017", that);
     }
     that.left = left;
@@ -2224,7 +2226,6 @@ var JSHINT = (function() {
 
   prefix("delete", function() {
     var p = expression(150);
-    console.log('delete', p);
     if (!p) {
       return this;
     }
@@ -2240,7 +2241,7 @@ var JSHINT = (function() {
       p.forgiveUndef = true;
     }
     return this;
-  }, 150).exps = true;
+  }, 155).exps = true;
 
   prefix("~", function() {
     if (state.option.bitwise) {
@@ -2248,7 +2249,6 @@ var JSHINT = (function() {
     }
     this.arity = "unary";
     this.right = expression(150);
-    console.log('tilde', this.right);
     return this;
   }, 155);
 
