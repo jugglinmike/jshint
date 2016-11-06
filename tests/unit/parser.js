@@ -7952,3 +7952,104 @@ exports.forInExpr = function (test) {
 
   test.done();
 };
+
+exports.exponentiation = {};
+
+exports.exponentiation.esversion = function (test) {
+  var src = "x = 2 ** 3;";
+
+  TestRun(test)
+    .addError(1, "'Exponentiation operator' is only available in ES7 (use 'esversion: 7').")
+    .test(src);
+
+  TestRun(test)
+    .addError(1, "'Exponentiation operator' is only available in ES7 (use 'esversion: 7').")
+    .test(src, { esversion: 6 });
+
+  TestRun(test)
+    .test(src, { esversion: 7 });
+
+  test.done();
+};
+
+exports.exponentiation.whitespace = function (test) {
+  TestRun(test)
+    .test([
+      "2 ** 3;",
+      "2** 3;",
+      "2 **3;",
+    ], { expr: true, esversion: 7 });
+
+  TestRun(test, "newlines")
+    .addError(2, "Misleading line break before '**'; readers may interpret this as an expression boundary.")
+    .test([
+      "2",
+      "** 3;",
+      "2 **",
+      "3;"
+    ], { expr: true, esversion: 7 });
+
+  TestRun(test, "invalid")
+    .addError(1, "Expected an identifier and instead saw '*'.")
+    .addError(1, "Missing semicolon.")
+    .test([
+      "2 * * 3;"
+    ], { expr: true, esversion: 7 });
+
+  test.done();
+};
+
+exports.exponentiation.leftPrecedence = function (test) {
+  TestRun(test, "UpdateExpressions")
+    .test([
+      "++x ** y;",
+      "--x ** y;",
+      "x++ ** y;",
+      "x-- ** y;",
+    ], { expr: true, esversion: 7 });
+
+  TestRun(test, "UnaryExpressions")
+    .addError(1, "Variables should not be deleted.")
+    .addError(1, "Unexpected '**'.")
+    .addError(2, "Unexpected '**'.")
+    .addError(3, "Unexpected '**'.")
+    .addError(4, "Unexpected '**'.")
+    .addError(5, "Unexpected '**'.")
+    .addError(6, "Unexpected '**'.")
+    .addError(7, "Unexpected '**'.")
+    .test([
+      "delete 2 ** 3;",
+      "void 2 ** 3;",
+      "typeof 2 ** 3;",
+      "+2 ** 3;",
+      "-2 ** 3;",
+      "~2 ** 3;",
+      "!2 ** 3;"
+    ], { expr: true, esversion: 7 });
+
+  test.done();
+};
+
+exports.exponentiation.rightPrecedence = function (test) {
+  TestRun(test, "ExponentiationExpression")
+    .test([
+      "x ** x ** y;",
+      "x ** ++x ** y;",
+      "x ** --x ** y;",
+      "x ** x++ ** y;",
+      "x ** x-- ** y;"
+    ], { expr: true, esversion: 7 });
+
+  TestRun(test, "UnaryExpression")
+    .test([
+      "x ** delete x.y;",
+      "x ** void y;",
+      "x ** typeof y;",
+      "x ** +y;",
+      "x ** -y;",
+      "x ** ~y;",
+      "x ** !y;"
+    ], { expr: true, esversion: 7 });
+
+  test.done();
+};

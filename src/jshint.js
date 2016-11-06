@@ -2052,6 +2052,25 @@ var JSHINT = (function() {
     return that;
   }, orPrecendence);
   infix("&&", "and", 50);
+  // The Exponentiation operator, introduced in ECMAScript 2016
+  //
+  // ExponentiationExpression[Yield] :
+  //   UnaryExpression[?Yield]
+  //   UpdateExpression[?Yield] ** ExponentiationExpression[?Yield]
+  infix("**", function(left, that) {
+    if (!state.inES7()) {
+      warning("W119", that, "Exponentiation operator", "7");
+    }
+
+    // Disallow UnaryExpressions
+    if (left.arity === "unary" && left.id !== "++" && left.id !== "--") {
+      error("E024", that, "**");
+    }
+
+    that.left = left;
+    that.right = expression(10);
+    return that;
+  }, 150);
   bitwise("|", "bitor", 70);
   bitwise("^", "bitxor", 80);
   bitwise("&", "bitand", 90);
@@ -2210,7 +2229,8 @@ var JSHINT = (function() {
   state.syntax["--"].ltBoundary = "before";
 
   prefix("delete", function() {
-    var p = expression(10);
+    this.arity = "unary";
+    var p = expression(150);
     if (!p) {
       return this;
     }
@@ -2297,7 +2317,8 @@ var JSHINT = (function() {
     return this;
   });
 
-  prefix("typeof", (function() {
+  prefix("typeof", function() {
+    this.arity = "unary";
     var p = expression(150);
     this.first = this.right = p;
 
@@ -2311,7 +2332,7 @@ var JSHINT = (function() {
       p.forgiveUndef = true;
     }
     return this;
-  }));
+  });
   prefix("new", function() {
     var mp = metaProperty("target", function() {
       if (!state.inES6(true)) {
