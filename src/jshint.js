@@ -2074,8 +2074,8 @@ var JSHINT = (function() {
       warning("W119", that, "Exponentiation operator", "7");
     }
 
-    // Disallow UnaryExpressions
-    if (left.arity === "unary" && left.id !== "++" && left.id !== "--") {
+    // Disallow UnaryExpressions which are not wrapped in parenthesis
+    if (!left.paren && left.arity === "unary" && left.id !== "++" && left.id !== "--") {
       error("E024", that, "**");
     }
 

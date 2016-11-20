@@ -8169,6 +8169,18 @@ exports.exponentiation.leftPrecedence = function (test) {
       "!2 ** 3;"
     ], { expr: true, esversion: 7 });
 
+  TestRun(test, "Grouping")
+    .addError(1, "Variables should not be deleted.")
+    .test([
+      "(delete 2) ** 3;",
+      "(void 2) ** 3;",
+      "(typeof 2) ** 3;",
+      "(+2) ** 3;",
+      "(-2) ** 3;",
+      "(~2) ** 3;",
+      "(!2) ** 3;"
+    ], { expr: true, esversion: 7 });
+
   test.done();
 };
 
