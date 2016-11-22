@@ -1040,6 +1040,13 @@ var JSHINT = (function() {
       state.syntax[s] = x = {
         id: s,
         lbp: p,
+        // Symbols that accept a right-hand side do so with a binding power
+        // that is commonly identical to their left-binding power. (This value
+        // is relevant when determining if the grouping operator is necessary
+        // to override the precedence of surrounding operators.) Because the
+        // exponentiation operator's left-binding power and right-binding power
+        // are distinct, the values must be encoded separately.
+        rbp: p,
         value: s
       };
     }
@@ -1219,6 +1226,17 @@ var JSHINT = (function() {
         node.type === "true" ||
         node.type === "false" ||
         node.type === "undefined");
+  }
+
+  /**
+   * Determine if a given token marks the beginning of a UnaryExpression.
+   *
+   * @param {object} token
+   *
+   * @returns {boolean}
+   */
+  function beginsUnaryExpression(token) {
+    return token.arity === "unary" && token.id !== "++" && token.id !== "--";
   }
 
   var typeofValues = {};
@@ -2075,14 +2093,15 @@ var JSHINT = (function() {
     }
 
     // Disallow UnaryExpressions which are not wrapped in parenthesis
-    if (!left.paren && left.arity === "unary" && left.id !== "++" && left.id !== "--") {
+    if (!left.paren && beginsUnaryExpression(left)) {
       error("E024", that, "**");
     }
 
     that.left = left;
-    that.right = expression(10);
+    that.right = expression(that.rbp);
     return that;
   }, 150);
+  state.syntax["**"].rbp = 140;
   bitwise("|", "bitor", 70);
   bitwise("^", "bitxor", 80);
   bitwise("&", "bitand", 90);
@@ -2617,6 +2636,9 @@ var JSHINT = (function() {
           (isFunctor(ret) && !isEndOfExpr()) ||
           // Used as the return value of a single-statement arrow function
           (ret.id === "{" && preceeding.id === "=>") ||
+          // Used to cover a unary expression as the left-hand side of the
+          // exponentiation operator
+          (beginsUnaryExpression(ret) && state.tokens.next.id === "**") ||
           // Used to delineate an integer number literal from a dereferencing
           // punctuator (otherwise interpreted as a decimal point)
           (ret.type === "(number)" &&
@@ -2634,7 +2656,7 @@ var JSHINT = (function() {
         isNecessary =
           (rbp > first.lbp) ||
           (rbp > 0 && rbp === first.lbp) ||
-          (!isEndOfExpr() && last.lbp < state.tokens.next.lbp);
+          (!isEndOfExpr() && last.rbp < state.tokens.next.lbp);
       }
 
       if (!isNecessary) {
@@ -4512,7 +4534,7 @@ var JSHINT = (function() {
 
   (function(x) {
     x.exps = true;
-    x.lbp = 25;
+    x.lbp = x.rbp = 25;
     x.ltBoundary = "after";
   }(prefix("yield", function() {
     if (state.inMoz()) {
