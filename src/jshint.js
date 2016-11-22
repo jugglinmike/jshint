@@ -1040,6 +1040,7 @@ var JSHINT = (function() {
       state.syntax[s] = x = {
         id: s,
         lbp: p,
+        rbp: p,
         value: s
       };
     }
@@ -2080,9 +2081,10 @@ var JSHINT = (function() {
     }
 
     that.left = left;
-    that.right = expression(10);
+    that.right = expression(that.rbp);
     return that;
   }, 150);
+  state.syntax["**"].rbp = 140;
   bitwise("|", "bitor", 70);
   bitwise("^", "bitxor", 80);
   bitwise("&", "bitand", 90);
@@ -2634,7 +2636,7 @@ var JSHINT = (function() {
         isNecessary =
           (rbp > first.lbp) ||
           (rbp > 0 && rbp === first.lbp) ||
-          (!isEndOfExpr() && last.lbp < state.tokens.next.lbp);
+          (!isEndOfExpr() && last.rbp < state.tokens.next.lbp);
       }
 
       if (!isNecessary) {
@@ -4512,7 +4514,7 @@ var JSHINT = (function() {
 
   (function(x) {
     x.exps = true;
-    x.lbp = 25;
+    x.lbp = x.rbp = 25;
     x.ltBoundary = "after";
   }(prefix("yield", function() {
     if (state.inMoz()) {
