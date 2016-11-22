@@ -1222,6 +1222,17 @@ var JSHINT = (function() {
         node.type === "undefined");
   }
 
+  /**
+   * Determine if a given token marks the beginning of a UnaryExpression.
+   *
+   * @param {object} token
+   *
+   * @returns {boolean}
+   */
+  function beginsUnaryExpression(token) {
+    return token.arity === "unary" && token.id !== "++" && token.id !== "--";
+  }
+
   var typeofValues = {};
   typeofValues.legacy = [
     // E4X extended the `typeof` operator to return "xml" for the XML and
@@ -2076,7 +2087,7 @@ var JSHINT = (function() {
     }
 
     // Disallow UnaryExpressions which are not wrapped in parenthesis
-    if (!left.paren && left.arity === "unary" && left.id !== "++" && left.id !== "--") {
+    if (!left.paren && beginsUnaryExpression(left)) {
       error("E024", that, "**");
     }
 
@@ -2619,6 +2630,9 @@ var JSHINT = (function() {
           (isFunctor(ret) && !isEndOfExpr()) ||
           // Used as the return value of a single-statement arrow function
           (ret.id === "{" && preceeding.id === "=>") ||
+          // Used to cover a unary expression as the left-hand side of the
+          // exponentiation operator
+          (beginsUnaryExpression(ret) && state.tokens.next.id === "**") ||
           // Used to delineate an integer number literal from a dereferencing
           // punctuator (otherwise interpreted as a decimal point)
           (ret.type === "(number)" &&
