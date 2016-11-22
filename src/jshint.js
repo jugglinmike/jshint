@@ -1040,6 +1040,12 @@ var JSHINT = (function() {
       state.syntax[s] = x = {
         id: s,
         lbp: p,
+        // Symbols that accept a right-hand side do so with a binding power
+        // that is commonly identical to their left-binding power. (This value
+        // is relevant when determining if the grouping operator is necessary
+        // to override the precedence of surrounding operators.) Because the
+        // exponentiation operator's left-binding power and right-binding power
+        // are distinct, the values must be encoded separately.
         rbp: p,
         value: s
       };
