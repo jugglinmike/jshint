@@ -1,13 +1,9 @@
-'use strict';
-var JSHint = require('../../').JSHINT;
+"use strict";
+var JSHint = require("../../").JSHINT;
 
 var modulePattern = /^\s*-\s*module\s*$|^\s*flags\s*:.*\bmodule\b/m;
 var noStrictPattern = /^\s*-\s*noStrict\s*$|^\s*flags\s*:.*\bnoStrict\b/m;
 var onlyStrictPattern = /^\s*-\s*onlyStrict\s*$|^\s*flags\s*:.*\bonlyStrict\b/m;
-
-function firstError(data) {
-  return 
-}
 
 function hasEarlyError(src) {
   return !!(src.match(/^\s*negative:\s*$/m) && src.match(/^\s+phase: early\s*$/m));
@@ -23,7 +19,7 @@ function testRuns(src, run) {
   }
 
   if (!noStrict) {
-    results.push(run('"use strict";\n' + src));
+    results.push(run("'use strict';\n" + src));
   }
 
   return results;
@@ -63,7 +59,7 @@ function isFailure(result) {
   }
 
   return result.errors && !!result.errors.find(function(msg) {
-    if (msg.code[0] === 'W') {
+    if (msg.code[0] === "W") {
       return msg.code in incorrectSeverity;
     }
 

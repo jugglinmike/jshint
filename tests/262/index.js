@@ -1,18 +1,18 @@
 #! /usr/bin/env node
 
-'use strict';
+"use strict";
 
-var fs = require('fs');
-var path = require('path');
-var async = require('async');
+var fs = require("fs");
+var path = require("path");
+var async = require("async");
 
-var parseExpectations = require('./parse-expectations');
-var report = require('./report');
-var test = require('./test');
+var parseExpectations = require("./parse-expectations");
+var report = require("./report");
+var test = require("./test");
 
 var paths = {
-  test262: __dirname + '/test262/test',
-  expectations: __dirname + '/expectations.txt'
+  test262: __dirname + "/test262/test",
+  expectations: __dirname + "/expectations.txt"
 };
 var testName = /^(?!.*_FIXTURE).*\.[jJ][sS]/;
 
@@ -70,20 +70,20 @@ function findTests(directoryName, cb) {
   });
 }
 
-console.log('Indexing test files (searching in ' + paths.test262 + ').');
+console.log("Indexing test files (searching in " + paths.test262 + ").");
 findTests(paths.test262, function(err, testNames) {
   if (err) {
     console.error(err);
     process.exit(1);
   }
 
-  console.log('Indexing complete (' + testNames.length + ' files found).');
-  console.log('Testing...');
+  console.log("Indexing complete (" + testNames.length + " files found).");
+  console.log("Testing...");
 
   var count = 0;
   var start = new Date().getTime();
   async.mapLimit(testNames, 20, function(testName, done) {
-    fs.readFile(testName, { encoding: 'utf-8' }, function(err, src) {
+    fs.readFile(testName, { encoding: "utf-8" }, function(err, src) {
       var result;
 
       if (process.env.CACHED) {
@@ -94,8 +94,8 @@ findTests(paths.test262, function(err, testNames) {
       count++;
       if (count % 1000 === 0) {
         console.log(
-          count + '/' + testNames.length + ' (' +
-          (100*count/testNames.length).toFixed(2) + '%)'
+          count + "/" + testNames.length + " (" +
+          (100*count/testNames.length).toFixed(2) + "%)"
         );
       }
       if (err) {
@@ -113,12 +113,12 @@ findTests(paths.test262, function(err, testNames) {
       process.exit(1);
     }
     if (!process.env.CACHED) {
-      fs.writeFileSync('tmp.json', JSON.stringify(results, null, '  '));
+      fs.writeFileSync("tmp.json", JSON.stringify(results, null, "  "));
     } else {
-      results = require('../../tmp.json');
+      results = require("../../tmp.json");
     }
 
-    fs.readFile(paths.expectations, { encoding: 'utf-8' }, function(err, src) {
+    fs.readFile(paths.expectations, { encoding: "utf-8" }, function(err, src) {
       if (err) {
         console.error(err);
         process.exit(1);

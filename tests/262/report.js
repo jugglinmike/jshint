@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 function list(items, title) {
   if (items.length === 0) {
@@ -6,9 +6,9 @@ function list(items, title) {
   }
 
   return [
-    title.replace('#', items.length),
-    items.map(function(item) { return '- ' + item; }).join('\n')
-  ].join('\n');
+    title.replace("#", items.length),
+    items.map(function(item) { return "- " + item; }).join("\n")
+  ].join("\n");
 }
 
 module.exports = function report(summary) {
@@ -63,25 +63,25 @@ module.exports = function report(summary) {
   });
 
   var lines = [
-    'Results:',
-    '',
-    total + ' total programs parsed in ' + seconds + ' seconds.',
-    '',
-    expected.success + ' valid programs parsed successfully',
-    expected.failure + ' invalid programs produced parsing errors',
-    expected.typeI + ' invalid programs parsed successfully (in accordance with expectation file)',
-    expected.typeII + ' valid programs produced parsing errors (in accordance with expectation file)',
-    '',
-    list(unexpected.success, '# valid programs parsed successfully (in violation of expectation file):'),
-    list(unexpected.failure, '# invalid programs produced parsing errors (in violation of expectation file):'),
-    list(unexpected.typeI, '# invalid programs parsed successfully (without a corresponding entry in expectation file):'),
-    list(unexpected.typeII, '# valid programs produced parsing errors (without a corresponding entry in expectation file):'),
-    list(Object.keys(summary.allowed), '# programs were referenced by the "whitelist" file but not parsed in this test run:'),
+    "Results:",
+    "",
+    total + " total programs parsed in " + seconds + " seconds.",
+    "",
+    expected.success + " valid programs parsed successfully",
+    expected.failure + " invalid programs produced parsing errors",
+    expected.typeI + " invalid programs parsed successfully (in accordance with expectations file)",
+    expected.typeII + " valid programs produced parsing errors (in accordance with expectations file)",
+    "",
+    list(unexpected.success, "# valid programs parsed successfully (in violation of expectations file):"),
+    list(unexpected.failure, "# invalid programs produced parsing errors (in violation of expectations file):"),
+    list(unexpected.typeI, "# invalid programs parsed successfully (without a corresponding entry in expectations file):"),
+    list(unexpected.typeII, "# valid programs produced parsing errors (without a corresponding entry in expectations file):"),
+    list(Object.keys(summary.allowed), "# programs were referenced by the expectations file but not parsed in this test run:"),
   ];
 
   return lines
     .filter(function(line) {
-      return typeof line === 'string';
+      return typeof line === "string";
     })
-    .join('\n');
+    .join("\n");
 };
