@@ -9,7 +9,11 @@ function hasEarlyError(src) {
   return !!(src.match(/^\s*negative:\s*$/m) && src.match(/^\s+phase: early\s*$/m));
 }
 
-function testRuns(src, run) {
+/**
+ * Given the source of a Test262 test, invoke the provided callback once for
+ * each valid "version" of that program as defined by its meta data.
+ */
+function forEachVersion(src, run) {
   var onlyStrict = onlyStrictPattern.test(src);
   var noStrict = noStrictPattern.test(src);
   var results = [];
@@ -71,7 +75,7 @@ module.exports = function test(src) {
   var isModule = modulePattern.test(src);
   var expected = hasEarlyError(src);
   var parseFailure = false;
-  var results = testRuns(src, function(src) {
+  var results = forEachVersion(src, function(src) {
     var result, exception;
 
     try {
