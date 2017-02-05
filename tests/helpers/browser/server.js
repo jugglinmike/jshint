@@ -27,7 +27,7 @@ var streams = {
       var fsCache = {};
 
       if (err) {
-        done(err);
+        fixtureStream.emit("error", err);
         return;
       }
 

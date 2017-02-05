@@ -31,13 +31,13 @@ exports.tearDown = function(done) {
 };
 
 exports.group = {
-  setUp: function (cb) {
+  setUp: function(cb) {
     this.sinon.stub(cli, "exit");
     cb();
   },
 
   config: {
-    setUp: function (done) {
+    setUp: function(done) {
       this.sinon.stub(shjs, "cat")
         .withArgs(sinon.match(/file\.js$/))
           .returns("var a = function () {}; a();")
@@ -91,7 +91,7 @@ exports.group = {
       done();
     },
 
-    normal: function (test) {
+    normal: function(test) {
       this.sinon.stub(cli, "run").returns(true);
 
       // Merges existing valid files
@@ -133,8 +133,9 @@ exports.group = {
       test.done();
     },
 
-    failure: function (test) {
+    failure: function(test) {
       var out = this.out;
+      var msg;
       cli.exit.throws("ProcessExit");
 
       // File doesn't exist.
@@ -143,7 +144,7 @@ exports.group = {
           "node", "jshint", "file.js", "--config", "file3.json"
         ]);
       } catch (err) {
-        var msg = out.args[0][0];
+        msg = out.args[0][0];
         test.equal(msg.slice(0, 23), "Can't find config file:");
         test.equal(msg.slice(msg.length - 10), "file3.json");
         test.equal(err, "ProcessExit");
@@ -155,7 +156,7 @@ exports.group = {
           "node", "jshint", "file.js", "--config", "file1.json"
         ]);
       } catch (err) {
-        var msg = out.args[1][0];
+        msg = out.args[1][0];
         test.equal(msg.slice(0, 24), "Can't parse config file:");
         test.equal(msg.slice(25, 35), "file1.json");
         test.equal(err, "ProcessExit");
@@ -167,7 +168,7 @@ exports.group = {
           "node", "jshint", "file.js", "--config", "file4.json"
         ]);
       } catch (err) {
-        var msg = out.args[2][0];
+        msg = out.args[2][0];
         test.equal(msg.slice(0, 23), "Can't find config file:");
         test.equal(msg.slice(msg.length - 10), "file3.json");
         test.equal(err, "ProcessExit");
@@ -178,7 +179,7 @@ exports.group = {
     }
   },
 
-  testPrereq: function (test) {
+  testPrereq: function(test) {
     this.sinon.stub(shjs, "cat")
       .withArgs(sinon.match(/file\.js$/)).returns("a();")
       .withArgs(sinon.match(/prereq.js$/)).returns("var a = 1;")
@@ -204,7 +205,7 @@ exports.group = {
   },
 
   // CLI prereqs
-  testPrereqCLIOption: function (test) {
+  testPrereqCLIOption: function(test) {
     this.sinon.stub(shjs, "cat")
       .withArgs(sinon.match(/file\.js$/)).returns("a();")
       .withArgs(sinon.match(/prereq.js$/)).returns("var a = 1;")
@@ -233,7 +234,7 @@ exports.group = {
   },
 
   // CLI prereqs should get merged with config prereqs
-  testPrereqBothConfigAndCLIOption: function (test) {
+  testPrereqBothConfigAndCLIOption: function(test) {
     this.sinon.stub(shjs, "cat")
       .withArgs(sinon.match(/file\.js$/)).returns("a(); b();")
       .withArgs(sinon.match(/prereq.js$/)).returns("var a = 1;")
@@ -264,7 +265,7 @@ exports.group = {
     test.done();
   },
 
-  testOverrides: function (test) {
+  testOverrides: function(test) {
     var dir = __dirname + "/../examples/";
     var rep = require("../examples/reporter.js");
     var config = {
@@ -308,7 +309,7 @@ exports.group = {
     test.done();
   },
 
-  testOverridesMatchesRelativePaths: function (test) {
+  testOverridesMatchesRelativePaths: function(test) {
     var dir = __dirname + "/../examples/";
     var rep = require("../examples/reporter.js");
     var config = {
@@ -342,7 +343,7 @@ exports.group = {
     test.done();
   },
 
-  testReporter: function (test) {
+  testReporter: function(test) {
     test.expect(5);
 
     var _cli = require("cli");
@@ -391,7 +392,7 @@ exports.group = {
     test.done();
   },
 
-  testJSLintReporter: function (test) {
+  testJSLintReporter: function(test) {
     var rep = require("../src/reporters/jslint_xml.js");
     var run = this.sinon.stub(cli, "run");
 
@@ -408,7 +409,7 @@ exports.group = {
     test.done();
   },
 
-  testCheckStyleReporter: function (test) {
+  testCheckStyleReporter: function(test) {
     var rep = require("../src/reporters/checkstyle.js");
     var run = this.sinon.stub(cli, "run");
 
@@ -425,7 +426,7 @@ exports.group = {
     test.done();
   },
 
-  testShowNonErrors: function (test) {
+  testShowNonErrors: function(test) {
     var rep = require("../src/reporters/non_error.js");
     var run = this.sinon.stub(cli, "run");
 
@@ -437,7 +438,7 @@ exports.group = {
     test.done();
   },
 
-  testExtensions: function (test) {
+  testExtensions: function(test) {
     var run = this.sinon.stub(cli, "run");
 
     cli.interpret([
@@ -453,7 +454,7 @@ exports.group = {
     test.done();
   },
 
-  testMalformedNpmFile: function (test) {
+  testMalformedNpmFile: function(test) {
     this.sinon.stub(process, "cwd").returns(__dirname);
     var localNpm = path.normalize(__dirname + "/package.json");
     var localRc = path.normalize(__dirname + "/.jshintrc");
@@ -480,7 +481,7 @@ exports.group = {
     test.done();
   },
 
-  testRcFile: function (test) {
+  testRcFile: function(test) {
     this.sinon.stub(process, "cwd").returns(__dirname);
     var localRc = path.normalize(__dirname + "/.jshintrc");
     var testStub = this.sinon.stub(shjs, "test");
@@ -502,7 +503,7 @@ exports.group = {
     test.done();
   },
 
-  testHomeRcFile: function (test) {
+  testHomeRcFile: function(test) {
     var homeRc = path.join(process.env.HOME || process.env.HOMEPATH, ".jshintrc");
     var testStub = this.sinon.stub(shjs, "test");
     var catStub = this.sinon.stub(shjs, "cat");
@@ -523,11 +524,11 @@ exports.group = {
     test.done();
   },
 
-  testNoHomeDir: function (test) {
+  testNoHomeDir: function(test) {
     var prevEnv = {};
 
     // Remove all home dirs from env.
-    [ 'USERPROFILE', 'HOME', 'HOMEPATH' ].forEach(function (key) {
+    [ 'USERPROFILE', 'HOME', 'HOMEPATH' ].forEach(function(key) {
       prevEnv[key] = process.env[key];
       delete process.env[key];
     });
@@ -553,12 +554,12 @@ exports.group = {
     test.done();
 
     // Restore environemnt
-    Object.keys(prevEnv).forEach(function (key) {
+    Object.keys(prevEnv).forEach(function(key) {
       process.env[key] = prevEnv[key];
     });
   },
 
-  testOneLevelRcLookup: function (test) {
+  testOneLevelRcLookup: function(test) {
     var srcDir = __dirname + "../src/";
     var parentRc = path.join(srcDir, ".jshintrc");
 
@@ -584,7 +585,7 @@ exports.group = {
     test.done();
   },
 
-  testTargetRelativeRcLookup: function (test) {
+  testTargetRelativeRcLookup: function(test) {
     // working from outside the project
     this.sinon.stub(process, "cwd").returns(process.env.HOME || process.env.HOMEPATH);
     var projectRc = path.normalize(__dirname + "/.jshintrc");
@@ -608,7 +609,7 @@ exports.group = {
     test.done();
   },
 
-  testIgnores: function (test) {
+  testIgnores: function(test) {
     var run = this.sinon.stub(cli, "run");
     var dir = __dirname + "/../examples/";
     this.sinon.stub(process, "cwd").returns(dir);
@@ -633,7 +634,7 @@ exports.group = {
     test.done();
   },
 
-  testIgnoresWithSpecialChars: function (test) {
+  testIgnoresWithSpecialChars: function(test) {
     this.sinon.stub(process, "cwd").returns(path.resolve(__dirname, "special++chars"));
     this.sinon.stub(shjs, "test").withArgs(sinon.match(/-[ed]/), ".").returns(true);
     this.sinon.stub(shjs, "ls").withArgs(".").returns([]);
@@ -643,7 +644,7 @@ exports.group = {
     test.done();
   },
 
-  testMultipleIgnores: function (test) {
+  testMultipleIgnores: function(test) {
     var run = this.sinon.stub(cli, "run");
     var dir = __dirname + "/../examples/";
     this.sinon.stub(process, "cwd").returns(dir);
@@ -658,7 +659,7 @@ exports.group = {
     test.done();
   },
 
-  testExcludePath: function (test) {
+  testExcludePath: function(test) {
     var run = this.sinon.stub(cli, "run");
     var dir = __dirname + "/../examples/";
     this.sinon.stub(process, "cwd").returns(dir);
@@ -681,7 +682,7 @@ exports.group = {
     test.done();
   },
 
-  testAPIIgnores: function (test) {
+  testAPIIgnores: function(test) {
     var dir = __dirname + "/../data/";
     this.sinon.stub(process, "cwd").returns(dir);
     var result = null;
@@ -689,7 +690,7 @@ exports.group = {
     cli.run({
       args: [dir + "../tests/unit/fixtures/ignored.js"],
       cwd: dir + "../tests/unit/fixtures/",
-      reporter: function (results) { result = results; }
+      reporter: function(results) { result = results; }
     });
 
     test.deepEqual(result, []);
@@ -697,7 +698,7 @@ exports.group = {
     test.done();
   },
 
-  testCollectFiles: function (test) {
+  testCollectFiles: function(test) {
     var gather = this.sinon.stub(cli, "gather");
     var args = [];
 
@@ -773,7 +774,7 @@ exports.group = {
     test.done();
   },
 
-  testGatherOptionalParameters: function (test) {
+  testGatherOptionalParameters: function(test) {
     this.sinon.stub(shjs, "test")
       .withArgs("-e", sinon.match(/file.js$/)).returns(true);
 
@@ -787,7 +788,7 @@ exports.group = {
     test.done();
   },
 
-  testGather: function (test) {
+  testGather: function(test) {
     var dir = __dirname + "/../examples/";
     var files = [];
     this.sinon.stub(process, "cwd").returns(dir);
@@ -800,12 +801,12 @@ exports.group = {
     ];
 
     var testStub = this.sinon.stub(shjs, "test");
-    demoFiles.forEach(function (file) {
+    demoFiles.forEach(function(file) {
       testStub = testStub.withArgs("-e", sinon.match(file[0])).returns(true);
     });
 
     var catStub = this.sinon.stub(shjs, "cat");
-    demoFiles.forEach(function (file) {
+    demoFiles.forEach(function(file) {
       catStub = catStub.withArgs(sinon.match(file[0])).returns(file[1]);
     });
 
@@ -832,7 +833,7 @@ exports.group = {
       [ /src[\/\\]lib[\/\\]file5\.js$/, "print('Hello'); "]
     ];
 
-    demoFiles.forEach(function (file) {
+    demoFiles.forEach(function(file) {
       testStub = testStub.withArgs("-e", sinon.match(file[0])).returns(true);
     });
 
@@ -846,7 +847,7 @@ exports.group = {
       .withArgs(sinon.match(/src$/)).returns(["lib", "file4.js"])
       .withArgs(sinon.match(/src[\/\\]lib$/)).returns(["file5.js"]);
 
-    demoFiles.forEach(function (file) {
+    demoFiles.forEach(function(file) {
       catStub = catStub.withArgs(sinon.match(file[0])).returns(file[1]);
     });
 
@@ -890,7 +891,7 @@ exports.group = {
     test.done();
   },
 
-  testStatusCode: function (test) {
+  testStatusCode: function(test) {
     var rep = require("../examples/reporter.js");
     var dir = __dirname + "/../examples/";
     this.sinon.stub(rep, "reporter");
@@ -919,12 +920,12 @@ exports.group = {
 };
 
 exports.extract = {
-  setUp: function (cb) {
+  setUp: function(cb) {
     this.sinon.stub(cli, "exit");
     cb();
   },
 
-  basic: function (test) {
+  basic: function(test) {
     var html = "<html>text<script>var a = 1;</script></html>";
     var text = "hello world";
     var js   = "var a = 1;";
@@ -961,7 +962,7 @@ exports.extract = {
     test.done();
   },
 
-  withIndent: function (test) {
+  withIndent: function(test) {
     var html = [
       "<html>",
         "<script type='text/javascript'>",
@@ -977,10 +978,10 @@ exports.extract = {
     test.done();
   },
 
-  withIndentReportLocation: function (test) {
+  withIndentReportLocation: function(test) {
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1018,10 +1019,10 @@ exports.extract = {
     test.done();
   },
 
-  withIndentReportLocationMultipleFragments: function (test) {
+  withIndentReportLocationMultipleFragments: function(test) {
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1065,10 +1066,10 @@ exports.extract = {
     test.done();
   },
 
-  firstLine: function (test) {
+  firstLine: function(test) {
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1109,10 +1110,10 @@ exports.extract = {
     test.done();
   },
 
-  sameLine: function (test) {
+  sameLine: function(test) {
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1161,10 +1162,10 @@ exports.extract = {
     test.done();
   },
 
-  usingMultipleFiles: function (test) {
+  usingMultipleFiles: function(test) {
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1206,7 +1207,7 @@ exports.extract = {
     test.done();
   },
 
-  "\\r\\n as line terminator (gh-2825)": function (test) {
+  "\\r\\n as line terminator (gh-2825)": function(test) {
     var html = [
       "<script>",
       "  var a = 3;",
@@ -1222,16 +1223,16 @@ exports.extract = {
 };
 
 exports.useStdin = {
-  setUp: function (cb) {
+  setUp: function(cb) {
     this.stdin = require('mock-stdin').stdin();
     this.sinon.stub(cli, "exit");
     cb();
   },
 
-  testFilenameOption: function (test) {
+  testFilenameOption: function(test) {
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1266,11 +1267,11 @@ exports.useStdin = {
     test.done();
   },
 
-  testFilenameOverridesOption: function (test) {
+  testFilenameOverridesOption: function(test) {
     test.expect(4);
     var rep = require("../examples/reporter.js");
     var errors = [];
-    this.sinon.stub(rep, "reporter", function (res) {
+    this.sinon.stub(rep, "reporter", function(res) {
       errors = errors.concat(res);
     });
 
@@ -1328,7 +1329,7 @@ exports.useStdin = {
     test.done();
   },
 
-  testFileNameIgnore: function (test) {
+  testFileNameIgnore: function(test) {
     var dir = __dirname + "/../examples/";
     this.sinon.stub(process, "cwd").returns(dir);
     this.sinon.stub(process.stdout, "write");

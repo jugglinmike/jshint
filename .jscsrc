@@ -1,4 +1,14 @@
 {
+    "excludeFiles": [
+      "coverage/",
+      "dist/",
+      "examples/",
+      "node_modules/",
+      "tests/262/",
+      "tests/unit/",
+      "tests/regression/"
+    ],
+
     "requireOperatorBeforeLineBreak": true,
     "maximumLineLength": {
       "value": 100,

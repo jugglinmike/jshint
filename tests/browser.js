@@ -41,7 +41,7 @@ phantom.create(function(ph) {
         process.exit(1);
       });
 
-      page.open("http://localhost:" + port, function () {});
+      page.open("http://localhost:" + port, function() {});
     });
   });
 }, options);

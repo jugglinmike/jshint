@@ -1,3 +1,5 @@
+"use strict";
+
 var identifierStartTable = [];
 
 for (var i = 0; i < 128; i++) {

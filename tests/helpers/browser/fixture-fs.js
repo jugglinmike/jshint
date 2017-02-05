@@ -1,3 +1,4 @@
+// jshint browserify: true
 "use strict";
 
 var resolve = require("path").resolve;

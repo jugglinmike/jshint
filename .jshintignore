@@ -1,0 +1,8 @@
+.git
+coverage
+dist
+examples
+node_modules
+tests/262/test262
+tests/unit
+tests/regression
