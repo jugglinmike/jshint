@@ -1,5 +1,6 @@
 "use strict";
 var JSHint = require("../../").JSHINT;
+var find = require("lodash").find;
 
 var modulePattern = /^\s*-\s*module\s*$|^\s*flags\s*:.*\bmodule\b/m;
 var noStrictPattern = /^\s*-\s*noStrict\s*$|^\s*flags\s*:.*\bnoStrict\b/m;
@@ -62,7 +63,7 @@ function isFailure(result) {
     return true;
   }
 
-  return result.errors && !!result.errors.find(function(msg) {
+  return result.errors && !!find(result.errors, function(msg) {
     if (msg.code[0] === "W") {
       return msg.code in incorrectSeverity;
     }
