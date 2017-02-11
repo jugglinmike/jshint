@@ -1,3 +1,13 @@
+# This file lists tests that are known to produce incorrect results when parsed
+# with JSHint:
+#
+# - Tests that are expected to parse successfully but for which JSHint reports
+#   a syntax error
+# - Tests that contain invalid syntax but for which JSHint reports no syntax
+#   errors
+#
+# Entries sholuld be removed incrementally as JSHint is improved.
+
 annexB/language/comments/multi-line-html-close.js
 annexB/language/comments/single-line-html-close-asi.js
 annexB/language/comments/single-line-html-close.js

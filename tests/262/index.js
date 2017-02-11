@@ -7,6 +7,7 @@ var path = require("path");
 var async = require("async");
 
 var parseExpectations = require("./parse-expectations");
+var interpretResults = require("./interpret-results");
 var report = require("./report");
 var test = require("./test");
 
@@ -119,16 +120,22 @@ findTests(paths.test262, function(err, testNames) {
     }
 
     fs.readFile(paths.expectations, { encoding: "utf-8" }, function(err, src) {
+      var summary, output;
+
       if (err) {
         console.error(err);
         process.exit(1);
       }
 
-      console.log(report({
-        duration: new Date().getTime() - start,
-        results: results,
-        allowed: parseExpectations(src)
-      }));
+      summary = interpretResults(results, parseExpectations(src));
+      output = report(summary, new Date().getTime() - start);
+
+      if (summary.totalUnexpected === 0) {
+        console.log(output);
+      } else {
+        console.error(output);
+        process.exit(1);
+      }
     });
   });
 });
