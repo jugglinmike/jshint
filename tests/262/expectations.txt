@@ -374,7 +374,6 @@ language/arguments-object/10.6-6-3.js
 language/arguments-object/10.6-6-4.js
 language/arguments-object/S10.6_A3_T4.js
 language/arguments-object/S10.6_A5_T4.js
-language/arguments-object/unmapped/.via-strict.js.swp
 language/arguments-object/unmapped/via-params-dflt.js
 language/arguments-object/unmapped/via-params-dstr.js
 language/arguments-object/unmapped/via-params-rest.js
@@ -964,7 +963,6 @@ language/statements/for-in/head-let-bound-names-fordecl-tdz.js
 language/statements/for-in/head-lhs-cover.js
 language/statements/for-in/head-lhs-let.js
 language/statements/for-in/head-var-bound-names-let.js
-language/statements/for/.labelled-fn-stmt-expr.js.swp
 language/statements/for/decl-cls.js
 language/statements/for/decl-fun.js
 language/statements/for/decl-gen.js
