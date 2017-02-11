@@ -87,6 +87,11 @@ findTests(paths.test262, function(err, testNames) {
     fs.readFile(testName, { encoding: "utf-8" }, function(err, src) {
       var result;
 
+      if (process.env.CACHED) {
+        done(null);
+        return;
+      }
+
       count++;
       if (count % 1000 === 0) {
         console.log(
@@ -107,6 +112,11 @@ findTests(paths.test262, function(err, testNames) {
     if (err) {
       console.error(err);
       process.exit(1);
+    }
+    if (!process.env.CACHED) {
+      fs.writeFileSync("tmp.json", JSON.stringify(results, null, "  "));
+    } else {
+      results = require("../../tmp.json");
     }
 
     fs.readFile(paths.expectations, { encoding: "utf-8" }, function(err, src) {
