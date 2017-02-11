@@ -462,6 +462,7 @@ language/types/number/S8.5_A10_T1.js
 language/types/number/S8.5_A10_T2.js
 language/types/undefined/S8.1_A3_T1.js
 language/types/undefined/S8.1_A3_T2.js
+language/block-scope/syntax/redeclaration-in-block/attempt-to-redeclare-function-declaration-with-function-declaration.js
 language/block-scope/syntax/redeclaration-in-block/attempt-to-redeclare-function-declaration-with-var.js
 language/block-scope/syntax/redeclaration-in-block/attempt-to-redeclare-var-with-function-declaration.js
 language/block-scope/syntax/function-declarations/in-statement-position-do-statement-while-expression.js
