@@ -4,14 +4,14 @@ module.exports = function report(results, allowed) {
   var expected = {
     success: [],
     failure: [],
-    typeI: [],
-    typeII: []
+    falsePositive: [],
+    falseNegative: []
   };
   var unexpected = {
     success: [],
     failure: [],
-    typeI: [],
-    typeII: [],
+    falsePositive: [],
+    falseNegative: [],
     unrecognized: null
   };
   var totalUnexpected;
@@ -37,22 +37,22 @@ module.exports = function report(results, allowed) {
     } else {
       if (isAllowed) {
         if (result.parseFailure) {
-          expected.typeI.push(result.name);
+          expected.falsePositive.push(result.name);
         } else {
-          expected.typeII.push(result.name);
+          expected.falseNegative.push(result.name);
         }
       } else {
         if (result.parseFailure) {
-          unexpected.typeII.push(result.name);
+          unexpected.falseNegative.push(result.name);
         } else {
-          unexpected.typeI.push(result.name);
+          unexpected.falsePositive.push(result.name);
         }
       }
     }
   });
   unexpected.unrecognized = Object.keys(allowed);
   totalUnexpected = unexpected.success.length + unexpected.failure.length +
-    unexpected.typeI.length + unexpected.typeII.length +
+    unexpected.falsePositive.length + unexpected.falseNegative.length +
     unexpected.unrecognized.length;
 
   return {
