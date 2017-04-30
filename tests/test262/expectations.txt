@@ -553,7 +553,6 @@ language/expressions/await/syntax-await-has-UnaryExpression.js
 language/expressions/call/S11.2.3_A3_T2.js
 language/expressions/call/S11.2.3_A3_T3.js
 language/expressions/call/eval-realm-indirect.js
-language/expressions/call/trailing-comma.js
 language/expressions/conditional/in-branch-1.js
 language/expressions/exponentiation/applying-the-exp-operator_A1.js
 language/expressions/exponentiation/applying-the-exp-operator_A11.js
@@ -630,9 +629,6 @@ language/expressions/function/params-dflt-args-unmapped.js
 language/expressions/function/params-dflt-ref-later.js
 language/expressions/function/params-dflt-ref-self.js
 language/expressions/function/params-dflt-rest.js
-language/expressions/function/params-trailing-comma-arguments.js
-language/expressions/function/params-trailing-comma-length.js
-language/expressions/function/params-trailing-comma.js
 language/expressions/function/scope-param-rest-elem-var-close.js
 language/expressions/function/scope-param-rest-elem-var-open.js
 language/expressions/function/use-strict-with-non-simple-param.js
@@ -657,9 +653,6 @@ language/expressions/generators/params-dflt-args-unmapped.js
 language/expressions/generators/params-dflt-ref-later.js
 language/expressions/generators/params-dflt-ref-self.js
 language/expressions/generators/params-dflt-rest.js
-language/expressions/generators/params-trailing-comma-arguments.js
-language/expressions/generators/params-trailing-comma-length.js
-language/expressions/generators/params-trailing-comma.js
 language/expressions/generators/scope-param-rest-elem-var-close.js
 language/expressions/generators/scope-param-rest-elem-var-open.js
 language/expressions/generators/use-strict-with-non-simple-param.js
@@ -858,9 +851,6 @@ language/expressions/object/method-definition/params-dflt-meth-args-unmapped.js
 language/expressions/object/method-definition/params-dflt-meth-ref-later.js
 language/expressions/object/method-definition/params-dflt-meth-ref-self.js
 language/expressions/object/method-definition/params-dflt-meth-rest.js
-language/expressions/object/method-definition/params-trailing-comma-arguments.js
-language/expressions/object/method-definition/params-trailing-comma-length.js
-language/expressions/object/method-definition/params-trailing-comma.js
 language/expressions/object/method-definition/setter-use-strict-with-non-simple-param.js
 language/expressions/object/method-definition/use-strict-with-non-simple-param.js
 language/expressions/object/method-definition/yield-as-expression-with-rhs.js
@@ -887,8 +877,6 @@ language/expressions/arrow-function/lexical-bindings-overriden-by-formal-paramet
 language/expressions/arrow-function/params-dflt-ref-later.js
 language/expressions/arrow-function/params-dflt-ref-self.js
 language/expressions/arrow-function/params-dflt-rest.js
-language/expressions/arrow-function/params-trailing-comma-length.js
-language/expressions/arrow-function/params-trailing-comma.js
 language/expressions/arrow-function/scope-param-rest-elem-var-close.js
 language/expressions/arrow-function/scope-param-rest-elem-var-open.js
 language/expressions/arrow-function/syntax/arrowparameters-bindingidentifier-yield.js
@@ -1078,8 +1066,6 @@ language/statements/generators/params-dflt-args-unmapped.js
 language/statements/generators/params-dflt-ref-later.js
 language/statements/generators/params-dflt-ref-self.js
 language/statements/generators/params-dflt-rest.js
-language/statements/generators/params-trailing-comma-length.js
-language/statements/generators/params-trailing-comma.js
 language/statements/generators/scope-param-rest-elem-var-close.js
 language/statements/generators/scope-param-rest-elem-var-open.js
 language/statements/generators/use-strict-with-non-simple-param.js
@@ -1126,9 +1112,6 @@ language/statements/function/params-dflt-args-unmapped.js
 language/statements/function/params-dflt-ref-later.js
 language/statements/function/params-dflt-ref-self.js
 language/statements/function/params-dflt-rest.js
-language/statements/function/params-trailing-comma-arguments.js
-language/statements/function/params-trailing-comma-length.js
-language/statements/function/params-trailing-comma.js
 language/statements/function/scope-param-rest-elem-var-close.js
 language/statements/function/scope-param-rest-elem-var-open.js
 language/statements/function/use-strict-with-non-simple-param.js
@@ -1371,9 +1354,6 @@ language/statements/class/definition/methods-gen-yield-as-expression-with-rhs.js
 language/statements/class/definition/methods-gen-yield-as-expression-without-rhs.js
 language/statements/class/definition/methods-gen-yield-as-logical-or-expression.js
 language/statements/class/definition/methods-gen-yield-star-after-newline.js
-language/statements/class/definition/params-trailing-comma-arguments.js
-language/statements/class/definition/params-trailing-comma-length.js
-language/statements/class/definition/params-trailing-comma.js
 language/statements/class/definition/setters-non-configurable-err.js
 language/statements/class/name-binding/in-extends-expression.js
 language/statements/class/strict-mode/arguments-callee.js

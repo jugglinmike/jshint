@@ -1041,12 +1041,11 @@ var JSHINT = (function() {
       case "}":
       case "]":
       case ",":
+      case ")":
         if (opts.allowTrailing) {
           return true;
         }
 
-        /* falls through */
-      case ")":
         error("E024", state.tokens.next, state.tokens.next.value);
         return false;
       }
@@ -2452,15 +2451,13 @@ var JSHINT = (function() {
       }
     }
 
-    if (state.tokens.next.id !== ")") {
-      for (;;) {
+    while (state.tokens.next.id !== ")") {
         p[p.length] = expression(10);
         n += 1;
         if (state.tokens.next.id !== ",") {
           break;
         }
-        parseComma();
-      }
+        parseComma({ allowTrailing: true });
     }
 
     advance(")");
@@ -2909,8 +2906,10 @@ var JSHINT = (function() {
         if (pastRest) {
           warning("W131", state.tokens.next);
         }
-        parseComma();
-      } else {
+        parseComma({ allowTrailing: true });
+      }
+
+      if (state.tokens.next.id === ")") {
         advance(")", next);
         return { arity: arity, params: paramsIds };
       }
