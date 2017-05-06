@@ -1528,16 +1528,18 @@ var JSHINT = (function() {
    * it is present. If the operator is repeated, consume every repetition, and
    * issue a single error describing the syntax error.
    *
+   * @param {string} operation - either "spread" or "rest"
+   *
    * @returns {boolean} a value describing whether or not any tokens were
    *                    consumed in this way
    */
-  function spreadrest() {
+  function spreadrest(operation) {
     if (!checkPunctuator(state.tokens.next, "...")) {
       return false;
     }
 
     if (!state.inES6(true)) {
-      warning("W119", state.tokens.next, "spread/rest operator", "6");
+      warning("W119", state.tokens.next, operation + " operator", "6");
     }
     advance();
 
@@ -2453,7 +2455,7 @@ var JSHINT = (function() {
 
     if (state.tokens.next.id !== ")") {
       for (;;) {
-        spreadrest();
+        spreadrest("spread");
 
         p[p.length] = expression(10);
         n += 1;
@@ -2756,7 +2758,7 @@ var JSHINT = (function() {
         break;
       }
 
-      spreadrest();
+      spreadrest("spread");
 
       this.first.push(expression(10));
       if (state.tokens.next.id === ",") {
@@ -2883,7 +2885,7 @@ var JSHINT = (function() {
           }
         }
       } else {
-        pastRest = spreadrest();
+        pastRest = spreadrest("rest");
         ident = identifier(true);
         if (ident) {
           paramsIds.push(ident);
@@ -3469,7 +3471,7 @@ var JSHINT = (function() {
       }
       var element_after_rest = false;
       while (!checkPunctuator(state.tokens.next, "]")) {
-        var isRest = spreadrest();
+        var isRest = spreadrest("rest");
 
         nextInnerDE();
 
