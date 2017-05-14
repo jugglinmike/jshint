@@ -1356,6 +1356,22 @@ Lexer.prototype = {
       // scenarios. For example, `[\u{1044f}-\u{10440}]` is an invalid pattern
       // that would not be detected by this substitution.
       var astralSubstitute = "\uFFFF";
+      var groupCount = (body.match(/(^|[^\\])(\\\\)*\(/g) || []).length;
+      var backRefPattern = /(?:^|[^\\])\\(?:\\\\)*([0-9]+)/g;
+      var backRef;
+
+      // Out-of-bounds back reference
+      while (backRef = backRefPattern.exec(body)) {
+        if (backRef[1] > groupCount) {
+            this.trigger("error", {
+              code: "E016",
+              line: this.line,
+              character: this.char,
+              data: [ char ]
+            });
+            return body;
+        }
+      }
 
       return body
         // Replace every Unicode escape sequence with the equivalent BMP

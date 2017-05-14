@@ -4275,15 +4275,15 @@ language/statements/class/meth-static-dflt-params-trailing-comma.js
 language/statements/class/meth-static-params-trailing-comma-multiple.js
 language/statements/class/meth-static-params-trailing-comma-single.js
 
-language/literals/regexp/u-dec-esc.js
+#language/literals/regexp/u-dec-esc.js
 language/literals/regexp/u-invalid-class-escape.js
 language/literals/regexp/u-invalid-extended-pattern-char.js
 language/literals/regexp/u-invalid-identity-escape.js
-language/literals/regexp/u-invalid-legacy-octal-escape.js
+#language/literals/regexp/u-invalid-legacy-octal-escape.js
 language/literals/regexp/u-invalid-non-empty-class-ranges-no-dash-a.js
 language/literals/regexp/u-invalid-non-empty-class-ranges-no-dash-b.js
 language/literals/regexp/u-invalid-non-empty-class-ranges-no-dash-ab.js
 language/literals/regexp/u-invalid-non-empty-class-ranges.js
 language/literals/regexp/u-invalid-quantifiable-assertion.js
-language/literals/regexp/u-invalid-oob-decimal-escape.js
+#language/literals/regexp/u-invalid-oob-decimal-escape.js
 language/literals/regexp/u-unicode-esc-non-hex.js
