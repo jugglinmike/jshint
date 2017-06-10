@@ -1373,6 +1373,17 @@ Lexer.prototype = {
         }
       }
 
+      // CharacterEscape - ClassControlLetter
+      if (/(^|[^\\])\\(\\\\)*c/.test(body)) {
+        this.trigger("error", {
+          code: "E016",
+          line: this.line,
+          character: this.char,
+          data: [ char ]
+        });
+        return body;
+      }
+
       return body
         // Replace every Unicode escape sequence with the equivalent BMP
         // character or a constant ASCII code point in the case of astral

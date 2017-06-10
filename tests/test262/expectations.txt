@@ -4276,7 +4276,7 @@ language/statements/class/meth-static-params-trailing-comma-multiple.js
 language/statements/class/meth-static-params-trailing-comma-single.js
 
 #language/literals/regexp/u-dec-esc.js
-language/literals/regexp/u-invalid-class-escape.js
+#language/literals/regexp/u-invalid-class-escape.js
 language/literals/regexp/u-invalid-extended-pattern-char.js
 language/literals/regexp/u-invalid-identity-escape.js
 #language/literals/regexp/u-invalid-legacy-octal-escape.js

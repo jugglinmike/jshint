@@ -662,6 +662,26 @@ exports.regexp.uFlag = function (test) {
   TestRun(test)
     .test("var x = /[\uD834\uDF06-\uD834\uDF08a-z]/u;", { esversion: 6 });
 
+  TestRun(test, "ClassControlLetter")
+    .addError(1, "Invalid regular expression.")
+    .addError(2, "Invalid regular expression.")
+    .addError(3, "Invalid regular expression.")
+    .addError(4, "Invalid regular expression.")
+    .addError(5, "Invalid regular expression.")
+    .addError(6, "Invalid regular expression.")
+    .test([
+      "a = /\\c/u;",
+      "a = / \\c/u;",
+      "a = /\\\\\\c/u;",
+      "a = / \\\\\\c/u;",
+      "a = /\\\\\\\\\\c/u;",
+      "a = / \\\\\\\\\\c/u;",
+      "a = /\\\\c/u;",
+      "a = / \\\\c/u;",
+      "a = /\\\\\\\\c/u;",
+      "a = / \\\\\\\\c/u;",
+    ], { esnext: true });
+
   test.done();
 };
 
