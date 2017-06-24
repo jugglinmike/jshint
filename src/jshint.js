@@ -926,7 +926,7 @@ var JSHINT = (function() {
       state.tokens.curr.beginsStmt = true;
     }
 
-    if (initial === true && state.tokens.curr.fud) {
+    if (initial && state.tokens.curr.fud) {
       left = state.tokens.curr.fud();
     } else {
       if (state.tokens.curr.nud) {
@@ -4465,7 +4465,7 @@ var JSHINT = (function() {
           state.tokens.curr.fud();
         } else {
           for (;;) {
-            expression(0, "for");
+            expression(0);
             if (state.tokens.next.id !== ",") {
               break;
             }
@@ -4489,7 +4489,7 @@ var JSHINT = (function() {
       }
       if (state.tokens.next.id !== ")") {
         for (;;) {
-          expression(0, "for");
+          expression(0);
           if (state.tokens.next.id !== ",") {
             break;
           }
