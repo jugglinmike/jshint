@@ -83,7 +83,6 @@ var JSHINT = (function() {
     functions, // All of the functions
 
     inblock,
-    indent,
     lookahead,
     lex,
     member,
@@ -1600,7 +1599,7 @@ var JSHINT = (function() {
   }
 
   function statement() {
-    var i = indent, r, t = state.tokens.next, hasOwnScope = false;
+    var r, t = state.tokens.next, hasOwnScope = false;
 
     if (t.id === ";") {
       advance(";");
@@ -1681,7 +1680,6 @@ var JSHINT = (function() {
 
     // Restore the indentation.
 
-    indent = i;
     if (hasOwnScope) {
       state.funct["(scope)"].unstack();
     }
@@ -1753,7 +1751,6 @@ var JSHINT = (function() {
   function block(ordinary, stmt, isfunc, isfatarrow, iscase) {
     var a,
       b = inblock,
-      old_indent = indent,
       m,
       t,
       line,
@@ -1776,11 +1773,6 @@ var JSHINT = (function() {
 
       line = state.tokens.curr.line;
       if (state.tokens.next.id !== "}") {
-        indent += state.option.indent;
-        while (!ordinary && state.tokens.next.from > indent) {
-          indent += state.option.indent;
-        }
-
         if (isfunc) {
           m = {};
           for (d in state.directive) {
@@ -1800,8 +1792,6 @@ var JSHINT = (function() {
         a = statements();
 
         metrics.statementCount += a.length;
-
-        indent -= state.option.indent;
       }
 
       advance("}", t);
@@ -1814,8 +1804,6 @@ var JSHINT = (function() {
       }
 
       state.funct["(scope)"].unstack();
-
-      indent = old_indent;
     } else if (!ordinary) {
       if (isfunc) {
         state.funct["(scope)"].stack();
@@ -1856,10 +1844,8 @@ var JSHINT = (function() {
       }
 
       state.tokens.next.inBracelessBlock = true;
-      indent += state.option.indent;
       // test indentation only if statement is in new line
       a = [statement()];
-      indent -= state.option.indent;
 
       state.funct["(scope)"].unstack();
       delete state.funct["(noblockscopedvar)"];
@@ -2722,14 +2708,9 @@ var JSHINT = (function() {
       this.destructAssign = destructuringPattern({ openingParsed: true, assignment: true });
       return this;
     }
-    var b = state.tokens.curr.line !== startLine(state.tokens.next);
+
     this.first = [];
-    if (b) {
-      indent += state.option.indent;
-      if (state.tokens.next.from === indent + state.option.indent) {
-        indent += state.option.indent;
-      }
-    }
+
     while (state.tokens.next.id !== "(end)") {
       while (state.tokens.next.id === ",") {
         if (!state.option.elision) {
@@ -2765,9 +2746,6 @@ var JSHINT = (function() {
         }
         break;
       }
-    }
-    if (b) {
-      indent -= state.option.indent;
     }
     advance("]", this);
     return this;
@@ -3238,12 +3216,6 @@ var JSHINT = (function() {
       var props = Object.create(null); // All properties, including accessors
 
       b = state.tokens.curr.line !== startLine(state.tokens.next);
-      if (b) {
-        indent += state.option.indent;
-        if (state.tokens.next.from === indent + state.option.indent) {
-          indent += state.option.indent;
-        }
-      }
 
       var blocktype = lookupBlockType();
       if (blocktype.isDestAssign) {
@@ -3349,9 +3321,6 @@ var JSHINT = (function() {
           }
           break;
         }
-      }
-      if (b) {
-        indent -= state.option.indent;
       }
       advance("}", this);
 
@@ -4087,7 +4056,6 @@ var JSHINT = (function() {
   blockstmt("switch", function() {
     var t = state.tokens.next;
     var g = false;
-    var noindent = false;
 
     state.funct["(breakage)"] += 1;
     advance("(");
@@ -4095,12 +4063,6 @@ var JSHINT = (function() {
     advance(")", t);
     t = state.tokens.next;
     advance("{");
-
-    if (state.tokens.next.from === indent)
-      noindent = true;
-
-    if (!noindent)
-      indent += state.option.indent;
 
     this.cases = [];
 
@@ -4155,9 +4117,6 @@ var JSHINT = (function() {
         advance(":");
         break;
       case "}":
-        if (!noindent)
-          indent -= state.option.indent;
-
         advance("}", t);
         state.funct["(breakage)"] -= 1;
         state.funct["(verb)"] = undefined;
@@ -4166,7 +4125,6 @@ var JSHINT = (function() {
         error("E023", state.tokens.next, "}");
         return;
       default:
-        indent += state.option.indent;
         if (g) {
           switch (state.tokens.curr.id) {
           case ",":
@@ -4190,7 +4148,6 @@ var JSHINT = (function() {
             return;
           }
         }
-        indent -= state.option.indent;
       }
     }
     return this;
@@ -5321,10 +5278,7 @@ var JSHINT = (function() {
     state.option = newOptionObj;
     state.ignored = newIgnoredObj;
 
-    state.option.indent = state.option.indent || 4;
     state.option.maxerr = state.option.maxerr || 50;
-
-    indent = 1;
 
     var scopeManagerInst = scopeManager(state, predefined, exported, declared);
     scopeManagerInst.on("warning", function(ev) {

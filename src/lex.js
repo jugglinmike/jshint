@@ -127,10 +127,6 @@ function Lexer(source) {
   this.inComment = false;
   this.context = [];
   this.templateStarts = [];
-
-  for (var i = 0; i < state.option.indent; i += 1) {
-    state.tab += " ";
-  }
 }
 
 Lexer.prototype = {
@@ -1607,7 +1603,6 @@ Lexer.prototype = {
       );
     }
 
-    this.input = this.input.replace(/\t/g, state.tab);
     char = this.scanUnsafeChars();
 
     if (char >= 0) {
