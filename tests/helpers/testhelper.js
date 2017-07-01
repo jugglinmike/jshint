@@ -87,29 +87,44 @@ exports.setup.testRun = function (test, name) {
       var unthrownErrors = definedErrors.filter(function (def) {
         return !errors.some(function (er) {
           return def.line === er.line &&
-            def.message === er.reason;
+            def.message === er.reason &&
+			(!def.extras || def.extras.character === er.character)
         });
       });
 
       // elements that only differs in line number
-      var wrongLineNumbers = undefinedErrors.map(function (er) {
-        var lines = unthrownErrors.filter(function (def) {
-          return def.line !== er.line &&
-            def.message === er.reason;
-        }).map(function (def) {
-          return def.line;
+      var wrongLineNumbers = [];
+	  var wrongCharacters = [];
+	  undefinedErrors.forEach(function (er) {
+        var lines = [];
+		var chars = [];
+
+		console.log(unthrownErrors);
+		unthrownErrors.filter(function (def) {
+          return def.message === er.reason;
+        }).forEach(function (def) {
+		  if (def.line !== er.line) {
+			lines.push(def.line);
+		  } else if (def.extras && def.extras.character !== er.character) {
+			chars.push(def.extras.character);
+		  }
         });
 
         if (lines.length) {
-          return {
+		  wrongLineNumbers.push({
             line: er.line,
             message: er.reason,
             definedIn: lines
-          };
+          });
         }
-        return null;
-      }).filter(function (er) {
-        return !!er;
+
+		if (chars.length) {
+		  wrongCharacters.push({
+            character: er.character,
+            message: er.reason,
+            definedIn: chars
+          });
+		}
       });
       var duplicateErrors = errors.filter(function (er) {
         return errors.filter(function (other) {
@@ -149,6 +164,10 @@ exports.setup.testRun = function (test, name) {
           return (idx === 0 ? "\n  [yellow]{Errors with wrong line number}\n" : "") +
             "  [bold]{Line " + el.line + "} " + el.message + " [red]{not in line(s)} [bold]{" + el.definedIn.join(", ") + "}";
         }).join("\n") +
+		wrongCharacters.map(function (el, idx) {
+          return (idx === 0 ? "\n  [yellow]{Errors with wrong character offset}\n" : "") +
+            "  [bold]{Line " + el.line + ", Char " +  el.character + "} " + el.message + " [red]{not at character(s)} [bold]{" + el.definedIn.join(", ") + "}";
+		}).join("\n") +
         duplicateErrors.map(function (el, idx) {
           return (idx === 0 ? "\n  [yellow]{Duplicated errors}\n": "") +
             "  [bold]{Line " + el.line + ", Char " + el.character + "} " + el.reason;
