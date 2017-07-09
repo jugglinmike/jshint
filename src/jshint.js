@@ -905,7 +905,7 @@ var JSHINT = (function() {
       console.error(new Error().stack);
       process.exit(1);
     }
-    rbp = prec[rbp] - 1;
+    rbp = prec[rbp];
     state.nameStack.push();
 
     // if current expression is a let expression
@@ -1130,7 +1130,7 @@ var JSHINT = (function() {
   }
 
   function delim(s) {
-    var x = symbol(s, "Identifier");
+    var x = symbol(s, "Expression");
     x.delim = true;
     return x;
   }
@@ -1189,7 +1189,7 @@ var JSHINT = (function() {
   }
 
   function type(s, f) {
-    var x = symbol(s, "Identifier");
+    var x = symbol(s, "Expression");
     x.type = s;
     x.nud = f;
     return x;
@@ -1250,7 +1250,7 @@ var JSHINT = (function() {
   }
 
   function application(s) {
-    var x = symbol(s, "Identifier"); // MIKE: ???
+    var x = symbol(s, "Expression"); // MIKE: ???
 
     x.infix = true;
     x.led = function(left, context) {
@@ -3378,7 +3378,7 @@ var JSHINT = (function() {
           i = propertyName(true);
           saveProperty(props, i, state.tokens.next);
 
-          expression("Identifier");
+          expression("Expression");
 
         } else if (peek().id !== ":" && (nextVal === "get" || nextVal === "set")) {
           advance(nextVal);
@@ -3896,7 +3896,8 @@ var JSHINT = (function() {
     // ClassHeritage(opt)
     if (state.tokens.next.value === "extends") {
       advance("extends");
-      c.heritage = expression("CallExpression", context);
+      // TODO(mike): This is a bug in `master`. This should be CallExpression
+      c.heritage = expression("Expression", context);
     }
 
     state.inClassBody = true;
