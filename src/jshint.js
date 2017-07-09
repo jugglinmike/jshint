@@ -870,7 +870,7 @@ var JSHINT = (function() {
       return true;
     }
 
-    if (next.delim) {
+    if (next.delim && next.id !== "{") {
       return true;
     }
     if (next.infix === curr.infix || curr.ltBoundary === "after" ||
@@ -905,7 +905,7 @@ var JSHINT = (function() {
       console.error(new Error().stack);
       process.exit(1);
     }
-    rbp = prec[rbp];
+    rbp = prec[rbp] - 1;
     state.nameStack.push();
 
     // if current expression is a let expression
@@ -964,7 +964,7 @@ var JSHINT = (function() {
       //console.log('RBP:', BP(rbp));
       //inspect('left', left);
       //inspect('next', state.tokens.next);
-      while (rbp <= state.tokens.next.lbp && !isEndOfExpr(context)) {
+      while (rbp < state.tokens.next.lbp && !isEndOfExpr(context)) {
         isArray = state.tokens.curr.value === "Array";
         isObject = state.tokens.curr.value === "Object";
 
@@ -1130,7 +1130,7 @@ var JSHINT = (function() {
   }
 
   function delim(s) {
-    var x = symbol(s, "Expression");
+    var x = symbol(s, "DELIM");
     x.delim = true;
     return x;
   }
@@ -1189,7 +1189,7 @@ var JSHINT = (function() {
   }
 
   function type(s, f) {
-    var x = symbol(s, "Expression");
+    var x = symbol(s, "DELIM");
     x.type = s;
     x.nud = f;
     return x;
@@ -1250,7 +1250,7 @@ var JSHINT = (function() {
   }
 
   function application(s) {
-    var x = symbol(s, "Expression"); // MIKE: ???
+    var x = symbol(s, "AssignmentExpression"); // MIKE: ???
 
     x.infix = true;
     x.led = function(left, context) {
@@ -1737,7 +1737,7 @@ var JSHINT = (function() {
 
     // Parse the statement.
 
-    r = expression("Expression", context | prodParams.initial);
+    r = expression("DELIM", context | prodParams.initial);
 
     if (r && !(r.identifier && r.value === "function") &&
         !(r.type === "(punctuator)" && r.left &&
@@ -2635,7 +2635,7 @@ var JSHINT = (function() {
 
     if (state.tokens.next.id !== ")") {
       for (;;) {
-        exprs.push(expression("Expression", context));
+        exprs.push(expression("AssignmentExpression", context));
 
         if (state.tokens.next.id !== ",") {
           break;
@@ -2777,7 +2777,7 @@ var JSHINT = (function() {
     advance("(");
     state.funct["(comparray)"].setState("define");
     // MIKE: ???
-    res.left = expression("AssignmentExpression");
+    res.left = expression("AdditiveExpression");
     if (_.contains(["in", "of"], state.tokens.next.value)) {
       advance();
     } else {
@@ -3378,7 +3378,7 @@ var JSHINT = (function() {
           i = propertyName(true);
           saveProperty(props, i, state.tokens.next);
 
-          expression("Expression");
+          expression("AssignmentExpression");
 
         } else if (peek().id !== ":" && (nextVal === "get" || nextVal === "set")) {
           advance(nextVal);
@@ -3514,7 +3514,7 @@ var JSHINT = (function() {
         advance(")");
       } else {
         if (isAssignment) {
-          var assignTarget = expression("CallExpression");
+          var assignTarget = expression("ConditionalExpression");
           if (assignTarget) {
             checkLeftSideAssign(assignTarget);
 
@@ -4644,7 +4644,8 @@ var JSHINT = (function() {
   (function(x) {
     x.exps = true;
     // <<<<<<< 828a7a613f24fec96892746ccdbfa7a0f6882416
-    //x.lbp = x.rbp = 25;
+    //x.lbp = x.rbp = prec['PrimaryExpression'];
+	//console.log(x);
     // =======
     // >>>>>>> PARTIAL: This is terrifying
     x.ltBoundary = "after";
@@ -4654,7 +4655,7 @@ var JSHINT = (function() {
     }
     var prev = state.tokens.prev;
 
-    if (!this.beginsStmt && prev.lbp > prec.AssignmentExpression && !checkPunctuators(prev, ["("])) {
+    if (!this.beginsStmt && prev.lbp > prec.ConditionalExpression && !checkPunctuators(prev, ["("])) {
       error("E061", this);
     }
 
@@ -4675,6 +4676,7 @@ var JSHINT = (function() {
     }
 
     // Parse operand
+
     if (!isEndOfExpr() && state.tokens.next.id !== ",") {
       if (state.tokens.next.nud) {
 
@@ -4730,7 +4732,7 @@ var JSHINT = (function() {
       }
 
       if (state.tokens.next.id !== ")" &&
-          (prev.lbp > prec.AssignmentExpression || (!prev.assign && !isEndOfExpr()) || prev.id === "yield")) {
+          (prev.lbp > prec.ConditionalExpression || (!prev.assign && !isEndOfExpr()) || prev.id === "yield")) {
         error("E050", this);
       }
     } else if (!state.option.asi) {

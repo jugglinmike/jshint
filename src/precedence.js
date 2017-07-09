@@ -1,5 +1,6 @@
 "use strict";
 [
+  "DELIM",
   "Expression", // 0
   "AssignmentExpression", // 10
   "ConditionalExpression",
