@@ -964,7 +964,7 @@ var JSHINT = (function() {
       //console.log('RBP:', BP(rbp));
       //inspect('left', left);
       //inspect('next', state.tokens.next);
-      while (rbp < state.tokens.next.lbp && !isEndOfExpr(context)) {
+      while (rbp <= state.tokens.next.lbp && !isEndOfExpr(context)) {
         isArray = state.tokens.curr.value === "Array";
         isObject = state.tokens.curr.value === "Object";
 
