@@ -1350,6 +1350,7 @@ Lexer.prototype = {
 
     var validateStrict = function(body) {
       var backRefPattern = /(?:^|[^\\])\\(?:\\\\)*([0-9]+)/g;
+      var groupCount = (body.match(/(^|[^\\])(\\\\)*\(/g) || []).length;
       var length = body.length;
       var backRef, idx, char, inClass, quantifierSrc;
 
@@ -1421,7 +1422,6 @@ Lexer.prototype = {
       // scenarios. For example, `[\u{1044f}-\u{10440}]` is an invalid pattern
       // that would not be detected by this substitution.
       var astralSubstitute = "\uFFFF";
-      var groupCount = (body.match(/(^|[^\\])(\\\\)*\(/g) || []).length;
 
       return body
         // Replace every Unicode escape sequence with the equivalent BMP
