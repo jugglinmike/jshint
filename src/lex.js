@@ -1348,6 +1348,71 @@ Lexer.prototype = {
       }
     }.bind(this);
 
+    var validateStrict = function(body) {
+      var backRefPattern = /(?:^|[^\\])\\(?:\\\\)*([0-9]+)/g;
+      var length = body.length;
+      var backRef, idx, char, inClass, quantifierSrc;
+
+      // Out-of-bounds back reference
+      while (backRef = backRefPattern.exec(body)) {
+        if (backRef[1] > groupCount) {
+            return false;
+        }
+      }
+
+      // CharacterEscape - ClassControlLetter
+      if (/(^|[^\\])\\(\\\\)*c/.test(body)) {
+        return false;
+      }
+
+      // Term - ExtendedAtom
+      inClass = false;
+      quantifierSrc = null;
+      for (idx = 0; idx < length; ++idx) {
+        char = body[idx];
+        if (char === "\\") {
+          idx += 1;
+          continue;
+        }
+        if (quantifierSrc) {
+          quantifierSrc += char;
+        }
+
+        if (char === "[") {
+          inClass = true;
+        } else if (char === "]") {
+          if (inClass) {
+            inClass = false;
+          } else {
+            return false;
+          }
+        } else if (inClass) {
+          continue;
+        } else if (char === "{") {
+          if (quantifierSrc) {
+            return false;
+          }
+          quantifierSrc = "{";
+        } else if (char === "}") {
+          if (quantifierSrc) {
+            if (!/^\{\d+(,\d*)?\}$/.test(quantifierSrc)) {
+              return false;
+            }
+            quantifierSrc = null;
+          } else {
+            return false;
+          }
+        }
+      }
+
+      // Unclosed quantifier
+      if (quantifierSrc) {
+        return false;
+      }
+
+      return true;
+    };
+
     var translateUFlag = function(body) {
       // The BMP character to use as a replacement for astral symbols when
       // translating an ES6 "u"-flagged pattern to an ES5-compatible
@@ -1357,59 +1422,6 @@ Lexer.prototype = {
       // that would not be detected by this substitution.
       var astralSubstitute = "\uFFFF";
       var groupCount = (body.match(/(^|[^\\])(\\\\)*\(/g) || []).length;
-      var backRefPattern = /(?:^|[^\\])\\(?:\\\\)*([0-9]+)/g;
-      var length = body.length;
-      var backRef, idx, char, inClass;
-
-      // Out-of-bounds back reference
-      while (backRef = backRefPattern.exec(body)) {
-        if (backRef[1] > groupCount) {
-            this.trigger("error", {
-              code: "E016",
-              line: this.line,
-              character: this.char,
-              data: [ char ]
-            });
-            return body;
-        }
-      }
-
-      // CharacterEscape - ClassControlLetter
-      if (/(^|[^\\])\\(\\\\)*c/.test(body)) {
-        this.trigger("error", {
-          code: "E016",
-          line: this.line,
-          character: this.char,
-          data: [ char ]
-        });
-        return body;
-      }
-
-      // Term - ExtendedAtom
-      inClass = false;
-      for (idx = 0; idx < length; ++idx) {
-        char = body[idx];
-        if (char === "\\") {
-          idx += 1;
-          continue;
-        }
-        if (char === "[") {
-          inClass = true;
-        }
-        if (char === "]") {
-          if (inClass) {
-            inClass = false;
-          } else {
-            this.trigger("error", {
-              code: "E016",
-              line: this.line,
-              character: this.char,
-              data: [ char ]
-            });
-            return body;
-          }
-        }
-      }
 
       return body
         // Replace every Unicode escape sequence with the equivalent BMP
@@ -1569,6 +1581,14 @@ Lexer.prototype = {
         }
 
         body = translateUFlag(body);
+        if (!validateStrict(body)) {
+           this.trigger("error", {
+             code: "E016",
+             line: this.line,
+             character: this.char,
+             data: [ char ]
+           });
+        }
       }
 
       if (flags.indexOf(char) > -1) {

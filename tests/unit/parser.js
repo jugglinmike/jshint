@@ -685,17 +685,67 @@ exports.regexp.uFlag = function (test) {
   TestRun(test, "ExtendedAtom - closing bracket")
     .addError(1, "Invalid regular expression.")
     .addError(2, "Invalid regular expression.")
+    .addError(3, "Invalid regular expression.")
     .test([
       "a = /]/u;",
       "a = /\\\\]/u;",
+      "a = /[] ]/u;",
 
       "a = /[]/u;",
       "a = /\\]/u;",
       "a = /\\\\\\]/u;",
       "a = /[\\]]/u;",
       "a = /[\\\\\\]]/u;",
+      "a = /[] \\]/u;",
     ], { esnext: true });
 
+  TestRun(test, "ExtendedAtom - closing brace")
+    .addError(1, "Invalid regular expression.")
+    .addError(2, "Invalid regular expression.")
+    .addError(3, "Invalid regular expression.")
+    .addError(4, "Invalid regular expression.")
+    .addError(5, "Invalid regular expression.")
+    .test([
+      "a = /}/u;",
+      "a = /\\\\}/u;",
+      "a = /.{1} }/u;",
+      "a = /[{] }/u;",
+      "a = /.{}/u;",
+
+      "a = /\\}/u;",
+      "a = /\\\\\\}/u;",
+      "a = /.{1} \\}/u;",
+      "a = /[}]/u;",
+    ], { esnext: true });
+
+  TestRun(test, "ExtendedAtom - opening brace")
+    .addError(1, "Invalid regular expression.")
+    .addError(2, "Invalid regular expression.")
+    .addError(3, "Invalid regular expression.")
+    .addError(4, "Invalid regular expression.")
+    .addError(5, "Invalid regular expression.")
+    .addError(6, "Invalid regular expression.")
+    .addError(7, "Invalid regular expression.")
+    .addError(8, "Invalid regular expression.")
+    .addError(9, "Invalid regular expression.")
+    .addError(10, "Invalid regular expression.")
+    .test([
+      "a = /.{/u;",
+      "a = /.{1/u;",
+      "a = /.{1,/u;",
+      "a = /.\\\\{/u;",
+      "a = /.{1} {/u;",
+      "a = /{ [}]/u;",
+      "a = /{1}/u;",
+      "a = /{1,}/u;",
+      "a = /{1,2}/u;",
+      "a = /.{}/u;",
+
+      "a = /\\{/u;",
+      "a = /\\\\\\{/u;",
+      "a = /.{1} \\{/u;",
+      "a = /[{]/u;",
+    ], { esnext: true });
 
   test.done();
 };
