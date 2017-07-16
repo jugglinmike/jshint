@@ -669,6 +669,7 @@ exports.regexp.uFlag = function (test) {
     .addError(4, "Invalid regular expression.")
     .addError(5, "Invalid regular expression.")
     .addError(6, "Invalid regular expression.")
+    .addError(7, "Invalid regular expression.")
     .test([
       "a = /\\c/u;",
       "a = / \\c/u;",
@@ -676,6 +677,8 @@ exports.regexp.uFlag = function (test) {
       "a = / \\\\\\c/u;",
       "a = /\\\\\\\\\\c/u;",
       "a = / \\\\\\\\\\c/u;",
+      "a = /[\\c]/u;",
+
       "a = /\\\\c/u;",
       "a = / \\\\c/u;",
       "a = /\\\\\\\\c/u;",

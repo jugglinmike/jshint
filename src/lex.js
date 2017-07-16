@@ -1360,11 +1360,6 @@ Lexer.prototype = {
         }
       }
 
-      // CharacterEscape - ClassControlLetter
-      if (/(^|[^\\])\\(\\\\)*c/.test(body)) {
-        return false;
-      }
-
       // Term - ExtendedAtom
       inClass = false;
       quantifierSrc = null;
@@ -1372,6 +1367,11 @@ Lexer.prototype = {
         char = body[idx];
         if (char === "\\") {
           idx += 1;
+
+          // CharacterEscape - ClassControlLetter
+          if (body[idx] === "c") {
+            return false;
+          }
           continue;
         }
         if (quantifierSrc) {
