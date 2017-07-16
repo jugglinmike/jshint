@@ -1358,7 +1358,8 @@ Lexer.prototype = {
       var astralSubstitute = "\uFFFF";
       var groupCount = (body.match(/(^|[^\\])(\\\\)*\(/g) || []).length;
       var backRefPattern = /(?:^|[^\\])\\(?:\\\\)*([0-9]+)/g;
-      var backRef;
+      var length = body.length;
+      var backRef, idx, char, inClass;
 
       // Out-of-bounds back reference
       while (backRef = backRefPattern.exec(body)) {
@@ -1382,6 +1383,32 @@ Lexer.prototype = {
           data: [ char ]
         });
         return body;
+      }
+
+      // Term - ExtendedAtom
+      inClass = false;
+      for (idx = 0; idx < length; ++idx) {
+        char = body[idx];
+        if (char === "\\") {
+          idx += 1;
+          continue;
+        }
+        if (char === "[") {
+          inClass = true;
+        }
+        if (char === "]") {
+          if (inClass) {
+            inClass = false;
+          } else {
+            this.trigger("error", {
+              code: "E016",
+              line: this.line,
+              character: this.char,
+              data: [ char ]
+            });
+            return body;
+          }
+        }
       }
 
       return body

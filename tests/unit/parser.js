@@ -682,6 +682,21 @@ exports.regexp.uFlag = function (test) {
       "a = / \\\\\\\\c/u;",
     ], { esnext: true });
 
+  TestRun(test, "ExtendedAtom - closing bracket")
+    .addError(1, "Invalid regular expression.")
+    .addError(2, "Invalid regular expression.")
+    .test([
+      "a = /]/u;",
+      "a = /\\\\]/u;",
+
+      "a = /[]/u;",
+      "a = /\\]/u;",
+      "a = /\\\\\\]/u;",
+      "a = /[\\]]/u;",
+      "a = /[\\\\\\]]/u;",
+    ], { esnext: true });
+
+
   test.done();
 };
 
