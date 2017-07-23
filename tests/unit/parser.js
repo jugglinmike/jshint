@@ -8403,3 +8403,22 @@ exports.exponentiation.compundAssignment = function (test) {
 
   test.done();
 };
+
+exports.forLetIdentifier = function (test) {
+  TestRun(test, "Valid ES5")
+    .test([
+      "var let;",
+      "for (let; false; false) {}",
+      "for (let in {}) {}",
+      "for (let = 0; false; false) {}",
+      "for (let || 0; false; false) {}"
+    ]);
+
+  TestRun(test, "Valid ES6")
+    .test([
+      "for (let of; false; false) {}",
+      "for (let of of []) {}"
+    ], { esversion: 6 })
+
+  test.done();
+};
