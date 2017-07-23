@@ -4014,6 +4014,13 @@ var JSHINT = (function() {
       for (var t in tokens) {
         if (tokens.hasOwnProperty(t)) {
           t = tokens[t];
+
+          // It is a Syntax Error if the BoundNames of BindingList contains
+          // "let".
+          if (t.id === "let") {
+            warning("W024", t.token, t.id);
+          }
+
           if (state.funct["(scope)"].block.isGlobal()) {
             if (predefined[t.id] === false) {
               warning("W079", t.token, t.id);
@@ -4090,6 +4097,8 @@ var JSHINT = (function() {
   var letstatement = stmt("let", function(context) {
     return blockVariableStatement("let", this, context);
   });
+  letstatement.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
+  letstatement.nud = state.syntax["(identifier)"].nud;
   letstatement.exps = true;
 
   var varstatement = stmt("var", function(context) {
@@ -4712,6 +4721,7 @@ var JSHINT = (function() {
     var targets;
     var target;
     var decl;
+    var afterNext = peek();
 
     var headContext = context | prodParams.noin;
 
@@ -4720,7 +4730,13 @@ var JSHINT = (function() {
       decl = state.tokens.curr.fud(headContext);
       comma = decl.hasComma ? decl : null;
       initializer = decl.hasInitializer ? decl : null;
-    } else if (state.tokens.next.id === "let" || state.tokens.next.id === "const") {
+    } else if (state.tokens.next.id === "const" ||
+      // The "let" keyword only signals a lexical binding if it is followed by
+      // an identifier, `{`, or `[`. Otherwise, it should be parsed as an
+      // IdentifierReference (i.e. in a subsquent branch).
+      (state.tokens.next.id === "let" &&
+        ((afterNext.identifier && afterNext.id !== "in") ||
+         checkPunctuators(afterNext, ["{", "["])))) {
       advance(state.tokens.next.id);
       // create a new block scope
       letscope = true;

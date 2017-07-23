@@ -550,8 +550,6 @@ language/expressions/assignment/dstr-obj-prop-nested-array-yield-ident-valid.js
 language/expressions/assignment/dstr-obj-prop-nested-obj-yield-ident-valid.js
 language/expressions/object/fn-name-accessor-get.js
 language/expressions/object/fn-name-accessor-set.js
-language/expressions/object/let-non-strict-access.js
-language/expressions/object/let-non-strict-syntax.js
 language/expressions/object/prop-def-id-eval-error.js
 language/expressions/object/scope-gen-meth-param-rest-elem-var-close.js
 language/expressions/object/scope-gen-meth-param-rest-elem-var-open.js
@@ -628,7 +626,6 @@ language/statements/for-in/decl-gen.js
 language/statements/for-in/head-const-bound-names-fordecl-tdz.js
 language/statements/for-in/head-let-bound-names-fordecl-tdz.js
 language/statements/for-in/head-lhs-let.js
-language/statements/for-in/head-var-bound-names-let.js
 language/statements/for/decl-cls.js
 language/statements/for/decl-fun.js
 language/statements/for/decl-gen.js
@@ -744,7 +741,6 @@ language/statements/for-of/dstr-obj-prop-nested-array-yield-ident-valid.js
 language/statements/for-of/dstr-obj-prop-nested-obj-yield-ident-valid.js
 language/statements/for-of/head-const-bound-names-fordecl-tdz.js
 language/statements/for-of/head-let-bound-names-fordecl-tdz.js
-language/statements/for-of/head-var-bound-names-let.js
 language/statements/switch/S12.11_A2_T1.js
 language/statements/switch/scope-lex-close-case.js
 language/statements/switch/scope-lex-close-dflt.js
@@ -772,7 +768,6 @@ language/statements/let/function-local-use-before-initialization-in-declaration-
 language/statements/let/function-local-use-before-initialization-in-prior-statement.js
 language/statements/let/global-use-before-initialization-in-declaration-statement.js
 language/statements/let/global-use-before-initialization-in-prior-statement.js
-language/statements/let/syntax/identifier-let-allowed-as-lefthandside-expression-non-strict.js
 language/statements/let/syntax/with-initialisers-in-statement-positions-label-statement.js
 language/statements/let/syntax/without-initialisers-in-statement-positions-label-statement.js
 language/statements/class/gen-method-param-dflt-yield.js
