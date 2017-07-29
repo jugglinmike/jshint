@@ -1181,7 +1181,7 @@ var JSHINT = (function() {
   }
 
   function FutureReservedWord(name, meta) {
-    var x = type(name, (meta && meta.nud) || function() {
+    var x = type(name, function() {
       return this;
     });
 
@@ -1672,7 +1672,7 @@ var JSHINT = (function() {
     // a FutureReservedWord as a label, we warn but proceed
     // anyway.
 
-    if (res && t.meta && t.meta.isFutureReservedWord && peek().id === ":") {
+    if (res && t.meta && t.meta.isFutureReservedWord) {
       warning("W024", t, t.id);
       res = false;
     }
@@ -3832,169 +3832,6 @@ var JSHINT = (function() {
   });
   varstatement.exps = true;
 
-  blockstmt("class", function(rbp) {
-    return classdef.call(this, rbp, true);
-  });
-
-  function classdef(rbp, isStatement) {
-
-    /*jshint validthis:true */
-    if (!state.inES6()) {
-      warning("W104", state.tokens.curr, "class", "6");
-    }
-    if (isStatement) {
-      // BindingIdentifier
-      this.name = identifier();
-
-      state.funct["(scope)"].addlabel(this.name, {
-        type: "class",
-        token: state.tokens.curr });
-
-    } else if (state.tokens.next.identifier && state.tokens.next.value !== "extends") {
-      // BindingIdentifier(opt)
-      this.name = identifier();
-      this.namedExpr = true;
-    } else {
-      this.name = state.nameStack.infer();
-    }
-
-    classtail(this);
-
-    if (isStatement) {
-      state.funct["(scope)"].initialize(this.name);
-    }
-
-    return this;
-  }
-
-  function classtail(c) {
-    var wasInClassBody = state.inClassBody;
-    // ClassHeritage(opt)
-    if (state.tokens.next.value === "extends") {
-      advance("extends");
-      c.heritage = expression(10);
-    }
-
-    state.inClassBody = true;
-    advance("{");
-    // ClassBody(opt)
-    c.body = classbody(c);
-    advance("}");
-    state.inClassBody = wasInClassBody;
-  }
-
-  function classbody(c) {
-    var name;
-    var isStatic;
-    var isGenerator;
-    var getset;
-    var props = Object.create(null);
-    var staticProps = Object.create(null);
-    var computed;
-    for (var i = 0; state.tokens.next.id !== "}"; ++i) {
-      name = state.tokens.next;
-      isStatic = false;
-      isGenerator = false;
-      getset = null;
-
-      // The ES6 grammar for ClassElement includes the `;` token, but it is
-      // defined only as a placeholder to facilitate future language
-      // extensions. In ES6 code, it serves no purpose.
-      if (name.id === ";") {
-        warning("W032");
-        advance(";");
-        continue;
-      }
-
-      if (name.id === "*") {
-        isGenerator = true;
-        advance("*");
-        name = state.tokens.next;
-      }
-      if (name.id === "[") {
-        name = computedPropertyName();
-        computed = true;
-      } else if (isPropertyName(name)) {
-        // Non-Computed PropertyName
-        advance();
-        computed = false;
-        if (name.identifier && name.value === "static") {
-          if (checkPunctuator(state.tokens.next, "*")) {
-            isGenerator = true;
-            advance("*");
-          }
-          if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
-            computed = state.tokens.next.id === "[";
-            isStatic = true;
-            name = state.tokens.next;
-            if (state.tokens.next.id === "[") {
-              name = computedPropertyName();
-            } else advance();
-          }
-        }
-
-        if (name.identifier && (name.value === "get" || name.value === "set")) {
-          if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
-            computed = state.tokens.next.id === "[";
-            getset = name;
-            name = state.tokens.next;
-            if (state.tokens.next.id === "[") {
-              name = computedPropertyName();
-            } else advance();
-          }
-        }
-      } else {
-        warning("W052", state.tokens.next, state.tokens.next.value || state.tokens.next.type);
-        advance();
-        continue;
-      }
-
-      if (!checkPunctuator(state.tokens.next, "(")) {
-        // error --- class properties must be methods
-        error("E054", state.tokens.next, state.tokens.next.value);
-        while (state.tokens.next.id !== "}" &&
-               !checkPunctuator(state.tokens.next, "(")) {
-          advance();
-        }
-        if (state.tokens.next.value !== "(") {
-          doFunction({ statement: c });
-        }
-      }
-
-      if (!computed) {
-        // We don't know how to determine if we have duplicate computed property names :(
-        if (getset) {
-          saveAccessor(
-            getset.value, isStatic ? staticProps : props, name.value, name, true, isStatic);
-        } else {
-          if (name.value === "constructor") {
-            state.nameStack.set(c);
-          } else {
-            state.nameStack.set(name);
-          }
-          saveProperty(isStatic ? staticProps : props, name.value, name, true, isStatic);
-        }
-      }
-
-      if (getset && name.value === "constructor") {
-        var propDesc = getset.value === "get" ? "class getter method" : "class setter method";
-        error("E049", name, propDesc, "constructor");
-      } else if (name.value === "prototype") {
-        error("E049", name, "class method", "prototype");
-      }
-
-      propertyName(name);
-
-      doFunction({
-        statement: c,
-        type: isGenerator ? "generator" : null,
-        classExprBinding: c.namedExpr ? c.name : null
-      });
-    }
-
-    checkProperties(props);
-  }
-
   blockstmt("function", function(context) {
     var inexport = context && context.inexport;
     var generator = false;
@@ -4958,7 +4795,7 @@ var JSHINT = (function() {
   FutureReservedWord("boolean");
   FutureReservedWord("byte");
   FutureReservedWord("char");
-  FutureReservedWord("class", { es5: true, nud: classdef });
+  FutureReservedWord("class", { es5: true });
   FutureReservedWord("double");
   FutureReservedWord("enum", { es5: true });
   FutureReservedWord("export", { es5: true });
