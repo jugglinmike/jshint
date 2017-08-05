@@ -1117,7 +1117,7 @@ var JSHINT = (function() {
    * @param {number} p - the left-binding power of the token as used by the
    *                     Pratt parsing semantics
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function symbol(s, p) {
@@ -1144,7 +1144,7 @@ var JSHINT = (function() {
    *
    * @param {string} s - the name of the symbol
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function delim(s) {
@@ -1160,7 +1160,7 @@ var JSHINT = (function() {
    * @param {function} f - the first null denotation function for the symbol;
    *                       see the `expression` function for more detail
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function stmt(s, f) {
@@ -1177,7 +1177,7 @@ var JSHINT = (function() {
    * @param {function} - the first null denotation function for the symbol; see
    *                     the `expression` function for more detail
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function blockstmt(s, f) {
@@ -1201,14 +1201,14 @@ var JSHINT = (function() {
   }
 
   /**
-   * Convenience function for defining "prefix" symbols--those that accept
+   * Convenience function for defining "prefix" symbols--operators that accept
    * expressions as a right-hand side.
    *
    * @param {string} s - the name of the symbol
    * @param {function} [f] - the first null denotation function for the symbol;
    *                         see the `expression` function for more detail
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function prefix(s, f) {
@@ -1250,7 +1250,7 @@ var JSHINT = (function() {
    * @param {function} f - the first null denotation function for the symbol;
    *                       see the `expression` function for more detail
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function type(s, f) {
@@ -1270,7 +1270,7 @@ var JSHINT = (function() {
    *                          symbol; see the `expression` function for more
    *                          detail
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function reserve(name, func) {
@@ -1295,7 +1295,7 @@ var JSHINT = (function() {
    * @param {boolean} [meta.strictOnly] - `true` if the identifier is only
    *                                      reserved in strict mode code.
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function FutureReservedWord(name, meta) {
@@ -1322,7 +1322,7 @@ var JSHINT = (function() {
    * @param {function} v - the first null denotation function for the symbol;
    *                       see the `expression` function for more detail
    *
-   * @returns {object} - the object describing the "symbol" (provided to
+   * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
   function reservevar(s, v) {
@@ -1334,6 +1334,20 @@ var JSHINT = (function() {
     });
   }
 
+  /**
+   * Convenience function for defining "infix" symbols--operators that require
+   * operands as both "land-hand side" and "right-hand side".
+   *
+   * @param {string} s - the name of the symbol
+   * @param {function} [f] - a function to be invoked that consumes the
+   *                         right-hand side of the operator
+   * @param {number} p - the left-binding power of the token as used by the
+   *                     Pratt parsing semantics
+   * @param {boolean} [w] - if `true`
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function infix(s, f, p, w) {
     var x = symbol(s, p);
     reserveName(x);
@@ -1356,6 +1370,15 @@ var JSHINT = (function() {
     return x;
   }
 
+  /**
+   * Convenience function for defining the `=>` token as used in arrow
+   * functions.
+   *
+   * @param {string} s - the name of the symbol
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function application(s) {
     var x = symbol(s, 42);
 
@@ -1370,6 +1393,16 @@ var JSHINT = (function() {
     return x;
   }
 
+  /**
+   * Convenience function for defining JSHint symbols for relation operators.
+   *
+   * @param {string} s - the name of the symbol
+   * @param {function} [f] - a function to be invoked to enforce any additional
+   *                         linting rules.
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function relation(s, f) {
     var x = symbol(s, 100);
 
@@ -1432,9 +1465,19 @@ var JSHINT = (function() {
   typeofValues.es3 = typeofValues.es3.concat(typeofValues.legacy);
   typeofValues.es6 = typeofValues.es3.concat("symbol");
 
-  // Checks whether the 'typeof' operator is used with the correct
-  // value. For docs on 'typeof' see:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+  /**
+   * Validate comparisons between the result of a `typeof` expression and a
+   * string literal.
+   *
+   * @param {token} [left] - one of the values being compared
+   * @param {token} [right] - the other value being compared
+   * @param {object} state - the global state object (see `state.js`)
+   *
+   * @returns {boolean} - `false` if the second token describes a `typeof`
+   *                       expression and the first token is a string literal
+   *                       whose value is never returned by that operator;
+   *                       `true` otherwise
+   */
   function isTypoTypeof(left, right, state) {
     var values;
 
@@ -1452,6 +1495,14 @@ var JSHINT = (function() {
     return false;
   }
 
+  /**
+   * Determine if a given token describes the built-in `eval` function.
+   *
+   * @param {token} left
+   * @param {object} state - the global state object (see `state.js`)
+   *
+   * @returns {boolean}
+   */
   function isGlobalEval(left, state) {
     var isGlobal = false;
 
@@ -1473,6 +1524,13 @@ var JSHINT = (function() {
     return isGlobal;
   }
 
+  /**
+   * Determine if a given token describes a property of a built-in object.
+   *
+   * @param {token} left
+   *
+   * @returns {boolean}
+   */
   function findNativePrototype(left) {
     var natives = [
       "Array", "ArrayBuffer", "Boolean", "Collator", "DataView", "Date",
@@ -1504,11 +1562,16 @@ var JSHINT = (function() {
   }
 
   /**
-   * Checks the left hand side of an assignment for issues, returns if ok
+   * Determine if the given token is a valid assignment target; emit errors
+   * and/or warnings as appropriate
+   *
    * @param {token} left - the left hand side of the assignment
-   * @param {token=} assignToken - the token for the assignment, used for reporting
+   * @param {token=} assignToken - the token for the assignment, used for
+   *                               reporting
    * @param {object=} options - optional object
-   * @param {boolean} options.allowDestructuring - whether to allow destructuting binding
+   * @param {boolean} options.allowDestructuring - whether to allow
+   *                                               destructuring binding
+   *
    * @returns {boolean} Whether the left hand side is OK
    */
   function checkLeftSideAssign(left, assignToken, options) {
@@ -1527,9 +1590,8 @@ var JSHINT = (function() {
     }
 
     if (left.identifier && !left.isMetaProperty) {
-      // reassign also calls modify
-      // but we are specific in order to catch function re-assignment
-      // and globals re-assignment
+      // The `reassign` method also calls `modify`, but we are specific in
+      // order to catch function re-assignment and globals re-assignment
       state.funct["(scope)"].block.reassign(left.value, left);
     }
 
@@ -1571,6 +1633,19 @@ var JSHINT = (function() {
     return false;
   }
 
+  /**
+   * Convenience function for defining JSHint symbols for assignment operators.
+   *
+   * @param {string} s - the name of the symbol
+   * @param {function} [f] - a function to be invoked that consumes the
+   *                         right-hand side of the operator (see the `infix`
+   *                         function)
+   * @param {number} p - the left-binding power of the token as used by the
+   *                     Pratt parsing semantics
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function assignop(s, f, p) {
     var x = infix(s, typeof f === "function" ? f : function(context, left, that) {
       that.left = left;
@@ -1587,7 +1662,18 @@ var JSHINT = (function() {
     return x;
   }
 
-
+  /**
+   * Convenience function for defining JSHint symbols for bitwise operators.
+   *
+   * @param {string} s - the name of the symbol
+   * @param {function} [f] - the left denotation function for the symbol; see
+   *                         the `expression` function for more detail
+   * @param {number} p - the left-binding power of the token as used by the
+   *                     Pratt parsing semantics
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function bitwise(s, f, p) {
     var x = symbol(s, p);
     reserveName(x);
@@ -1603,6 +1689,15 @@ var JSHINT = (function() {
     return x;
   }
 
+  /**
+   * Convenience function for defining JSHint symbols for bitwise assignment
+   * operators. See the `assignop` function for more detail.
+   *
+   * @param {string} s - the name of the symbol
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function bitwiseassignop(s) {
     return assignop(s, function(context, left, that) {
       if (state.option.bitwise) {
@@ -1617,6 +1712,15 @@ var JSHINT = (function() {
     }, 20);
   }
 
+  /**
+   * Convenience function for defining JSHint symbols for those operators which
+   * have a single operand that appears before them in the source code.
+   *
+   * @param {string} s - the name of the symbol
+   *
+   * @returns {object} - the object describing the JSHint symbol (provided to
+   *                     support cases where further refinement is necessary)
+   */
   function suffix(s) {
     var x = symbol(s, 150);
 
@@ -1643,10 +1747,19 @@ var JSHINT = (function() {
     return x;
   }
 
-  // fnparam means that this identifier is being defined as a function
-  // argument (see identifier())
-  // prop means that this identifier is that of an object property
-
+  /**
+   * Retrieve the value of the current token if it is an identifier and
+   * optionally advance the parser.
+   *
+   * @param {boolean} [fnparam] - `true` if the identifier is being defined as
+   *                              a function argument; see the `identifier`
+   *                              function for more detail
+   * @param {boolean} [prop] -`true` if this identifier is that of an object
+   *                           property
+   * @param {boolean} [preserve] - `true` if the token should not be consumed
+   *
+   * @returns {string|undefined} - the value of the identifier, if present
+   */
   function optionalidentifier(fnparam, prop, preserve) {
     if (!state.tokens.next.identifier) {
       return;
@@ -1707,9 +1820,17 @@ var JSHINT = (function() {
     return true;
   }
 
-  // fnparam means that this identifier is being defined as a function
-  // argument
-  // prop means that this identifier is that of an object property
+  /**
+   * Ensure that the current token is an identifier and retrieve its value.
+   *
+   * @param {boolean} [fnparam] - `true` if the identifier is being defined as
+   *                              a function argument; see the `identifier`
+   *                              function for more detail
+   * @param {boolean} [prop] -`true` if this identifier is that of an object
+   *                           property
+   *
+   * @returns {string|undefined} - the value of the identifier, if present
+   */
   function identifier(fnparam, prop) {
     var i = optionalidentifier(fnparam, prop, false);
     if (i) {
@@ -1728,6 +1849,12 @@ var JSHINT = (function() {
   }
 
 
+  /**
+   * Determine if the provided token may be evaluated and emit a linting
+   * warning if this is note the case.
+   *
+   * @param {token} controlToken
+   */
   function reachable(controlToken) {
     var i = 0, t;
     if (state.tokens.next.id !== ";" || controlToken.inBracelessBlock) {
@@ -1774,9 +1901,10 @@ var JSHINT = (function() {
       if (sameLine && !blockEnd && !(stmt.id === "do" && state.inES6(true))) {
         errorAt("E058", state.tokens.curr.line, state.tokens.curr.character);
       } else if (!state.option.asi) {
-        // If this is the last statement in a block that ends on
-        // the same line *and* option lastsemic is on, ignore the warning.
-        // Otherwise, complain about missing semicolon.
+
+        // If this is the last statement in a block that ends on the same line
+        // *and* option lastsemic is on, ignore the warning.  Otherwise, issue
+        // a warning about missing semicolon.
         if (!(blockEnd && sameLine && state.option.lastsemic)) {
           warningAt("W033", state.tokens.curr.line, state.tokens.curr.character);
         }
@@ -1786,6 +1914,14 @@ var JSHINT = (function() {
     }
   }
 
+  /**
+   * Consume a statement.
+   *
+   * @param {number} context - the parsing context; see `prod-params.js` for
+   *                           more information
+   *
+   * @returns {token} - the token describing the statement
+   */
   function statement(context) {
     var i = indent, r, t = state.tokens.next, hasOwnScope = false;
 
@@ -1877,7 +2013,15 @@ var JSHINT = (function() {
     return r;
   }
 
-
+  /**
+   * Consume a series of statements until encountering either the end of the
+   * program or a token that interrupts control flow.
+   *
+   * @param {number} context - the parsing context; see `prod-params.js` for
+   *                           more information
+   *
+   * @returns {Array<token>} - the tokens consumed
+   */
   function statements(context) {
     var a = [], p;
 
@@ -1898,8 +2042,8 @@ var JSHINT = (function() {
   }
 
 
-  /*
-   * read all directives
+  /**
+   * Parse any directives in a directive prologue.
    */
   function directives() {
     var current = state.tokens.next;
@@ -1940,17 +2084,21 @@ var JSHINT = (function() {
     }
   }
 
-
-  /*
+  /**
    * Parses a single block. A block is a sequence of statements wrapped in
    * braces.
    *
-   * context    - numeric pasing context
-   * ordinary   - true for everything but function bodies and try blocks.
-   * stmt       - true if block can be a single statement (e.g. in if/for/while).
-   * isfunc     - true if block is a function body
-   * isfatarrow - true if its a body of a fat arrow function
-   * iscase      - true if block is a switch case block
+   * @param {number} context - parsing context
+   * @param {boolean} ordinary - `true` for everything but function bodies and
+   *                             try blocks
+   * @param {boolean} [stmt] - `true` if block can be a single statement (e.g.
+   *                           in if/for/while)
+   * @param {boolean} [isfunc] - `true` if block is a function body
+   * @param {boolean} [isfatarrow] - `true` if its a body of a fat arrow
+   *                                 function
+   * @param {boolean} [iscase] - `true` if block is a switch case block
+   *
+   * @returns {token} - the token describing the block
    */
   function block(context, ordinary, stmt, isfunc, isfatarrow, iscase) {
     var a,
@@ -2067,7 +2215,8 @@ var JSHINT = (function() {
       delete state.funct["(noblockscopedvar)"];
     }
 
-    // Don't clear and let it propagate out if it is "break", "return" or similar in switch case
+    // Don't clear and let it propagate out if it is "break", "return" or
+    // similar in switch case
     switch (state.funct["(verb)"]) {
     case "break":
     case "continue":
@@ -2091,6 +2240,13 @@ var JSHINT = (function() {
   }
 
 
+  /**
+   * Update the global state which tracks all statically-identifiable property
+   * names, and emit a warning if the `members` linting directive is in use and
+   * does not include the given name.
+   *
+   * @param {string} m - the property name
+   */
   function countMember(m) {
     if (membersOnly && typeof membersOnly[m] !== "boolean") {
       warning("W036", state.tokens.curr, m);
