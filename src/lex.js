@@ -584,16 +584,38 @@ Lexer.prototype = {
     return null;
   },
 
+  scanBooleanLiteral: function() {
+    var match = /^(true|false)/.exec(this.input);
+
+    if (!match) {
+        return null;
+    }
+
+    return {
+        type: Token.BooleanLiteral,
+        value: match[0]
+    };
+  },
+
+  scanNullLiteral: function() {
+    if (this.input.indexOf("null") !== 0) {
+      return null;
+	}
+
+	return {
+      type: Token.NullLiteral,
+      value: "null"
+	};
+  },
+
   /*
    * Extract a JavaScript identifier out of the next sequence of
-   * characters or return 'null' if its not possible. In addition,
-   * to Identifier this method can also produce BooleanLiteral
-   * (true/false) and NullLiteral (null).
+   * characters or return 'null' if its not possible.
    */
   scanIdentifier: function() {
     var id = "";
     var index = 0;
-    var type, char;
+    var char;
 
     function isNonAsciiIdentifierStart(code) {
       return nonAsciiIdentifierStartTable.indexOf(code) > -1;
@@ -703,20 +725,8 @@ Lexer.prototype = {
       id += char;
     }
 
-    switch (id) {
-    case "true":
-    case "false":
-      type = Token.BooleanLiteral;
-      break;
-    case "null":
-      type = Token.NullLiteral;
-      break;
-    default:
-      type = Token.Identifier;
-    }
-
     return {
-      type: type,
+      type: Token.Identifier,
       value: removeEscapeSequences(id),
       text: id,
       tokenLength: id.length
@@ -1556,6 +1566,8 @@ Lexer.prototype = {
       this.scanRegExp(checks) ||
       this.scanPunctuator() ||
       this.scanKeyword() ||
+      this.scanBooleanLiteral() ||
+      this.scanNullLiteral() ||
       this.scanIdentifier() ||
       this.scanNumericLiteral(checks);
 
@@ -1876,9 +1888,11 @@ Lexer.prototype = {
 
         /* falls through */
       case Token.Keyword:
-      case Token.NullLiteral:
-      case Token.BooleanLiteral:
         return create("(identifier)", token.value, state.tokens.curr.id === ".", token);
+      case Token.NullLiteral:
+        return create("(null)", token.value, state.tokens.curr.id === ".", token);
+      case Token.BooleanLiteral:
+        return create("(boolean)", token.value, state.tokens.curr.id === ".", token);
 
       case Token.NumericLiteral:
         if (token.isMalformed) {

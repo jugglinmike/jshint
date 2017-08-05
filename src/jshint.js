@@ -1526,6 +1526,8 @@ var JSHINT = (function() {
   // prop means that this identifier is that of an object property
 
   function optionalidentifier(fnparam, prop, preserve) {
+    // TODO(mike) correct this condition to account for Boolean literals and
+    // Null literals
     if (!state.tokens.next.identifier) {
       return;
     }
@@ -1990,6 +1992,14 @@ var JSHINT = (function() {
     return this;
   });
 
+  type("(boolean)", function() {
+    return this;
+  });
+
+  type("(null)", function() {
+    return this;
+  });
+
   state.syntax["(identifier)"] = {
     type: "(identifier)",
     lbp: 0,
@@ -2088,9 +2098,7 @@ var JSHINT = (function() {
     }
   });
   reservevar("eval");
-  reservevar("false");
   reservevar("Infinity");
-  reservevar("null");
   reservevar("this", function(x) {
     if (state.isStrict() && !isMethod() &&
         !state.option.validthis && ((state.funct["(statement)"] &&
@@ -2098,7 +2106,6 @@ var JSHINT = (function() {
       warning("W040", x);
     }
   });
-  reservevar("true");
   reservevar("undefined");
 
   assignop("=", "assign", 20);
@@ -5348,11 +5355,10 @@ var JSHINT = (function() {
     case "[":
       jsonArray();
       break;
-    case "true":
-    case "false":
-    case "null":
+    case "(null)":
     case "(number)":
     case "(string)":
+    case "(boolean)":
       advance();
       break;
     case "-":
