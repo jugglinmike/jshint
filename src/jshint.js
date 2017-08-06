@@ -3145,6 +3145,14 @@ var JSHINT = (function() {
   }
 
 
+  /**
+   * Determine if the provided token may describe a property name in a class
+   * body.
+   *
+   * @param {object} token
+   *
+   * @returns {boolean}
+   */
   function isPropertyName(token) {
     return token.identifier || token.id === "(string)" || token.id === "(number)";
   }
@@ -3290,6 +3298,17 @@ var JSHINT = (function() {
     }
   }
 
+  /**
+   * Factory function for creating objects used to track statistics of function
+   * literals.
+   *
+   * @param {string} name - the identifier name to associate with the function
+   * @param {object} [token] - token responsible for creating the function
+   *                           object
+   * @param {object} [overwrites] - a collection of properties that should
+   *                                override the corresponding default value of
+   *                                the new "functor" object
+   */
   function functor(name, token, overwrites) {
     var funct = {
       "(name)"      : name,
@@ -3382,6 +3401,8 @@ var JSHINT = (function() {
   }
 
   /**
+   * Parse a function literal.
+   *
    * @param {Number} context The parsing context
    * @param {Object} [options]
    * @param {token} [options.name] The identifier belonging to the function (if
@@ -3577,8 +3598,11 @@ var JSHINT = (function() {
   }
 
   /**
-   * @param {object} props Collection of property descriptors for a given
-   *                       object.
+   * Validate the properties defined within an object literal or class body.
+   * See the `saveAccessor` and `saveProperty` functions for more detail.
+   *
+   * @param {object} props - Collection of objects describing the properties
+   *                         encountered
    */
   function checkProperties(props) {
     // Check for lonely setters if in the ES5 mode.
@@ -4438,7 +4462,8 @@ var JSHINT = (function() {
       } else if (state.tokens.next.type !== "(identifier)") {
         warning("E030", state.tokens.next, state.tokens.next.value);
       } else {
-        // only advance if we have an identifier so we can continue parsing in the most common error - that no param is given.
+        // only advance if an identifier is present. This allows JSHint to
+        // recover from the case where no value is specified.
         state.funct["(scope)"].addParam(identifier(), state.tokens.curr, "exception");
       }
 
@@ -5351,6 +5376,19 @@ var JSHINT = (function() {
     return ret;
   };
 
+  /**
+   * Update an object used to track property names within object initializers
+   * and class bodies. Produce warnings in response to duplicated names.
+   *
+   * @param {object} props - a collection of all properties of the object or
+   *                         class to which the current property is being
+   *                         assigned
+   * @param {string} name - the property name
+   * @param {object} tkn - the token defining the property
+   * @param {boolean} [isClass] - whether the accessor is part of an ES6 Class
+   *                              definition
+   * @param {boolean} [isStatic] - whether the accessor is a static method
+   */
   function saveProperty(props, name, tkn, isClass, isStatic) {
     var msg = ["key", "class method", "static class method"];
     msg = msg[(isClass || false) + (isStatic || false)];
@@ -5369,13 +5407,17 @@ var JSHINT = (function() {
   }
 
   /**
+   * Update an object used to track property names within object initializers
+   * and class bodies. Produce warnings in response to duplicated names.
+   *
    * @param {string} accessorType - Either "get" or "set"
-   * @param {object} props - a collection of all properties of the object to
-   *                         which the current accessor is being assigned
+   * @param {object} props - a collection of all properties of the object or
+   *                         class to which the current accessor is being
+   *                         assigned
    * @param {object} tkn - the identifier token representing the accessor name
-   * @param {boolean} isClass - whether the accessor is part of an ES6 Class
-   *                            definition
-   * @param {boolean} isStatic - whether the accessor is a static method
+   * @param {boolean} [isClass] - whether the accessor is part of an ES6 Class
+   *                              definition
+   * @param {boolean} [isStatic] - whether the accessor is a static method
    */
   function saveAccessor(accessorType, props, name, tkn, isClass, isStatic) {
     var flagName = accessorType === "get" ? "getterToken" : "setterToken";
@@ -5404,6 +5446,19 @@ var JSHINT = (function() {
     props[name][flagName] = tkn;
   }
 
+  /**
+   * Parse a computed property name within object initializers and class bodies
+   * as introduced by ES2015. For example:
+   *
+   *     void {
+   *       [object.method()]: null
+   *     };
+   *
+   * @param {number} context - the parsing context
+   *
+   * @returns {object} - the token value that describes the expression which
+   *                     defines the property name
+   */
   function computedPropertyName(context) {
     advance("[");
     if (!state.inES6()) {
@@ -5415,9 +5470,14 @@ var JSHINT = (function() {
   }
 
   /**
-   * Test whether a given token is a punctuator matching one of the specified values
+   * Test whether a given token is a punctuator whose `value` property matches
+   * one of the specified values. This function explicitly verifies the token's
+   * `type` property so that like-valued string literals (e.g. `";"`) do not
+   * produce false positives.
+   *
    * @param {Token} token
    * @param {Array.<string>} values
+   *
    * @returns {boolean}
    */
   function checkPunctuators(token, values) {
@@ -5428,9 +5488,14 @@ var JSHINT = (function() {
   }
 
   /**
-   * Test whether a given token is a punctuator matching the specified value
+   * Test whether a given token is a punctuator whose `value` property matches
+   * the specified value. This function explicitly verifies the token's `type`
+   * property so that like-valued string literals (e.g. `";"`) do not produce
+   * false positives.
+   *
    * @param {Token} token
    * @param {string} value
+   *
    * @returns {boolean}
    */
   function checkPunctuator(token, value) {
@@ -5457,14 +5522,17 @@ var JSHINT = (function() {
     }
   }
 
-  // array comprehension parsing function
-  // parses and defines the three states of the list comprehension in order
-  // to avoid defining global variables, but keeping them to the list comprehension scope
-  // only. The order of the states are as follows:
-  //  * "use" which will be the returned iterative part of the list comprehension
-  //  * "define" which will define the variables local to the list comprehension
-  //  * "filter" which will help filter out values
-
+  /**
+   * Parse and define the three states of a list comprehension in order to
+   * avoid defining global variables, but keeping them to the list
+   * comprehension scope only. The order of the states are as follows:
+   *
+   * - "use" - which will be the returned iterative part of the list
+   *   comprehension
+   * - "define" - which will define the variables local to the list
+   *   comprehension
+   * - "filter" - which will help filter out values
+   */
   var arrayComprehension = function() {
     var CompArray = function() {
       this.mode = "use";
@@ -5561,8 +5629,11 @@ var JSHINT = (function() {
   };
 
 
-  // Parse JSON
-
+  /**
+   * Parse input according to the JSON format.
+   *
+   * http://json.org/
+   */
   function jsonValue() {
     function jsonObject() {
       var o = {}, t = state.tokens.next;
