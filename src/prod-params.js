@@ -29,5 +29,7 @@ module.exports = {
    * correctly select between the null denotation ("nud") and first null
    * denotation ("fud") parsing strategy.
    */
-  initial: 4
+  initial: 4,
+
+  async: 8
 };

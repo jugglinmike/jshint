@@ -4972,6 +4972,32 @@ var JSHINT = (function() {
     return this;
   }).exps = true;
 
+  var a = prefix("async", function(context) {
+	console.log('nud');
+	var next = state.tokens.next;
+	if (next.id === 'function' && this.line === next.line) {
+	  advance();
+      return state.syntax["function"].nud.apply(this, arguments);;
+	} else {
+      return state.syntax["(identifier)"].nud.apply(this, arguments);
+	}
+  });
+  a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
+  //a.nud = state.syntax["(identifier)"].nud;
+  // async function declaration
+  a.fud = function() {
+	var next = state.tokens.next;
+	console.log('fud');
+	if (next.id === 'function' && this.line === next.line) {
+	  advance();
+      return state.syntax["function"].fud.apply(this, arguments);;
+	} else {
+      return state.syntax["(identifier)"].fud.apply(this, arguments);
+	}
+  };
+
+  a.exps = true;
+
   (function(x) {
     x.exps = true;
     x.lbp = x.rbp = 25;
