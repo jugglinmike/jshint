@@ -575,7 +575,7 @@ Lexer.prototype = {
       "super", "return", "typeof", "delete",
       "switch", "export", "import", "default",
       "finally", "extends", "function", "continue",
-      "debugger", "instanceof", "true", "false", "null"
+      "debugger", "instanceof", "true", "false", "async", "await"
     ];
 
     if (result && keywords.indexOf(result[0]) >= 0) {
@@ -1676,7 +1676,8 @@ Lexer.prototype = {
 
       if (type === "(identifier)") {
         if (value === "return" || value === "case" || value === "yield" ||
-            value === "typeof" || value === "instanceof" || value === "void") {
+            value === "typeof" || value === "instanceof" || value === "void" ||
+            value === "await") {
           this.prereg = true;
         }
 

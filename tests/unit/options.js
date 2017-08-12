@@ -3983,7 +3983,9 @@ exports.module.await = function(test) {
     .test("function await() {}", { esversion: 6, module: true });
 
   TestRun(test)
-    .addError(1, 1, "Expected an identifier and instead saw 'await' (a reserved word).")
+    .addError(1, 1, "Expected an assignment or function call and instead saw an expression.")
+    .addError(1, 6, "Missing semicolon.")
+    .addError(1, 1, "Unrecoverable syntax error. (100% scanned).")
     .test("await: while (false) {}", { esversion: 6, module: true });
 
   TestRun(test)
