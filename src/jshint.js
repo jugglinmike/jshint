@@ -959,9 +959,11 @@ var JSHINT = (function() {
 
     if (initial && state.tokens.curr.fud) {
       left = state.tokens.curr.fud(context);
+	  console.log('fud');
     } else {
       if (state.tokens.curr.nud) {
         left = state.tokens.curr.nud(context, rbp);
+		console.log('nud');
       } else {
         error("E030", state.tokens.curr, state.tokens.curr.id);
       }
@@ -4991,7 +4993,6 @@ var JSHINT = (function() {
   }).exps = true;
 
   var a = prefix("async", function(context) {
-	console.log('nud');
 	var next = state.tokens.next;
 	if (next.id === 'function' && this.line === next.line) {
 	  advance();
@@ -5005,16 +5006,18 @@ var JSHINT = (function() {
   // async function declaration
   a.fud = function() {
 	var next = state.tokens.next;
-	console.log('fud');
 	if (next.id === 'function' && this.line === next.line) {
+	  this.block = true;
 	  advance();
       return state.syntax["function"].fud.apply(this, arguments);;
 	} else {
-      return state.syntax["(identifier)"].fud.apply(this, arguments);
+      this.reserved = false;
+      return state.syntax["(identifier)"].nud.apply(this, arguments);
 	}
   };
-
   a.exps = true;
+  // TODO(mike) write a test for this
+  delete a.reserved;
 
   (function(x) {
     x.exps = true;
