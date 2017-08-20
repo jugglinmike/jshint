@@ -2002,14 +2002,13 @@ var JSHINT = (function() {
   reserve("catch");
   reserve("default").reach = true;
   reserve("finally");
+  reserve("true", function() { return this; });
+  reserve("false", function() { return this; });
   reservevar("arguments", function(x) {
     if (state.isStrict() && state.funct["(global)"]) {
       warning("E008", x);
     }
   });
-  reservevar("eval");
-  reservevar("false");
-  reservevar("Infinity");
   reservevar("null");
   reservevar("this", function(x) {
     if (state.isStrict() && !isMethod() &&
@@ -2018,8 +2017,6 @@ var JSHINT = (function() {
       warning("W040", x);
     }
   });
-  reservevar("true");
-  reservevar("undefined");
 
   assignop("=", "assign", 20);
   assignop("+=", "assignadd", 20);
@@ -3476,7 +3473,7 @@ var JSHINT = (function() {
           }
           id = state.tokens.prev;
           value = expression(10);
-          if (value && value.type === "undefined") {
+          if (value && value.identifier && value.value === "undefined") {
             warning("W080", id, id.value);
           }
         }
@@ -3499,7 +3496,7 @@ var JSHINT = (function() {
           advance("=");
           id = state.tokens.prev;
           value = expression(10);
-          if (value && value.type === "undefined") {
+          if (value && value.identifier && value.value === "undefined") {
             warning("W080", id, id.value);
           }
         }
@@ -3598,7 +3595,7 @@ var JSHINT = (function() {
         var id = state.tokens.prev;
         // don't accept `in` in expression if prefix is used for ForIn/Of loop.
         value = expression(prefix ? 120 : 10);
-        if (!prefix && value && value.type === "undefined") {
+        if (!prefix && value && value.identifier && value.value === "undefined") {
           warning("W080", id, id.value);
         }
         if (lone) {
@@ -3651,7 +3648,7 @@ var JSHINT = (function() {
   var varstatement = stmt("var", function(context) {
     var prefix = context && context.prefix;
     var inexport = context && context.inexport;
-    var tokens, lone, value;
+    var tokens, lone, value, id;
 
     this.first = [];
     for (;;) {
@@ -3660,7 +3657,13 @@ var JSHINT = (function() {
         tokens = destructuringPattern();
         lone = false;
       } else {
-        tokens = [ { id: identifier(), token: state.tokens.curr } ];
+        tokens = [];
+        id = identifier();
+
+        if (id) {
+          tokens.push({ id: id, token: state.tokens.curr });
+        }
+
         lone = true;
       }
 
@@ -3707,10 +3710,11 @@ var JSHINT = (function() {
             warning("W120", state.tokens.next, state.tokens.next.value);
           }
         }
-        var id = state.tokens.prev;
+        id = state.tokens.prev;
         // don't accept `in` in expression if prefix is used for ForIn/Of loop.
         value = expression(prefix ? 120 : 10);
-        if (value && !prefix && !state.funct["(loopage)"] && value.type === "undefined") {
+        if (value && !prefix && !state.funct["(loopage)"] &&
+          value.identifier && value.value === "undefined") {
           warning("W080", id, id.value);
         }
         if (lone) {

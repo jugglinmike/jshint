@@ -7945,7 +7945,6 @@ exports.instanceOfLiterals = function (test) {
   var warningMessage = "Function expressions should not be used as the second operand to instanceof.";
 
   var run = TestRun(test)
-    .addError(13, "Expected an identifier and instead saw 'undefined' (a reserved word).")
     .addError(16, errorMessage)
     .addError(17, errorMessage)
     .addError(18, errorMessage)
