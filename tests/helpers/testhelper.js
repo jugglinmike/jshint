@@ -42,20 +42,20 @@ exports.setup.testRun = function (test, name) {
   var helperObj = {
     addError: function (line, message, extras) {
       var alreadyDefined = definedErrors.some(function(err) {
-          if (err.message !== message) {
-            return false;
-          }
+        if (err.message !== message) {
+          return false;
+        }
 
-          if (err.line !== line) {
-            return false;
-          }
+        if (err.line !== line) {
+          return false;
+        }
 
-          if (extras && err.character !== extras.character) {
-            return false;
-          }
+        if (extras && err.character !== extras.character) {
+          return false;
+        }
 
-          return true;
-        });
+        return true;
+      });
 
       if (alreadyDefined) {
         throw new Error("An expected error with the message '" + message +
