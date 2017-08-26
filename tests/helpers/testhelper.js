@@ -8,7 +8,7 @@
  *    var TestRun = require("./testhelper").setup.testRun;
  *
  *    TestRun(test, name)
- *      .addError(line, errorMessage)
+ *      .addError(line, character, errorMessage)
  *      .test(source, options);
  *
  * TestRun(test, name)
@@ -16,8 +16,9 @@
  *     name:       optional. name of the test run
  *             with a name, it's easier to identify a test run
  *
- * .addError(line, errorMessage)
- *     line:       line of the error message
+ * .addError(line, character, errorMessage)
+ *     line:       line of the reported error
+ *     character:  character of the reported error
  *     errorMessage:   the message of the reported error
  *
  * .test(source, options)
@@ -36,11 +37,26 @@ if (exports.setup === undefined || exports.setup === null) {
   exports.setup = {};
 }
 
+global.R = Object.create(null);
+process.on('exit', () => {
+	Object.keys(global.R).forEach((filename) => {
+		const replacements = global.R[filename];
+        console.log('@ sed -i ' + filename + '\\');
+		replacements.forEach(({line, value}) => {
+		    console.log(`@   -e '${line} s/23232323/${value}/' \\`);
+		  });
+		console.log('@ ;\n');
+	  });
+  });
+
 exports.setup.testRun = function (test, name) {
   var definedErrors = [];
 
   var helperObj = {
-    addError: function (line, message, extras) {
+    addError: function (line, character, message, extras) {
+      const [,file,mline] = new Error().stack.match(/(tests\/unit\/[a-z]+\.js):([0-9]+):([0-9]+)/);
+	  if (!extras) { extras = {}; }
+	  if (!extras.character) { extras.character = character; }
       var alreadyDefined = definedErrors.some(function(err) {
         if (err.message !== message) {
           return false;
@@ -64,8 +80,10 @@ exports.setup.testRun = function (test, name) {
       }
       definedErrors.push({
         line: line,
+        character: character,
         message: message,
-        extras: extras
+        extras: extras,
+        match: { line: mline, file }
       });
 
       return helperObj;
@@ -78,6 +96,28 @@ exports.setup.testRun = function (test, name) {
       if (errors.length === 0 && definedErrors.length === 0) {
         return;
       }
+
+
+	  var actualErrors = errors.slice();
+	  definedErrors
+		.forEach((err) => {
+          for (let idx = 0; idx < actualErrors.length; ++idx) {
+            if (actualErrors[idx].reason === err.message && actualErrors[idx].line === err.line) {
+              err.character = actualErrors[idx].character;
+			  actualErrors.splice(idx, 1);
+
+
+              const { line, file } = err.match;
+			  R[file] = R[file] || [];
+			  R[file].push({ line, value: err.character });
+			  return;
+			}
+		  }
+		  console.log(err, actualErrors);
+		  process.exit(1);
+		});
+
+              //console.log(`sed -i '${line} s/23232323/${el.character}/' ${file}`);
 
       // filter all thrown errors
       var undefinedErrors = errors.filter(function (er) {
