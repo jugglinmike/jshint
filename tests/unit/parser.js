@@ -211,14 +211,14 @@ exports.relations = function (test) {
   var run = TestRun(test)
     .addError(1, 11, "Use the isNaN function to compare with NaN.")
     .addError(2, 13, "Use the isNaN function to compare with NaN.")
-    .addError(3, 9, "Confusing use of '!'.", {character : 9})
-    .addError(4, 13, "Confusing use of '!'.", {character : 13})
-    .addError(5, 10, "Confusing use of '!'.", {character : 10})
-    .addError(6, 10, "Confusing use of '!'.", {character : 10})
-    .addError(7, 16, "Confusing use of '!'.", {character : 16})
-    .addError(8, 10, "Confusing use of '!'.", {character : 10})
-    .addError(9, 10, "Confusing use of '!'.", {character : 10})
-    .addError(10, 10, "Confusing use of '!'.", {character : 10});
+    .addError(3, 9, "Confusing use of '!'.")
+    .addError(4, 13, "Confusing use of '!'.")
+    .addError(5, 10, "Confusing use of '!'.")
+    .addError(6, 10, "Confusing use of '!'.")
+    .addError(7, 16, "Confusing use of '!'.")
+    .addError(8, 10, "Confusing use of '!'.")
+    .addError(9, 10, "Confusing use of '!'.")
+    .addError(10, 10, "Confusing use of '!'.");
   run.test(code, {es3: true});
   run.test(code, {}); // es5
   run.test(code, {esnext: true});
@@ -698,9 +698,9 @@ exports.strings = function (test) {
   ];
 
   var run = TestRun(test)
-    .addError(1, 10, "Control character in string: <non-printable>.", {character: 10})
+    .addError(1, 10, "Control character in string: <non-printable>.")
     .addError(1, 9, "This character may get silently deleted by one or more browsers.")
-    .addError(7, 12, "Unclosed string.", {character: 12})
+    .addError(7, 12, "Unclosed string.")
     .addError(7, 12, "Missing semicolon.");
   run.test(code, {es3: true});
   run.test(code, {}); // es5
@@ -1351,10 +1351,10 @@ exports["regression for GH-910"] = function (test) {
 exports.testHtml = function (test) {
   var html = "<html><body>Hello World</body></html>";
   TestRun(test)
-    .addError(1, 1, "Expected an identifier and instead saw '<'.", { character: 1 })
+    .addError(1, 1, "Expected an identifier and instead saw '<'.")
     .addError(1, 1, "Expected an assignment or function call and instead saw an expression.")
     .addError(1, 2, "Missing semicolon.")
-    .addError(1, 7, "Expected an identifier and instead saw '<'.", { character: 7 })
+    .addError(1, 7, "Expected an identifier and instead saw '<'.")
     .addError(1, 7, "Unrecoverable syntax error. (100% scanned).")
     .test(html, {});
   test.done();
@@ -1395,11 +1395,11 @@ exports["destructuring var in function scope"] = function (test) {
     .addError(12, 12, "'b' is already defined.")
     .addError(12, 15, "'c' is already defined.")
     .addError(12, 27, "Expected ']' to match '[' from line 12 and instead saw ';'.")
-    .addError(12, 28, "Missing semicolon.", { character: 28 })
-    .addError(12, 29, "Expected an assignment or function call and instead saw an expression.", { character: 29 })
-    .addError(12, 30, "Missing semicolon.", { character: 30 })
+    .addError(12, 28, "Missing semicolon.")
+    .addError(12, 29, "Expected an assignment or function call and instead saw an expression.")
+    .addError(12, 30, "Missing semicolon.")
     .addError(12, 31, "Expected an identifier and instead saw ']'.")
-    .addError(12, 31, "Expected an assignment or function call and instead saw an expression.", { character: 31 })
+    .addError(12, 31, "Expected an assignment or function call and instead saw an expression.")
     .addError(4, 17,  "'z' is not defined.")
     .addError(12, 12, "'b' is defined but never used.")
     .addError(12, 15, "'c' is defined but never used.")
@@ -1556,11 +1556,11 @@ exports["destructuring var errors"] = function (test) {
     .addError(9, 7,  "Expected an identifier and instead saw '1'.")
     .addError(10, 11, "Expected ',' and instead saw ';'.")
     .addError(11, 25, "Expected ']' to match '[' from line 11 and instead saw ';'.")
-    .addError(11, 26, "Missing semicolon.", { character: 26 })
-    .addError(11, 27, "Expected an assignment or function call and instead saw an expression.", { character: 27 })
-    .addError(11, 28, "Missing semicolon.", { character: 28 })
+    .addError(11, 26, "Missing semicolon.")
+    .addError(11, 27, "Expected an assignment or function call and instead saw an expression.")
+    .addError(11, 28, "Missing semicolon.")
     .addError(11, 29, "Expected an identifier and instead saw ']'.")
-    .addError(11, 29, "Expected an assignment or function call and instead saw an expression.", { character: 29 })
+    .addError(11, 29, "Expected an assignment or function call and instead saw an expression.")
     .addError(3, 15,  "'z' is not defined.")
     .addError(11, 10, "'b' is defined but never used.")
     .addError(11, 13, "'c' is defined but never used.")
@@ -1777,11 +1777,11 @@ exports["destructuring const errors"] = function (test) {
     .addError(3, 9, "Expected an identifier and instead saw '1'.")
     .addError(4, 13, "Expected ',' and instead saw ';'.")
     .addError(5, 27, "Expected ']' to match '[' from line 5 and instead saw ';'.")
-    .addError(5, 28, "Missing semicolon.", { character: 28 })
-    .addError(5, 29, "Expected an assignment or function call and instead saw an expression.", { character: 29 })
-    .addError(5, 30, "Missing semicolon.", { character: 30 })
+    .addError(5, 28, "Missing semicolon.")
+    .addError(5, 29, "Expected an assignment or function call and instead saw an expression.")
+    .addError(5, 30, "Missing semicolon.")
     .addError(5, 31, "Expected an identifier and instead saw ']'.")
-    .addError(5, 31, "Expected an assignment or function call and instead saw an expression.", { character: 31 })
+    .addError(5, 31, "Expected an assignment or function call and instead saw an expression.")
     .test(code, {esnext: true, unused: true, undef: true});
 
   test.done();
@@ -1940,11 +1940,11 @@ exports["destructuring globals with syntax error"] = function (test) {
     .addError(3, 3, "Bad assignment.")
     .addError(4, 7, "Expected ',' and instead saw ';'.")
     .addError(5, 21, "Expected ']' to match '[' from line 5 and instead saw ';'.")
-    .addError(5, 22, "Missing semicolon.", { character: 22 })
-    .addError(5, 23, "Expected an assignment or function call and instead saw an expression.", { character: 23 })
-    .addError(5, 24, "Missing semicolon.", { character: 24 })
+    .addError(5, 22, "Missing semicolon.")
+    .addError(5, 23, "Expected an assignment or function call and instead saw an expression.")
+    .addError(5, 24, "Missing semicolon.")
     .addError(5, 25, "Expected an identifier and instead saw ']'.")
-    .addError(5, 25, "Expected an assignment or function call and instead saw an expression.", { character: 25 })
+    .addError(5, 25, "Expected an assignment or function call and instead saw an expression.")
     .addError(6, 7, "Bad assignment.")
     .addError(7, 6, "Expected ',' and instead saw '.'.")
     .addError(8, 4, "Bad assignment.")
@@ -2184,10 +2184,10 @@ exports["empty destructuring"] = function (test) {
   TestRun(test)
     .addError(1, 5, "Empty destructuring.")
     .addError(2, 5, "Empty destructuring.")
-    .addError(3, 12, "Empty destructuring.", { character: 12 })
-    .addError(3, 16, "Empty destructuring.", { character: 16 })
-    .addError(4, 10, "Empty destructuring.", { character: 10 })
-    .addError(4, 18, "Empty destructuring.", { character: 18 })
+    .addError(3, 12, "Empty destructuring.")
+    .addError(3, 16, "Empty destructuring.")
+    .addError(4, 10, "Empty destructuring.")
+    .addError(4, 18, "Empty destructuring.")
     .test(code, { esnext: true });
 
   test.done();
@@ -3277,12 +3277,12 @@ exports["non var destructuring assignment statement"] = function (test) {
   TestRun(test).test(codeValid, { esnext: true });
 
   TestRun(test)
-    .addError(2, 2, "Expected an assignment or function call and instead saw an expression.", { character: 2 })
-    .addError(2, 3, "Missing semicolon.", { character: 3 })
+    .addError(2, 2, "Expected an assignment or function call and instead saw an expression.")
+    .addError(2, 3, "Missing semicolon.")
     .addError(2, 5, "Expected an identifier and instead saw '='.")
-    .addError(2, 5, "Expected an assignment or function call and instead saw an expression.", { character: 5 })
-    .addError(2, 6, "Missing semicolon.", { character: 6 })
-    .addError(2, 7, "Expected an assignment or function call and instead saw an expression.", { character: 7 })
+    .addError(2, 5, "Expected an assignment or function call and instead saw an expression.")
+    .addError(2, 6, "Missing semicolon.")
+    .addError(2, 7, "Expected an assignment or function call and instead saw an expression.")
     .addError(3, 7, "Bad assignment.")
     .addError(4, 7, "Bad assignment.")
     .addError(5, 14, "Expected ',' and instead saw '('.")
@@ -4080,8 +4080,8 @@ exports["array comprehension imbrication with dest array as es5"] = function (te
     "[for ([i, j] of [for ([a, b] of [[2,2], [3,4]]) [a, b] ]) [i, j] ];"
   ];
   TestRun(test)
-    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 1 })
-    .addError(1, 17, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 17 })
+    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
+    .addError(1, 17, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
     .test(code, {undef: true, predef: ["print"]}); // es5
 
   test.done();
@@ -4092,8 +4092,8 @@ exports["moz-style array comprehension imbrication with dest array as es5"] = fu
     "[for ([i, j] of [for ([a, b] of [[2,2], [3,4]]) [a, b] ]) [i, j] ];"
   ];
   TestRun(test)
-    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 1 })
-    .addError(1, 17, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 17 })
+    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
+    .addError(1, 17, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
     .test(code, {undef: true, predef: ["print"]}); // es5
 
   test.done();
@@ -4105,10 +4105,10 @@ exports["array comprehension imbrication with dest array as legacy JS"] = functi
 
   ];
   TestRun(test)
-    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 1 })
-    .addError(1, 30, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 30 })
-    .addError(1, 3, "Expected 'for' and instead saw '['.", { character: 3 })
-    .addError(1, 31, "Expected 'for' and instead saw '['.", { character: 31 })
+    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
+    .addError(1, 30, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
+    .addError(1, 3, "Expected 'for' and instead saw '['.")
+    .addError(1, 31, "Expected 'for' and instead saw '['.")
     .addError(1, 14, "'for each' is only available in Mozilla JavaScript extensions (use moz option).")
     .addError(1, 42, "'for each' is only available in Mozilla JavaScript extensions (use moz option).")
     .test(code, {es3: true, undef: true, predef: ["print"]});
@@ -4122,10 +4122,10 @@ exports["moz-style array comprehension imbrication with dest array as legacy JS"
 
   ];
   TestRun(test)
-    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 1 })
-    .addError(1, 30, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).", { character: 30 })
-    .addError(1, 3, "Expected 'for' and instead saw '['.", { character: 3 })
-    .addError(1, 31, "Expected 'for' and instead saw '['.", { character: 31 })
+    .addError(1, 1, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
+    .addError(1, 30, "'array comprehension' is only available in Mozilla JavaScript extensions (use moz option).")
+    .addError(1, 3, "Expected 'for' and instead saw '['.")
+    .addError(1, 31, "Expected 'for' and instead saw '['.")
     .addError(1, 14, "'for each' is only available in Mozilla JavaScript extensions (use moz option).")
     .addError(1, 42, "'for each' is only available in Mozilla JavaScript extensions (use moz option).")
     .test(code, {es3: true, undef: true, predef: ["print"]});
@@ -4307,8 +4307,8 @@ exports["for of as esnext"] = function (test) {
     ], {esversion: 2015});
 
   TestRun(test, "Left-hand side as MemberExpression (invalid)")
-    .addError(1, 10, "Bad assignment.", {character: 10})
-    .addError(2, 13, "Bad assignment.", {character: 13})
+    .addError(1, 10, "Bad assignment.")
+    .addError(2, 13, "Bad assignment.")
     .test([
       "for (x+y of {}) {}",
       "for ((this) of {}) {}"
@@ -4542,25 +4542,25 @@ exports["array destructuring for of as es5"] = function (test) {
     .addError(1, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(2, 21, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(2, 12, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(2, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(2, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 12 })
+    .addError(2, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(2, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 30, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 12, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(3, 12, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(3, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(3, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 12 })
+    .addError(3, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(3, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 26, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(4, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 25, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(5, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 34, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 16, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(6, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad, {undef: true, predef: ["print"]}); // es5
 
   var bad2 = [
@@ -4579,14 +4579,14 @@ exports["array destructuring for of as es5"] = function (test) {
     .addError(2, 25, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(2, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(2, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(2, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(2, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(2, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(2, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 34, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 16, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(3, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(3, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(3, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(3, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(3, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(3, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 28, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(4, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
@@ -4594,14 +4594,14 @@ exports["array destructuring for of as es5"] = function (test) {
     .addError(5, 27, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 18, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(5, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(5, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 18 })
+    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 36, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 18, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 18, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(6, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(6, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 18 })
+    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad2, {undef: true, predef: ["print"]}); // es5
 
   test.done();
@@ -4645,25 +4645,25 @@ exports["array destructuring for of as legacy JS"] = function (test) {
     .addError(1, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(2, 21, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(2, 12, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(2, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(2, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 12 })
+    .addError(2, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(2, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 30, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 12, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(3, 12, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(3, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(3, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 12 })
+    .addError(3, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(3, 12, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 26, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(4, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 25, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(5, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 34, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 16, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(6, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad, {es3: true, undef: true, predef: ["print"]}); // es3
 
   var bad2 = [
@@ -4682,14 +4682,14 @@ exports["array destructuring for of as legacy JS"] = function (test) {
     .addError(2, 25, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(2, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(2, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(2, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(2, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(2, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(2, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 34, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(3, 16, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(3, 16, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(3, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(3, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(3, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 16 })
+    .addError(3, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(3, 16, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 28, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(4, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(4, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
@@ -4697,14 +4697,14 @@ exports["array destructuring for of as legacy JS"] = function (test) {
     .addError(5, 27, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 18, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(5, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(5, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 18 })
+    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 36, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 18, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 18, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(6, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(6, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 18 })
+    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 18, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad2, {es3: true, undef: true, predef: ["print"]}); // es3
 
   test.done();
@@ -4819,25 +4819,25 @@ exports["object destructuring for of as es5"] = function (test) {
     .addError(4, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 33, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 24, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(5, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(5, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 24 })
+    .addError(5, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 40, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 24, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 24, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(6, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(6, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 24 })
+    .addError(6, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 36, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(7, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(8, 37, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(8, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(8, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(8, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 44, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 28, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(9, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(9, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(9, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad, {undef: true, predef: ["print"]}); // es5
 
   var bad2 = [
@@ -4860,14 +4860,14 @@ exports["object destructuring for of as es5"] = function (test) {
     .addError(5, 37, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(5, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(5, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 44, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 28, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(6, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(6, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 38, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(7, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
@@ -4875,14 +4875,14 @@ exports["object destructuring for of as es5"] = function (test) {
     .addError(8, 39, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(8, 30, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(8, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(8, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 30 })
+    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(8, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 46, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 30, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(9, 30, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(9, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(9, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 30 })
+    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(9, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad2, {undef: true, predef: ["print"]}); // es5
 
   test.done();
@@ -4932,25 +4932,25 @@ exports["object destructuring for of as legacy JS"] = function (test) {
     .addError(4, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 33, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 24, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(5, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(5, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 24 })
+    .addError(5, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 40, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 24, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 24, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(6, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 5 })
-    .addError(6, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 24 })
+    .addError(6, 5, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 24, "'destructuring assignment' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 36, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(7, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(8, 37, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(8, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(8, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(8, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 44, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 28, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(9, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
-    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(9, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(9, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad, {es3: true, undef: true, predef: ["print"]}); // es3
 
   var bad2 = [
@@ -4973,14 +4973,14 @@ exports["object destructuring for of as legacy JS"] = function (test) {
     .addError(5, 37, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(5, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(5, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(5, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(5, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 44, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 28, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(6, 28, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(6, 6, "'let' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(6, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 28 })
+    .addError(6, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 28, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 38, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 6, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(7, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
@@ -4988,14 +4988,14 @@ exports["object destructuring for of as legacy JS"] = function (test) {
     .addError(8, 39, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(8, 30, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(8, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(8, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 30 })
+    .addError(8, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(8, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 46, "'for of' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(9, 30, "Invalid for-of loop left-hand-side: initializer is forbidden.")
     .addError(9, 30, "Invalid for-of loop left-hand-side: more than one ForBinding.")
     .addError(9, 6, "'const' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
-    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 6 })
-    .addError(9, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 30 })
+    .addError(9, 6, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(9, 30, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .test(bad2, {es3: true, undef: true, predef: ["print"]}); // es3
 
   test.done();
@@ -5104,9 +5104,9 @@ exports["no let not directly within a block"] = function (test) {
     .addError(7, 30, "Let declaration not directly within block.")
     .addError(8, 30, "Let declaration not directly within block.")
     .addError(9, 14, "Let declaration not directly within block.")
-    .addError(10, 12, "Let declaration not directly within block.", { character: 12 })
-    .addError(10, 38, "Let declaration not directly within block.", { character: 38 })
-    .addError(10, 54, "Let declaration not directly within block.", { character: 54 })
+    .addError(10, 12, "Let declaration not directly within block.")
+    .addError(10, 38, "Let declaration not directly within block.")
+    .addError(10, 54, "Let declaration not directly within block.")
     .addError(11, 22, "Let declaration not directly within block.");
   run.test(code, {esversion: 6});
   run.test(code, {moz: true});
@@ -5135,9 +5135,9 @@ exports["no const not directly within a block"] = function (test) {
     .addError(4, 8, "Const declaration not directly within block.")
     .addError(6, 30, "Const declaration not directly within block.")
     .addError(7, 14, "Const declaration not directly within block.")
-    .addError(8, 12, "Const declaration not directly within block.", { character: 12 })
-    .addError(8, 40, "Const declaration not directly within block.", { character: 40 })
-    .addError(8, 58, "Const declaration not directly within block.", { character: 58 })
+    .addError(8, 12, "Const declaration not directly within block.")
+    .addError(8, 40, "Const declaration not directly within block.")
+    .addError(8, 58, "Const declaration not directly within block.")
     .test(code, {predef: ["print"], esnext: true});
 
   test.done();
@@ -5483,8 +5483,8 @@ exports["expressions in place of arrow function parameters"] = function (test) {
 
 exports["arrow function parameter containing semicolon (gh-3002)"] = function (test) {
   TestRun(test)
-    .addError(1, 19, "Unnecessary semicolon.", { character: 19 })
-    .addError(1, 27, "Expected an assignment or function call and instead saw an expression.", { character: 27 })
+    .addError(1, 19, "Unnecessary semicolon.")
+    .addError(1, 27, "Expected an assignment or function call and instead saw an expression.")
     .test("(x = function() { ; }) => 0;", { esversion: 6 });
 
   test.done();
@@ -5616,10 +5616,10 @@ exports["object short notation: mixed"] = function (test) {
   TestRun(test).test(code, { esnext: true });
 
   TestRun(test)
-    .addError(2, 17, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 17 })
-    .addError(2, 20, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 20 })
-    .addError(3, 11, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 11 })
-    .addError(3, 20, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 20 })
+    .addError(2, 17, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(2, 20, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(3, 11, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(3, 20, "'object short notation' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
   .test(code);
 
   test.done();
@@ -6230,8 +6230,8 @@ exports.classElementEmpty = function (test) {
   TestRun(test)
     .addError(2, 3, "Unnecessary semicolon.")
     .addError(4, 3, "Unnecessary semicolon.")
-    .addError(6, 3, "Unnecessary semicolon.", { character: 3 })
-    .addError(6, 4, "Unnecessary semicolon.", { character: 4 })
+    .addError(6, 3, "Unnecessary semicolon.")
+    .addError(6, 4, "Unnecessary semicolon.")
     .addError(8, 3, "Unnecessary semicolon.")
     .test(code, { esnext: true });
 
@@ -6388,37 +6388,37 @@ exports["test 'yield' in compound expressions."] = function (test) {
 
   run
     .addError(22, 15, "Did you mean to return a conditional instead of an assignment?")
-    .addError(23, 22, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 22 })
+    .addError(23, 22, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
     .addError(31, 15, "Did you mean to return a conditional instead of an assignment?")
-    .addError(32, 20, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 20 })
-    .addError(32, 17, "Bad operand.", { character: 17 })
-    .addError(51, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 10 })
-    .addError(53, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 10 })
-    .addError(54, 16, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 16 })
-    .addError(57, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 10 })
-    .addError(58, 11, "Bad operand.", { character: 11 })
-    .addError(59, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 10 })
-    .addError(59, 16, "Bad operand.", { character: 16 })
-    .addError(60, 11, "Bad operand.", { character: 11 })
-    .addError(60, 14, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 14 })
-    .addError(64, 6, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 6 })
-    .addError(65, 7, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 7 })
-    .addError(66, 6, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 6 })
-    .addError(67, 7, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 7 })
-    .addError(70, 6, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 6 })
-    .addError(71, 7, "Invalid position for 'yield' expression (consider wrapping in parenthesis).", { character: 7 })
-    .addError(77, 11, "Bad operand.", { character: 11 })
-    .addError(78, 11, "Bad operand.", { character: 11 })
-    .addError(78, 19, "Bad operand.", { character: 19 })
-    .addError(79, 11, "Bad operand.", { character: 11 })
-    .addError(79, 19, "Bad operand.", { character: 19 })
-    .addError(79, 47, "Bad operand.", { character: 47 })
-    .addError(82, 11, "Bad operand.", { character: 11 })
-    .addError(83, 11, "Bad operand.", { character: 11 })
-    .addError(83, 19, "Bad operand.", { character: 19 })
-    .addError(84, 11, "Bad operand.", { character: 11 })
-    .addError(84, 19, "Bad operand.", { character: 19 })
-    .addError(84, 43, "Bad operand.", { character: 43 })
+    .addError(32, 20, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(32, 17, "Bad operand.")
+    .addError(51, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(53, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(54, 16, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(57, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(58, 11, "Bad operand.")
+    .addError(59, 10, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(59, 16, "Bad operand.")
+    .addError(60, 11, "Bad operand.")
+    .addError(60, 14, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(64, 6, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(65, 7, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(66, 6, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(67, 7, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(70, 6, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(71, 7, "Invalid position for 'yield' expression (consider wrapping in parenthesis).")
+    .addError(77, 11, "Bad operand.")
+    .addError(78, 11, "Bad operand.")
+    .addError(78, 19, "Bad operand.")
+    .addError(79, 11, "Bad operand.")
+    .addError(79, 19, "Bad operand.")
+    .addError(79, 47, "Bad operand.")
+    .addError(82, 11, "Bad operand.")
+    .addError(83, 11, "Bad operand.")
+    .addError(83, 19, "Bad operand.")
+    .addError(84, 11, "Bad operand.")
+    .addError(84, 19, "Bad operand.")
+    .addError(84, 43, "Bad operand.")
     .test(code, {maxerr: 1000, expr: true, esnext: true});
 
   run = TestRun(test)
@@ -6443,8 +6443,7 @@ exports["test 'yield' in compound expressions."] = function (test) {
   ];
 
   needparen.forEach(function (lc) {
-    run.addError(lc[0], lc[1], "Mozilla requires the yield expression to be parenthesized here.",
-                 {character: lc[1]});
+    run.addError(lc[0], lc[1], "Mozilla requires the yield expression to be parenthesized here.");
   });
 
   run
@@ -6621,10 +6620,10 @@ exports["test for line breaks with 'yield'"] = function (test) {
     .addError(8, 5, "Comma warnings can be turned off with 'laxcomma'.")
     .addError(9, 14, "Missing semicolon.")
     .addError(10, 5, "Expected an identifier and instead saw '?'.")
-    .addError(10, 5, "Expected an assignment or function call and instead saw an expression.", { character: 5 })
+    .addError(10, 5, "Expected an assignment or function call and instead saw an expression.")
     .addError(10, 6, "Missing semicolon.")
     .addError(10, 11, "Label 'i' on j statement.")
-    .addError(10, 11, "Expected an assignment or function call and instead saw an expression.", { character: 11 })
+    .addError(10, 11, "Expected an assignment or function call and instead saw an expression.")
     .addError(13, 22, "Missing semicolon.")
     .addError(14, 7, "Expected an assignment or function call and instead saw an expression.");
 
@@ -6649,9 +6648,9 @@ exports["test for line breaks with 'yield'"] = function (test) {
     .addError(7, 10, "Misleading line break before ','; readers may interpret this as an expression boundary.")
     .addError(10, 5, "Expected an identifier and instead saw '?'.")
     .addError(10, 6, "Missing semicolon.")
-    .addError(10, 5, "Expected an assignment or function call and instead saw an expression.", { character: 5 })
+    .addError(10, 5, "Expected an assignment or function call and instead saw an expression.")
     .addError(10, 11, "Label 'i' on j statement.")
-    .addError(10, 11, "Expected an assignment or function call and instead saw an expression.", { character: 11 })
+    .addError(10, 11, "Expected an assignment or function call and instead saw an expression.")
     .addError(14, 7, "Expected an assignment or function call and instead saw an expression.");
 
   run.test(code, {moz: true, asi: true});
@@ -7068,8 +7067,8 @@ exports["test destructuring function parameters as es5"] = function (test) {
     .addError(4, 14, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(5, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 18, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
-    .addError(6, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 7 })
-    .addError(6, 14, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 14 })
+    .addError(6, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 14, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 22, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(7, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 24, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
@@ -7081,8 +7080,8 @@ exports["test destructuring function parameters as es5"] = function (test) {
     .addError(14, 11, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(15, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(15, 14, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
-    .addError(16, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 7 })
-    .addError(16, 17, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 17 })
+    .addError(16, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(16, 17, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(16, 22, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(17, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(17, 20, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
@@ -7118,8 +7117,8 @@ exports["test destructuring function parameters as legacy JS"] = function (test)
     .addError(4, 14, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(5, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(5, 18, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
-    .addError(6, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 7 })
-    .addError(6, 14, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 14 })
+    .addError(6, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(6, 14, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(6, 22, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(7, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(7, 24, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
@@ -7131,8 +7130,8 @@ exports["test destructuring function parameters as legacy JS"] = function (test)
     .addError(14, 11, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(15, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(15, 14, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
-    .addError(16, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 7 })
-    .addError(16, 17, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).", { character: 17 })
+    .addError(16, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
+    .addError(16, 17, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(16, 22, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
     .addError(17, 7, "'destructuring binding' is available in ES6 (use 'esversion: 6') or Mozilla JS extensions (use moz).")
     .addError(17, 20, "'arrow function syntax (=>)' is only available in ES6 (use 'esversion: 6').")
@@ -7419,8 +7418,8 @@ exports.testStrictDirectiveASI = function (test) {
 
   TestRun(test, 14)
     .addError(1, 13, "Bad operand.")
-    .addError(2, 1, "Missing \"use strict\" statement.", { character: 1 })
-    .addError(2, 2, "Missing \"use strict\" statement.", { character: 2 })
+    .addError(2, 1, "Missing \"use strict\" statement.")
+    .addError(2, 2, "Missing \"use strict\" statement.")
     .addError(2, 1, "Expected an assignment or function call and instead saw an expression.")
     .test("'use strict'++\nx;", options);
 
@@ -7844,17 +7843,17 @@ exports.parsingCommas = function (test) {
     .addError(5, 1, "Expected ')' to match '(' from line 1 and instead saw 'for'.")
     .addError(5, 7, "Expected an identifier and instead saw ';'.")
     .addError(5, 9, "Expected ')' to match '(' from line 5 and instead saw ';'.")
-    .addError(5, 9, "Expected an assignment or function call and instead saw an expression.", { character: 9 })
-    .addError(5, 10, "Missing semicolon.", { character: 10 })
+    .addError(5, 9, "Expected an assignment or function call and instead saw an expression.")
+    .addError(5, 10, "Missing semicolon.")
     .addError(6, 9, "Unexpected ','.")
-    .addError(5, 12, "Expected an assignment or function call and instead saw an expression.", { character: 12 })
-    .addError(5, 13, "Missing semicolon.", { character: 13 })
+    .addError(5, 12, "Expected an assignment or function call and instead saw an expression.")
+    .addError(5, 13, "Missing semicolon.")
     .addError(6, 9, "Expected an identifier and instead saw ','.")
-    .addError(6, 9, "Expected an assignment or function call and instead saw an expression.", { character: 9 })
-    .addError(6, 10, "Missing semicolon.", { character: 10 })
+    .addError(6, 9, "Expected an assignment or function call and instead saw an expression.")
+    .addError(6, 10, "Missing semicolon.")
     .addError(6, 10, "Expected an identifier and instead saw ')'.")
-    .addError(6, 10, "Expected an assignment or function call and instead saw an expression.", { character: 10 })
-    .addError(6, 11, "Missing semicolon.", { character: 11 })
+    .addError(6, 10, "Expected an assignment or function call and instead saw an expression.")
+    .addError(6, 11, "Missing semicolon.")
     .test(src);
 
   test.done();

@@ -543,9 +543,7 @@ exports.testConstructor = function (test) {
   var code = "new Number(5);";
 
   TestRun(test)
-    .addError(1, 1, "Do not use Number as a constructor.", {
-      character: 1
-    })
+    .addError(1, 1, "Do not use Number as a constructor.")
     .test(code, {es3: true});
 
   test.done();
@@ -555,9 +553,7 @@ exports.missingRadix = function (test) {
   var code = "parseInt(20);";
 
   TestRun(test)
-    .addError(1, 12, "Missing radix parameter.", {
-      character: 12
-    })
+    .addError(1, 12, "Missing radix parameter.")
     .test(code, {es3: true});
 
   TestRun(test).test(code);
@@ -585,10 +581,10 @@ exports.testSparseArrays = function (test) {
   var src = "var arr = ['a',, null,, '',, undefined,,];";
 
   TestRun(test)
-    .addError(1, 16, "Extra comma. (it breaks older versions of IE)", { character: 16 })
-    .addError(1, 23, "Extra comma. (it breaks older versions of IE)", { character: 23 })
-    .addError(1, 28, "Extra comma. (it breaks older versions of IE)", { character: 28 })
-    .addError(1, 40, "Extra comma. (it breaks older versions of IE)", { character: 40 })
+    .addError(1, 16, "Extra comma. (it breaks older versions of IE)")
+    .addError(1, 23, "Extra comma. (it breaks older versions of IE)")
+    .addError(1, 28, "Extra comma. (it breaks older versions of IE)")
+    .addError(1, 40, "Extra comma. (it breaks older versions of IE)")
     .test(src, {es3: true});
 
   TestRun(test)
@@ -751,8 +747,8 @@ exports.testForIn = function (test) {
     ]);
 
   TestRun(test, "Left-hand side as MemberExpression (invalid)")
-    .addError(1, 10, "Bad assignment.", {character: 10})
-    .addError(2, 13, "Bad assignment.", {character: 13})
+    .addError(1, 10, "Bad assignment.")
+    .addError(2, 13, "Bad assignment.")
     .test([
       "for (x+y in {}) {}",
       "for ((this) in {}) {}"
@@ -1626,8 +1622,8 @@ exports.testColumnNumAfterNonStrictComparison = function (test) {
         "  }\n"+
         "}";
   TestRun(test)
-    .addError(1, 9, "Expected '===' and instead saw '=='.", {character: 9})
-    .addError(3, 11, "Expected '!==' and instead saw '!='.", {character: 11})
+    .addError(1, 9, "Expected '===' and instead saw '=='.")
+    .addError(3, 11, "Expected '!==' and instead saw '!='.")
     .test(src, {eqeqeq: true});
   test.done();
 };

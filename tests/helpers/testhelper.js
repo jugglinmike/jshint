@@ -55,8 +55,6 @@ exports.setup.testRun = function (test, name) {
   var helperObj = {
     addError: function (line, character, message, extras) {
       const [,file,mline] = new Error().stack.match(/(tests\/unit\/[a-z]+\.js):([0-9]+):([0-9]+)/);
-	  if (!extras) { extras = {}; }
-	  if (!extras.character) { extras.character = character; }
       var alreadyDefined = definedErrors.some(function(err) {
         if (err.message !== message) {
           return false;
@@ -66,7 +64,7 @@ exports.setup.testRun = function (test, name) {
           return false;
         }
 
-        if (extras && err.character !== extras.character) {
+        if (err.character !== character) {
           return false;
         }
 
@@ -148,7 +146,7 @@ exports.setup.testRun = function (test, name) {
       var unthrownErrors = definedErrors.filter(function (def) {
         return !errors.some(function (er) {
           return def.line === er.line &&
-            (!def.extras || !("character" in def.extras) || def.extras.character === er.character) &&
+            def.character === er.character &&
             def.message === er.reason;
         });
       });
@@ -160,11 +158,11 @@ exports.setup.testRun = function (test, name) {
             return false;
           }
 
-          return def.line !== er.line || (def.extras && "character" in def.extras && def.extras.character !== er.character);
+          return def.line !== er.line || def.character !== er.character;
         }).map(function (def) {
           return {
             line: def.line,
-            character: def.extras && def.extras.character
+            character: def.character
           };
         });
 
@@ -204,7 +202,7 @@ exports.setup.testRun = function (test, name) {
       if (unthrownErrors.length > 0) {
         errorDetails += "\n  Errors defined, but not thrown by JSHint:\n" +
           unthrownErrors.map(function (el) {
-            return "    {Line " + el.line + ", Char " + (el.extras && el.extras.character) + "} " + el.message;
+            return "    {Line " + el.line + ", Char " + el.character + "} " + el.message;
           }).join("\n");
       }
 

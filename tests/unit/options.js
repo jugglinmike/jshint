@@ -445,11 +445,11 @@ exports.testCamelcase = function (test) {
 
   // Require identifiers in camel case if camelcase is true
   TestRun(test)
-    .addError(5, 17, "Identifier 'Foo_bar' is not in camel case.", {character: 17})
-    .addError(5, 25, "Identifier 'test_me' is not in camel case.", {character: 25})
-    .addError(6, 15, "Identifier 'test_me' is not in camel case.", {character: 15})
-    .addError(6, 25, "Identifier 'test_me' is not in camel case.", {character: 25})
-    .addError(13, 26, "Identifier 'test_1' is not in camel case.", {character: 26})
+    .addError(5, 17, "Identifier 'Foo_bar' is not in camel case.")
+    .addError(5, 25, "Identifier 'test_me' is not in camel case.")
+    .addError(6, 15, "Identifier 'test_me' is not in camel case.")
+    .addError(6, 25, "Identifier 'test_me' is not in camel case.")
+    .addError(13, 26, "Identifier 'test_1' is not in camel case.")
     .test(source, { es3: true, camelcase: true });
 
 
@@ -540,9 +540,7 @@ exports.nonew = function (test) {
   TestRun(test).test(code1, { es3: true });
 
   TestRun(test)
-    .addError(1, 1, "Do not use 'new' for side effects.", {
-      character: 1
-    })
+    .addError(1, 1, "Do not use 'new' for side effects.")
     .test(code, { es3: true, nonew: true });
 
   test.done();
@@ -609,9 +607,9 @@ exports.asi = function (test) {
     .addError(21, 13, "Line breaking error 'break'.")
     .addError(21, 18, "Missing semicolon.")
     .addError(25, 6, "Missing semicolon.")
-    .addError(26, 10, "Missing semicolon.", { character: 10 })
-    .addError(27, 12, "Missing semicolon.", { character: 12 })
-    .addError(28, 12, "Missing semicolon.", { character: 12 })
+    .addError(26, 10, "Missing semicolon.")
+    .addError(27, 12, "Missing semicolon.")
+    .addError(28, 12, "Missing semicolon.")
     .test(src, { es3: true });
 
   TestRun(test, 2)
@@ -630,8 +628,8 @@ exports.asi = function (test) {
     .addError(2, 24, "Unnecessary directive \"code\".")
     .addError(3, 24, "Expected an assignment or function call and instead saw an expression.")
     .addError(6, 22, "Missing semicolon.", { code: "E058" })
-    .addError(6, 16, "Expected an assignment or function call and instead saw an expression.", { character: 16 })
-    .addError(6, 23, "Expected an assignment or function call and instead saw an expression.", { character: 23 })
+    .addError(6, 16, "Expected an assignment or function call and instead saw an expression.")
+    .addError(6, 23, "Expected an assignment or function call and instead saw an expression.")
     .test(code, { asi: true });
 
   test.done();
@@ -647,8 +645,8 @@ exports.safeasi = function (test) {
     .addError(10, 5, "Misleading line break before '/'; readers may interpret this as an expression boundary.")
     .addError(10, 8, "Expected an identifier and instead saw '.'.")
     .addError(10, 8, "Expected an assignment or function call and instead saw an expression.")
-    .addError(10, 9, "Missing semicolon.", { character: 9 })
-    .addError(10, 30, "Missing semicolon.", { character: 30 })
+    .addError(10, 9, "Missing semicolon.")
+    .addError(10, 30, "Missing semicolon.")
     .addError(11, 5, "Missing semicolon.")
     .addError(21, 2, "Missing semicolon.")
     .test(src, {});
@@ -656,7 +654,7 @@ exports.safeasi = function (test) {
   TestRun(test, 2)
     .addError(5, 1, "Misleading line break before '('; readers may interpret this as an expression boundary.")
     .addError(8, 5, "Misleading line break before '('; readers may interpret this as an expression boundary.")
-    .addError(10, 5, "Misleading line break before '/'; readers may interpret this as an expression boundary.", { character: 5 })
+    .addError(10, 5, "Misleading line break before '/'; readers may interpret this as an expression boundary.")
     .addError(10, 8, "Expected an identifier and instead saw '.'.")
     .addError(10, 8, "Expected an assignment or function call and instead saw an expression.")
     .addError(10, 9, "Missing semicolon.")
@@ -675,7 +673,7 @@ exports["missing semicolons not influenced by asi"] = function (test) {
   ];
 
   TestRun(test)
-    .addError(2, 4, "Missing semicolon.", { character: 4, code: "E058" })
+    .addError(2, 4, "Missing semicolon.", { code: "E058" })
     .test(code, { expr: true, asi: true });
 
   code = [
@@ -1546,10 +1544,8 @@ exports.supernew = function (test) {
 
   TestRun(test)
     .addError(1, 9, "Weird construction. Is 'new' necessary?")
-    .addError(9, 1, "Missing '()' invoking a constructor.", { character: 1 })
-    .addError(11, 13, "Missing '()' invoking a constructor.", {
-      character: 13
-    })
+    .addError(9, 1, "Missing '()' invoking a constructor.")
+    .addError(11, 13, "Missing '()' invoking a constructor.")
     .test(src, {es3: true});
 
   TestRun(test).test(src, { es3: true, supernew: true });
@@ -1709,12 +1705,12 @@ exports.immed = function (test) {
 
   // Regression for GH-900
   TestRun(test)
-    //.addError(1, 23232323, "Expected an assignment or function call and instead saw an expression.", { character: 1 })
+    //.addError(1, 23232323, "Expected an assignment or function call and instead saw an expression.")
     .addError(1, 31, "Expected an identifier and instead saw ')'.")
-    .addError(1, 30, "Expected an assignment or function call and instead saw an expression.", { character: 30 })
+    .addError(1, 30, "Expected an assignment or function call and instead saw an expression.")
     .addError(1, 14, "Unmatched '{'.")
-    .addError(1, 31, "Expected an assignment or function call and instead saw an expression.", { character: 31 })
-    .addError(1, 31, "Missing semicolon.", { character: 31 })
+    .addError(1, 31, "Expected an assignment or function call and instead saw an expression.")
+    .addError(1, 31, "Missing semicolon.")
     .addError(1, 32, "Unrecoverable syntax error. (100% scanned).")
     .test("(function () { if (true) { }());", { es3: true, immed: true });
 
@@ -1774,9 +1770,7 @@ exports.newcap = function (test) {
 /** Option `sub` allows all forms of subscription. */
 exports.sub = function (test) {
   TestRun(test)
-    .addError(1, 17, "['prop'] is better written in dot notation.", {
-      character: 17
-    })
+    .addError(1, 17, "['prop'] is better written in dot notation.")
     .test("window.obj = obj['prop'];", {es3: true});
 
   TestRun(test).test("window.obj = obj['prop'];", { es3: true, sub: true });
@@ -2132,21 +2126,21 @@ exports.strings = function (test) {
   var src = fs.readFileSync(__dirname + '/fixtures/strings.js', 'utf8');
 
   TestRun(test)
-    .addError(9, 20, "Unclosed string.", {character: 20})
-    .addError(10, 1, "Unclosed string.", {character: 1})
-    .addError(15, 1, "Unclosed string.", {character: 1})
+    .addError(9, 20, "Unclosed string.")
+    .addError(10, 1, "Unclosed string.")
+    .addError(15, 1, "Unclosed string.")
     .addError(25, 16, "Octal literals are not allowed in strict mode.")
     .test(src, { es3: true, multistr: true });
 
   TestRun(test)
-    .addError(3, 21, "Bad escaping of EOL. Use option multistr if needed.", {character: 21})
-    .addError(4, 2, "Bad escaping of EOL. Use option multistr if needed.", {character: 2})
-    .addError(9, 20, "Unclosed string.", {character: 20})
-    .addError(10, 1, "Unclosed string.", {character: 1})
-    .addError(14, 21, "Bad escaping of EOL. Use option multistr if needed.", {character: 21})
-    .addError(15, 1, "Unclosed string.", {character: 1})
+    .addError(3, 21, "Bad escaping of EOL. Use option multistr if needed.")
+    .addError(4, 2, "Bad escaping of EOL. Use option multistr if needed.")
+    .addError(9, 20, "Unclosed string.")
+    .addError(10, 1, "Unclosed string.")
+    .addError(14, 21, "Bad escaping of EOL. Use option multistr if needed.")
+    .addError(15, 1, "Unclosed string.")
     .addError(25, 16, "Octal literals are not allowed in strict mode.")
-    .addError(29, 36, "Bad escaping of EOL. Use option multistr if needed.", {character: 36})
+    .addError(29, 36, "Bad escaping of EOL. Use option multistr if needed.")
     .test(src, { es3: true });
 
   test.done();
@@ -2753,7 +2747,7 @@ exports.ignoreDelimiters = function (test) {
 
   TestRun(test)
     // make sure line/column are still reported properly
-    .addError(6, 37, "Missing semicolon.", { character: 37 })
+    .addError(6, 37, "Missing semicolon.")
     .test(src, {
       ignoreDelimiters: [
         { start: "<%=", end: "%>" },
@@ -3337,13 +3331,13 @@ exports.elision = function (test) {
 
   TestRun(test, "elision=false ES3")
     .addError(1, 12, "Extra comma. (it breaks older versions of IE)")
-    .addError(2, 12, "Extra comma. (it breaks older versions of IE)", { character: 12 })
-    .addError(2, 13, "Extra comma. (it breaks older versions of IE)", { character: 13 })
-    .addError(2, 14, "Extra comma. (it breaks older versions of IE)", { character: 14 })
+    .addError(2, 12, "Extra comma. (it breaks older versions of IE)")
+    .addError(2, 13, "Extra comma. (it breaks older versions of IE)")
+    .addError(2, 14, "Extra comma. (it breaks older versions of IE)")
     .addError(3, 13, "Extra comma. (it breaks older versions of IE)")
     .addError(4, 10, "Extra comma. (it breaks older versions of IE)")
-    .addError(5, 10, "Extra comma. (it breaks older versions of IE)", { character: 10 })
-    .addError(5, 11, "Extra comma. (it breaks older versions of IE)", { character: 11 })
+    .addError(5, 10, "Extra comma. (it breaks older versions of IE)")
+    .addError(5, 11, "Extra comma. (it breaks older versions of IE)")
     .test(code, { elision: false, es3: true });
 
   TestRun(test, "elision=true ES5")
