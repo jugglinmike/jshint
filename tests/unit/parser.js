@@ -6028,8 +6028,8 @@ exports["class and method naming"] = function (test) {
     "}"
   ];
   var run = TestRun(test)
-    .addError(1, "Expected an identifier and instead saw 'eval' (a reserved word).")
-    .addError(2, "Expected an identifier and instead saw 'arguments' (a reserved word).")
+    .addError(1, "Strict violation.")
+    .addError(2, "Strict violation.")
     .addError(4, "A class getter method cannot be named 'constructor'.")
     .addError(5, "A class setter method cannot be named 'constructor'.")
     .addError(6, "A class method cannot be named 'prototype'.")
@@ -7863,7 +7863,6 @@ exports.instanceOfLiterals = function (test) {
   var warningMessage = "Function expressions should not be used as the second operand to instanceof.";
 
   var run = TestRun(test)
-    .addError(13, "Expected an identifier and instead saw 'undefined' (a reserved word).")
     .addError(16, errorMessage)
     .addError(17, errorMessage)
     .addError(18, errorMessage)

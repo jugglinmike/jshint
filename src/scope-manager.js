@@ -453,6 +453,10 @@ var scopeManager = function(state, predefined, exported, declared) {
     addParam: function(labelName, token, type) {
       type = type || "param";
 
+      if (state.isStrict() && (labelName === "arguments" || labelName === "eval")) {
+        warning("E008", token);
+      }
+
       if (type === "exception") {
         // if defined in the current function
         var previouslyDefinedLabelType = this.funct.labeltype(labelName);
@@ -641,6 +645,10 @@ var scopeManager = function(state, predefined, exported, declared) {
 
       // outer shadow check (inner is only on non-block scoped)
       _checkOuterShadow(labelName, token, type);
+
+      if (state.isStrict() && (labelName === "arguments" || labelName === "eval")) {
+        warning("E008", token);
+      }
 
       if (isblockscoped) {
 
