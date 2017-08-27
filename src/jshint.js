@@ -2609,7 +2609,9 @@ var JSHINT = (function() {
   application("=>");
 
   infix("[", function(left, that) {
-    var e = expression(10), s;
+    var e = expression(10);
+    var s, canUseDot;
+
     if (e && e.type === "(string)") {
       if (!state.option.evil && (e.value === "eval" || e.value === "execScript")) {
         if (isGlobalEval(left, state)) {
@@ -2620,7 +2622,20 @@ var JSHINT = (function() {
       countMember(e.value);
       if (!state.option.sub && reg.identifier.test(e.value)) {
         s = state.syntax[e.value];
-        if (!s || !isReserved(s)) {
+
+        if (s) {
+          canUseDot = !isReserved(s);
+        } else {
+          // This branch exists to preserve legacy behavior with version 2.9.5
+          // and earlier. In those releases, `eval` and `arguments` were
+          // incorrectly interpreted as reserved keywords, so Member
+          // Expressions such as `object["eval"]` did not trigger warning W069.
+          //
+          // TODO: Remove in JSHint 3
+          canUseDot = e.value !== "eval" && e.value !== "arguments";
+        }
+
+        if (canUseDot) {
           warning("W069", state.tokens.prev, e.value);
         }
       }

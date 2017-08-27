@@ -1674,12 +1674,9 @@ exports.evil = function (test) {
     .addError(6, "Implied eval. Consider passing a function instead of a string.")
     .addError(7, "Implied eval. Consider passing a function instead of a string.")
     .addError(8, "eval can be harmful.")
-    .addError(8, "['eval'] is better written in dot notation.")
     .test(src, { es3: true, browser: true });
 
-  TestRun(test)
-    .addError(8, "['eval'] is better written in dot notation.")
-    .test(src, { es3: true, evil: true, browser: true });
+  TestRun(test).test(src, { es3: true, evil: true, browser: true });
 
   test.done();
 };

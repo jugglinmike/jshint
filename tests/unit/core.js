@@ -1712,22 +1712,17 @@ exports.testPermitEvalAsKey = function (test) {
 
   // browser globals
   TestRun(test)
-  .addError(14, "['eval'] is better written in dot notation.")
   .addError(17, "eval can be harmful.")
   .addError(19, "eval can be harmful.")
   .addError(20, "eval can be harmful.")
-  .addError(20, "['eval'] is better written in dot notation.")
   .addError(22, "eval can be harmful.")
   .addError(23, "eval can be harmful.")
-  .addError(23, "['eval'] is better written in dot notation.")
   .addError(25, "eval can be harmful.")
   .test(srcBrowser, { browser: true });
 
   // node globals
   TestRun(test)
-  .addError(14, "['eval'] is better written in dot notation.")
   .addError(18, "eval can be harmful.")
-  .addError(18, "['eval'] is better written in dot notation.")
   .addError(19, "eval can be harmful.")
   .addError(20, "eval can be harmful.")
   .addError(22, "eval can be harmful.")
