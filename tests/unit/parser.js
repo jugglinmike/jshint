@@ -145,14 +145,17 @@ exports.plusplus = function (test) {
 
   run = TestRun(test)
     .addError(1, "Unexpected use of '++'.")
-    .addError(2, "Unexpected use of '--'.");
+    .addError(1, "Bad assignment.")
+    .addError(2, "Unexpected use of '--'.")
+    .addError(2, "Bad assignment.");
   run.test(code, { plusplus: true, es3: true });
   run.test(code, { plusplus: true }); // es5
   run.test(code, { plusplus: true, esnext: true });
   run.test(code, { plusplus: true, moz: true });
 
   run = TestRun(test)
-    .addError(2, "Bad operand.");
+    .addError(1, "Bad assignment.")
+    .addError(2, "Bad assignment.");
   run.test(code, { plusplus: false, es3: true });
   run.test(code, { plusplus: false }); // es5
   run.test(code, { plusplus: false, esnext: true });
@@ -7319,7 +7322,7 @@ exports.testES6BlockImports = function (test) {
 };
 
 exports.testStrictDirectiveASI = function (test) {
-  var options = { strict: true, asi: true, globalstrict: true, predef: ["x"] };
+  var options = { strict: true, asi: true, globalstrict: true };
 
   TestRun(test, 1)
     .test("'use strict'\nfunction fn() {}\nfn();", options);
@@ -7364,28 +7367,28 @@ exports.testStrictDirectiveASI = function (test) {
 
   TestRun(test, 11)
     .addError(2, "Expected an assignment or function call and instead saw an expression.")
-    .test("'use strict'\n!x;", options);
+    .test("'use strict'\n!x;", options, { x: true });
 
   TestRun(test, 12)
     .addError(2, "Misleading line break before '+'; readers may interpret this as an expression boundary.")
     .addError(2, "Missing \"use strict\" statement.")
     .addError(2, "Expected an assignment or function call and instead saw an expression.")
-    .test("'use strict'\n+x;", options);
+    .test("'use strict'\n+x;", options, { x: true });
 
   TestRun(test, 13)
-    .test("'use strict'\n++x;", options);
+    .test("'use strict'\n++x;", options, { x: true });
 
   TestRun(test, 14)
-    .addError(1, "Bad operand.")
+    .addError(1, "Bad assignment.")
     .addError(2, "Missing \"use strict\" statement.", { character: 1 })
     .addError(2, "Missing \"use strict\" statement.", { character: 2 })
     .addError(2, "Expected an assignment or function call and instead saw an expression.")
-    .test("'use strict'++\nx;", options);
+    .test("'use strict'++\nx;", options, { x: true });
 
   TestRun(test, 15)
-    .addError(1, "Bad operand.")
+    .addError(1, "Bad assignment.")
     .addError(1, "Missing \"use strict\" statement.")
-    .test("'use strict'++;", options);
+    .test("'use strict'++;", options, { x: true });
 
   test.done();
 };
