@@ -70,6 +70,8 @@
     "phantomjs-prebuilt":             "~2.1.7",
     "regenerate":                     "1.2.x",
     "sinon":                          "1.12.x",
+    "test262-stream":                 "file:../../test262-stream",
+    "test-interpreter":               "file:../../test-interpreter",
     "unicode-6.3.0":                  "0.1.x"
   },
 

@@ -1,131 +1,115 @@
-#! /usr/bin/env node
-
 "use strict";
 
-var fs = require("fs");
 var path = require("path");
-var async = require("async");
 
-var parseExpectations = require("./parse-expectations");
-var interpretResults = require("./interpret-results");
-var report = require("./report");
-var test = require("./test");
+var testDir = path.join(__dirname, "test262");
+var whitelistFile = path.join(__dirname, "expectations.txt");
+var shouldUpdate = process.argv.indexOf("--update-whitelist") > -1;
 
-var paths = {
-  test262: __dirname + "/test262/test",
-  expectations: __dirname + "/expectations.txt"
-};
-var testName = /^(?!.*_FIXTURE).*\.[jJ][sS]/;
+var TestStream = require("test262-stream");
+var Interpreter = require("test-interpreter");
+var run = require('./run');
 
-function findTests(directoryName, cb) {
-  fs.readdir(directoryName, function(err, fileNames) {
-    var tests = [];
-    var pending = fileNames.length;
+var stream = new TestStream(testDir);
+var { Transform } = require("stream");
+var results = new Transform({
+  objectMode: true,
+  transform(test, encoding, done) {
+    var result = {
+      id: test.file.replace(/^test\//, "") + "(" + test.scenario + ")",
+      expected: test.attrs.negative && test.attrs.negative.phase === "early" ?
+        "fail" : "pass",
+      actual: run(test)
+    };
 
-    if (err) {
-      cb(err);
-      return;
-    }
-    if (fileNames.length === 0) {
-      cb(null, tests);
-      return;
-    }
-
-    fileNames.forEach(function(fileName) {
-      var fullName = path.join(directoryName, fileName);
-
-      fs.stat(fullName, function(err, stat) {
-
-        if (err) {
-          cb(err);
-          return;
-        }
-
-        if (stat.isDirectory()) {
-          findTests(fullName, function(err, nested) {
-            if (err) {
-              cb(err);
-              return;
-            }
-
-            tests.push.apply(tests, nested);
-
-            pending--;
-            if (pending === 0) {
-              cb(null, tests);
-            }
-          });
-          return;
-        }
-
-        if (testName.test(fullName)) {
-          tests.push(fullName);
-        }
-
-        pending--;
-        if (pending === 0) {
-          cb(null, tests);
-        }
-      });
-    });
-  });
-}
-
-console.log("Indexing test files (searching in " + paths.test262 + ").");
-findTests(paths.test262, function(err, testNames) {
-  if (err) {
-    console.error(err);
-    process.exit(1);
+    done(null, result);
   }
+});
+var interpreter = new Interpreter(whitelistFile, {
+  outputFile: shouldUpdate ? whitelistFile : null
+});
 
-  console.log("Indexing complete (" + testNames.length + " files found).");
-  console.log("Testing...");
+console.log(`Now running tests...`);
+stream.pipe(results)
+  .pipe(interpreter)
+  .on("error", (error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .on("finish", function() {
+    report(this.summary);
+    process.exitCode = this.summary.passed ? 0 : 1;
+  });
 
-  var count = 0;
-  var start = new Date().getTime();
-  async.mapLimit(testNames, 20, function(testName, done) {
-    fs.readFile(testName, { encoding: "utf-8" }, function(err, src) {
-      var result;
+function report(summary) {
+  var goodnews = [
+    summary.allowed.success.length + " valid programs parsed without error",
+    summary.allowed.failure.length +
+      " invalid programs produced a parsing error",
+    summary.allowed.falsePositive.length +
+      " invalid programs did not produce a parsing error" +
+      " (and allowed by the whitelist file)",
+    summary.allowed.falseNegative.length +
+      " valid programs produced a parsing error" +
+      " (and allowed by the whitelist file)",
+  ];
+  var badnews = [];
+  var badnewsDetails = [];
 
-      count++;
-      if (count % 1000 === 0) {
-        console.log(
-          count + "/" + testNames.length + " (" +
-          (100*count/testNames.length).toFixed(2) + "%)"
-        );
-      }
-      if (err) {
-        done(err);
-        return;
-      }
-
-      result = test(src);
-      result.name = path.relative(paths.test262, testName);
-      done(null, result);
-    });
-  }, function(err, results) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
+  void [
+    {
+      tests: summary.disallowed.success,
+      label:
+        "valid programs parsed without error" +
+        " (in violation of the whitelist file)",
+    },
+    {
+      tests: summary.disallowed.failure,
+      label:
+        "invalid programs produced a parsing error" +
+        " (in violation of the whitelist file)",
+    },
+    {
+      tests: summary.disallowed.falsePositive,
+      label:
+        "invalid programs did not produce a parsing error" +
+        " (without a corresponding entry in the whitelist file)",
+    },
+    {
+      tests: summary.disallowed.falseNegative,
+      label:
+        "valid programs produced a parsing error" +
+        " (without a corresponding entry in the whitelist file)",
+    },
+    {
+      tests: summary.unrecognized,
+      label: "non-existent programs specified in the whitelist file",
+    },
+  ].forEach(function({ tests, label }) {
+    if (!tests.length) {
+      return;
     }
 
-    fs.readFile(paths.expectations, { encoding: "utf-8" }, function(err, src) {
-      var summary, output;
+    var desc = tests.length + " " + label;
 
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-
-      summary = interpretResults(results, parseExpectations(src));
-      output = report(summary, new Date().getTime() - start);
-
-      if (summary.totalUnexpected === 0) {
-        console.log(output);
-      } else {
-        console.error(output);
-        process.exitCode = 1;
-      }
-    });
+    badnews.push(desc);
+    badnewsDetails.push(desc + ":");
+    badnewsDetails.push(
+      ...tests.map(function(test) {
+        return test.id || test;
+      })
+    );
   });
-});
+
+  console.log("Testing complete.");
+  console.log("Summary:");
+  console.log(goodnews.join("\n").replace(/^/gm, " ✔ "));
+
+  if (!summary.passed) {
+    console.log("");
+    console.log(badnews.join("\n").replace(/^/gm, " ✘ "));
+    console.log("");
+    console.log("Details:");
+    console.log(badnewsDetails.join("\n").replace(/^/gm, "   "));
+  }
+}
