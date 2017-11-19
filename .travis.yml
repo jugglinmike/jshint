@@ -8,7 +8,7 @@ before_install: |
       echo 'Removed'
     fi
 script:
-  - node -p 'require("request/package.json").version'
+  - npm ls request
   - npm run test-node
   - npm run test-262
   - if [[ $(node --version) == v6* ]] ; then npm run test-browser; fi
