@@ -1,6 +1,14 @@
 language: node_js
 after_success: npm run coverage && cat ./coverage/lcov.info | coveralls
+before_install: |
+    v=$(node --version)
+    echo Node.js version is "$v"
+    if [[ $v != v0.10.* ]] && [[ $v != v0.12.* ]] ; then
+      rm npm-shrinkwrap.json
+      echo 'Removed'
+    fi
 script:
+  - node -p 'require("request/package.json").version'
   - npm run test-node
   - npm run test-262
   - if [[ $(node --version) == v6* ]] ; then npm run test-browser; fi
