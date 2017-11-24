@@ -942,11 +942,9 @@ var JSHINT = (function() {
 
     if (initial && curr.fud && (!curr.useFud || curr.useFud(context))) {
       left = state.tokens.curr.fud(context);
-	  console.log('fud');
     } else {
       if (state.tokens.curr.nud) {
         left = state.tokens.curr.nud(context, rbp);
-		console.log('nud');
       } else {
         error("E030", state.tokens.curr, state.tokens.curr.id);
       }
@@ -4975,27 +4973,25 @@ var JSHINT = (function() {
   }).exps = true;
 
   var a = prefix("async", function(context) {
-	var next = state.tokens.next;
-	if (next.id === 'function' && this.line === next.line) {
-	  advance();
+    var next = state.tokens.next;
+    if (this.isFunc(context)) {
+      advance();
       return state.syntax["function"].nud.apply(this, arguments);;
-	} else {
+    } else {
       return state.syntax["(identifier)"].nud.apply(this, arguments);
-	}
+    }
   });
   a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
-  //a.nud = state.syntax["(identifier)"].nud;
+  a.isFunc = function(context) {
+    var next = state.tokens.next;
+    return next.id === 'function' && this.line === next.line;
+  };
+  a.useFud = a.isFunc;
   // async function declaration
   a.fud = function() {
-	var next = state.tokens.next;
-	if (next.id === 'function' && this.line === next.line) {
-	  this.block = true;
-	  advance();
-      return state.syntax["function"].fud.apply(this, arguments);;
-	} else {
-      this.reserved = false;
-      return state.syntax["(identifier)"].nud.apply(this, arguments);
-	}
+    this.block = true;
+    advance();
+    return state.syntax["function"].fud.apply(this, arguments);;
   };
   a.exps = true;
   // TODO(mike) write a test for this

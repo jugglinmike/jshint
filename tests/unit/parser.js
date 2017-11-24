@@ -8595,26 +8595,25 @@ exports.asyncFunctions = {};
 exports.asyncFunctions.asyncIdentifier = function (test) {
   var code = [
     "var async;",
-	"{ let async; }",
-	"{ const async = null; }",
-	"async: while (false) {}",
-	"void { async: 0 };",
-	"async();",
-	//"async(async);",
-	//"async(async());"
+    "{ let async; }",
+    "{ const async = null; }",
+    "async: while (false) {}",
+    "void { async: 0 };",
+    "async();",
+    "async(async);",
+    "async(async());"
   ];
 
   TestRun(test)
-	.test(code, { esversion: 6 });
+    .test(code, { esversion: 6 });
 
   test.done();
 };
 
 exports.asyncFunctions.expression = function (test) {
-
   TestRun(test)
-	.addError(1, "Expected an assignment or function call and instead saw an expression.")
-	.test("0, async function() {};");
+    .addError(1, 22, "Expected an assignment or function call and instead saw an expression.")
+    .test("0, async function() {};");
 
   test.done();
 };
@@ -8625,8 +8624,8 @@ exports.asyncFunctions.declaration = function (test) {
   ];
 
   TestRun(test)
-	.addError(1, "Unnecessary semicolon.")
-	.test("async function f() {};");
+    .addError(1, 22, "Unnecessary semicolon.")
+    .test("async function f() {};");
 
   test.done();
 };
