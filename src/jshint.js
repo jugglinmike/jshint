@@ -2805,13 +2805,11 @@ var JSHINT = (function() {
     return that;
   }, 155, true).exps = true;
 
-  prefix("(", function(context, rbp) {
-    var pn = state.tokens.next, pn1, i = -1;
-    var ret, triggerFnExpr, first, last;
+  function peekThroughParens() {
+    var pn = state.tokens.next;
+    var i = -1;
     var parens = 1;
-    var opening = state.tokens.curr;
-    var preceeding = state.tokens.prev;
-    var isNecessary = !state.option.singleGroups;
+    var pn1;
 
     do {
       if (pn.value === "(") {
@@ -2824,6 +2822,16 @@ var JSHINT = (function() {
       pn1 = pn;
       pn = peek(i);
     } while (!(parens === 0 && pn1.value === ")") && pn.type !== "(end)");
+
+    return pn;
+  }
+
+  prefix("(", function(context, rbp) {
+    var ret, triggerFnExpr, first, last;
+    var opening = state.tokens.curr;
+    var preceeding = state.tokens.prev;
+    var isNecessary = !state.option.singleGroups;
+    var pn = peekThroughParens();
 
     if (state.tokens.next.id === "function") {
       triggerFnExpr = state.tokens.next.immed = true;
