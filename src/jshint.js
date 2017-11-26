@@ -3669,7 +3669,7 @@ var JSHINT = (function() {
 
           if (state.tokens.next.id === "async" && !checkPunctuators(peek(), ["(", ":"])) {
             if (!state.inES8()) {
-              warning("W104", state.tokens.next, "async functions", "8");
+              warning("W119", state.tokens.next, "async functions", "8");
             }
 
             isAsyncMethod = true;
@@ -4997,7 +4997,7 @@ var JSHINT = (function() {
   var a = prefix("async", function(context) {
     if (this.isFunc(context)) {
       if (!state.inES8()) {
-        warning("W104", this, "async functions", "8");
+        warning("W119", this, "async functions", "8");
       }
 
       if (state.tokens.next.id === "(" || (state.tokens.next.identifier && state.tokens.next.value !== "function")) {
@@ -5042,6 +5042,10 @@ var JSHINT = (function() {
   a.useFud = a.isFunc;
   // async function declaration
   a.fud = function(context) {
+    if (!state.inES8()) {
+      warning("W119", this, "async functions", "8");
+    }
+
     if (state.tokens.next.id === "(" || (state.tokens.next.identifier && state.tokens.next.value !== "function")) {
       advance();
       var parsedOpening = false;

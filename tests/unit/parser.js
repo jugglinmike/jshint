@@ -8629,7 +8629,7 @@ exports.asyncFunctions.expression = function (test) {
     .test("async function() {}", { esversion: 8 });
 
   TestRun(test, "Expression position (disallowed prior to ES8)")
-    .addError(1, 6, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
+    .addError(1, 6, "'async functions' is only available in ES8 (use 'esversion: 8').")
     .test("void async function() {};", { esversion: 7 });
 
   TestRun(test, "Expression position")
@@ -8662,11 +8662,11 @@ exports.asyncFunctions.arrow = function (test) {
   ];
 
   TestRun(test, "Expression position (disallowed prior to ES8)")
-    .addError(1, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
-    .addError(2, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
-    .addError(3, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
-    .addError(4, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
-    .addError(5, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
+    .addError(1, 7, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .addError(2, 7, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .addError(3, 7, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .addError(4, 7, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .addError(5, 7, "'async functions' is only available in ES8 (use 'esversion: 8').")
     .test(expressions, { esversion: 7 })
 
   TestRun(test, "Expression position")
@@ -8676,9 +8676,12 @@ exports.asyncFunctions.arrow = function (test) {
 };
 
 exports.asyncFunctions.declaration = function (test) {
-  var code = [
-    'async function f() {}'
-  ];
+  TestRun(test)
+    .addError(1, 1, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .test("async function f() {}", { esversion: 7 });
+
+  TestRun(test)
+    .test("async function f() {}", { esversion: 8 });
 
   TestRun(test)
     .addError(1, 22, "Unnecessary semicolon.")
@@ -8695,9 +8698,9 @@ exports.asyncFunctions.objectMethod = function (test) {
   ];
 
   TestRun(test, "Disallowed prior to ES8")
-    .addError(1, 8, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
-    .addError(2, 8, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
-    .addError(3, 8, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
+    .addError(1, 8, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .addError(2, 8, "'async functions' is only available in ES8 (use 'esversion: 8').")
+    .addError(3, 8, "'async functions' is only available in ES8 (use 'esversion: 8').")
     .test(code, { esversion: 7 });
 
   TestRun(test, "Allowed in ES8")
