@@ -5010,19 +5010,26 @@ var JSHINT = (function() {
   a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
   a.isFunc = function(context) {
     var next = state.tokens.next;
+    var afterParens;
+
     if (this.line !== next.line) {
       return false;
     }
-    if (next.id === 'function') {
+
+    if (next.id === "function") {
       return true;
     }
+
     if (next.id === "(") {
-      var next = peekThroughParens(0);
-      return next.id === "=>";
+      var afterParens = peekThroughParens(0);
+
+      return afterParens.id === "=>";
     }
+
     if (next.identifier) {
       return peek().id === "=>";
     }
+
     return false;
   };
   a.useFud = a.isFunc;
