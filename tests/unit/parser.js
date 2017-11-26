@@ -8608,10 +8608,10 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
   var strictCode = ["'use strict';"].concat(code);
 
   TestRun(test)
-    .test(code, { esversion: 6 });
+    .test(code, { esversion: 7 });
 
   TestRun(test)
-    .test(strictCode, { esversion: 6, strict: "global" });
+    .test(strictCode, { esversion: 7, strict: "global" });
 
   TestRun(test)
     .test(code, { esversion: 8 });
