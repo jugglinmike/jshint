@@ -8620,6 +8620,19 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
     .addError(1, 9, "Expected an assignment or function call and instead saw an expression.")
     .test("async=>{};", { esversion: 8 });
 
+  TestRun(test, "Line termination")
+    .addError(1, 1, "Expected an assignment or function call and instead saw an expression.")
+    .addError(1, 6, "Missing semicolon.")
+    .addError(3, 1, "Expected an assignment or function call and instead saw an expression.")
+    .addError(3, 6, "Missing semicolon.")
+    .addError(4, 7, "Expected an assignment or function call and instead saw an expression.")
+    .test([
+      "async",
+      "function f() {}",
+      "async",
+      "x => {};"
+    ], { esversion: 8 });
+
   test.done();
 };
 

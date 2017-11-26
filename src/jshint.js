@@ -4999,15 +4999,21 @@ var JSHINT = (function() {
       if (!state.inES8()) {
         warning("W119", this, "async functions", "8");
       }
-      return expression(rbp, context);
+
+      this.func = expression(rbp, context);
+      return this;
     }
 
+    this.exps = false;
     return state.syntax["(identifier)"].nud.apply(this, arguments);
   });
   a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
   a.isFunc = function(context) {
     var next = state.tokens.next;
-    if (next.id === 'function' && this.line === next.line) {
+    if (this.line !== next.line) {
+      return false;
+    }
+    if (next.id === 'function') {
       return true;
     }
     if (next.id === "(") {
