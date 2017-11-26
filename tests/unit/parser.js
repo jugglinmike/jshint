@@ -8598,7 +8598,9 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
     "{ let async; }",
     "{ const async = null; }",
     "async: while (false) {}",
+    "void { async };",
     "void { async: 0 };",
+    "void { async() {} };",
     "async();",
     "async(async);",
     "async(async());"
@@ -8657,6 +8659,17 @@ exports.asyncFunctions.declaration = function (test) {
   TestRun(test)
     .addError(1, 22, "Unnecessary semicolon.")
     .test("async function f() {};");
+
+  test.done();
+};
+
+exports.asyncFunctions.objectMethod = function (test) {
+  TestRun(test)
+    .test([
+      "void { async m() {} };",
+      "void { async 'm'() {} };",
+      "void { async ['m']() {} };",
+    ], { esversion: 6 });
 
   test.done();
 };

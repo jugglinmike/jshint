@@ -3576,6 +3576,7 @@ var JSHINT = (function() {
     x.nud = function(context) {
       var b, f, i, p, t, isGeneratorMethod = false, nextVal;
       var props = Object.create(null); // All properties, including accessors
+      var isAsyncMethod = false;
 
       b = state.tokens.curr.line !== startLine(state.tokens.next);
       if (b) {
@@ -3664,6 +3665,11 @@ var JSHINT = (function() {
             isGeneratorMethod = false;
           }
 
+          if (state.tokens.next.id === "async" && !checkPunctuators(peek(), ["(", ":"])) {
+            isAsyncMethod = true;
+            advance();
+          }
+
           if (state.tokens.next.id === "[") {
             i = computedPropertyName(context);
             state.nameStack.set(i);
@@ -3681,7 +3687,10 @@ var JSHINT = (function() {
             if (!state.inES6()) {
               warning("W104", state.tokens.curr, "concise methods", "6");
             }
-            doFunction(context, { type: isGeneratorMethod ? "generator" : null });
+            doFunction(context, {
+              type: isGeneratorMethod ? "generator" : null,
+              isAsync: isAsyncMethod
+            });
           } else {
             advance(":");
             expression(10, context);
