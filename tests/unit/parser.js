@@ -8641,11 +8641,13 @@ exports.asyncFunctions.expression = function (test) {
 exports.asyncFunctions.arrow = function (test) {
   TestRun(test, "Statement position")
     .addError(1, 14, "Expected an assignment or function call and instead saw an expression.")
-    .addError(2, 15, "Expected an assignment or function call and instead saw an expression.")
-    .addError(3, 18, "Expected an assignment or function call and instead saw an expression.")
-    .addError(4, 24, "Expected an assignment or function call and instead saw an expression.")
+    .addError(2, 13, "Expected an assignment or function call and instead saw an expression.")
+    .addError(3, 15, "Expected an assignment or function call and instead saw an expression.")
+    .addError(4, 18, "Expected an assignment or function call and instead saw an expression.")
+    .addError(5, 24, "Expected an assignment or function call and instead saw an expression.")
     .test([
       "async () => {};",
+      "async x => {};",
       "async (x) => {};",
       "async (x, y) => {};",
       "async (x, y = x()) => {};"
@@ -8653,6 +8655,7 @@ exports.asyncFunctions.arrow = function (test) {
 
   var expressions = [
     "void (async () => {});",
+    "void (async x => {});",
     "void (async (x) => {});",
     "void (async (x, y) => {});",
     "void (async (x, y = x()) => {});"
@@ -8663,6 +8666,7 @@ exports.asyncFunctions.arrow = function (test) {
     .addError(2, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
     .addError(3, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
     .addError(4, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
+    .addError(5, 7, "'async functions' is available in ES8 (use 'esversion: 8') or Mozilla JS extensions (use moz).")
     .test(expressions, { esversion: 7 })
 
   TestRun(test, "Expression position")

@@ -5000,9 +5000,22 @@ var JSHINT = (function() {
         warning("W104", this, "async functions", "8");
       }
 
-      if (state.tokens.next.id === "(") {
+      if (state.tokens.next.id === "(" || (state.tokens.next.identifier && state.tokens.next.value !== "function")) {
         advance();
-        this.funct = doFunction(context, { type: "arrow", isAsync: true, parsedOpening: true });
+        var parsedOpening = false;
+        var loneArg = null;
+        if (state.tokens.curr.id === "(") {
+          parsedOpening = true;
+        } else {
+          loneArg = state.tokens.curr;
+          advance();
+        }
+        this.funct = doFunction(context, {
+          type: "arrow",
+          isAsync: true,
+          parsedOpening: parsedOpening,
+          loneArg: loneArg
+        });
         return this;
       }
       advance();
@@ -5021,14 +5034,30 @@ var JSHINT = (function() {
       var next = peekThroughParens(0);
       return next.id === "=>";
     }
+    if (next.identifier) {
+      return peek().id === "=>";
+    }
     return false;
   };
   a.useFud = a.isFunc;
   // async function declaration
   a.fud = function(context) {
-    if (state.tokens.next.id === "(") {
+    if (state.tokens.next.id === "(" || (state.tokens.next.identifier && state.tokens.next.value !== "function")) {
       advance();
-      this.funct = doFunction(context, { type: "arrow", isAsync: true, parsedOpening: true });
+      var parsedOpening = false;
+      var loneArg = null;
+      if (state.tokens.curr.id === "(") {
+        parsedOpening = true;
+      } else {
+        loneArg = state.tokens.curr;
+        advance();
+      }
+      this.funct = doFunction(context, {
+        type: "arrow",
+        isAsync: true,
+        parsedOpening: parsedOpening,
+        loneArg: loneArg
+      });
       this.exps = false;
       return this;
     }
