@@ -8643,6 +8643,39 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
   test.done();
 };
 
+exports.asyncFunctions.awaitIdentifier = function (test) {
+  var code = [
+    "var await;",
+    "{ let await; }",
+    "{ const await = null; }",
+    "await: while (false) {}",
+    "void { await };",
+    "void { await: 0 };",
+    "void { await() {} };",
+    "await();",
+    "await(await);",
+    "await(await());"
+  ];
+  var functionCode = ["(function() {"].concat(code).concat("}());");
+  var strictCode = ["'use strict';"].concat(code);
+
+  TestRun(test)
+    .test(code, { esversion: 7 });
+  TestRun(test)
+    .test(functionCode, { esversion: 7 });
+  TestRun(test)
+    .test(strictCode, { esversion: 7, strict: "global" });
+
+  TestRun(test)
+    .test(code, { esversion: 8 });
+  TestRun(test)
+    .test(functionCode, { esversion: 8 });
+  TestRun(test)
+    .test(strictCode, { esversion: 8, strict: "global" });
+
+  test.done();
+};
+
 exports.asyncFunctions.expression = function (test) {
   TestRun(test, "Statement position")
     .addError(1, 15, "Missing name in function declaration.")
