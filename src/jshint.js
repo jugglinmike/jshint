@@ -4994,35 +4994,15 @@ var JSHINT = (function() {
     return this;
   }).exps = true;
 
-  var a = prefix("async", function(context) {
+  var a = prefix("async", function(context, rbp) {
     if (this.isFunc(context)) {
       if (!state.inES8()) {
         warning("W119", this, "async functions", "8");
       }
-
-      if (state.tokens.next.id === "(" || (state.tokens.next.identifier && state.tokens.next.value !== "function")) {
-        advance();
-        var parsedOpening = false;
-        var loneArg = null;
-        if (state.tokens.curr.id === "(") {
-          parsedOpening = true;
-        } else {
-          loneArg = state.tokens.curr;
-          advance();
-        }
-        this.funct = doFunction(context, {
-          type: "arrow",
-          isAsync: true,
-          parsedOpening: parsedOpening,
-          loneArg: loneArg
-        });
-        return this;
-      }
-      advance();
-      return state.syntax["function"].nud.apply(this, arguments);;
-    } else {
-      return state.syntax["(identifier)"].nud.apply(this, arguments);
+      return expression(rbp, context);
     }
+
+    return state.syntax["(identifier)"].nud.apply(this, arguments);
   });
   a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
   a.isFunc = function(context) {
@@ -5045,29 +5025,11 @@ var JSHINT = (function() {
     if (!state.inES8()) {
       warning("W119", this, "async functions", "8");
     }
-
-    if (state.tokens.next.id === "(" || (state.tokens.next.identifier && state.tokens.next.value !== "function")) {
-      advance();
-      var parsedOpening = false;
-      var loneArg = null;
-      if (state.tokens.curr.id === "(") {
-        parsedOpening = true;
-      } else {
-        loneArg = state.tokens.curr;
-        advance();
-      }
-      this.funct = doFunction(context, {
-        type: "arrow",
-        isAsync: true,
-        parsedOpening: parsedOpening,
-        loneArg: loneArg
-      });
-      this.exps = false;
-      return this;
-    }
-    this.block = true;
-    advance();
-    return state.syntax["function"].fud.apply(this, arguments);;
+    context |= prodParams.initial;
+    this.func = expression(0, context);
+    this.block = this.func.block;
+    this.exps = this.func.exps;
+    return this;
   };
   a.exps = true;
   // TODO(mike) write a test for this
