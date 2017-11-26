@@ -8601,6 +8601,7 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
     "void { async };",
     "void { async: 0 };",
     "void { async() {} };",
+    "void { get async() {} };",
     "async();",
     "async(async);",
     "async(async());"
@@ -8652,6 +8653,7 @@ exports.asyncFunctions.awaitIdentifier = function (test) {
     "void { await };",
     "void { await: 0 };",
     "void { await() {} };",
+    "void { get await() {} };",
     "await();",
     "await(await);",
     "await(await());"
