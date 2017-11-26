@@ -8607,13 +8607,44 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
   TestRun(test)
     .test(code, { esversion: 6 });
 
+  TestRun(test)
+    .addError(1, 9, "Expected an assignment or function call and instead saw an expression.")
+    .test("async=>{};", { esversion: 6 });
+
   test.done();
 };
 
 exports.asyncFunctions.expression = function (test) {
-  TestRun(test)
-    .addError(1, 22, "Expected an assignment or function call and instead saw an expression.")
-    .test("0, async function() {};");
+  TestRun(test, "Statement position")
+    .addError(1, 15, "Missing name in function declaration.")
+    .test("async function() {}");
+
+  TestRun(test, "Expression position")
+    .test("void async function() {};");
+
+  test.done();
+};
+
+exports.asyncFunctions.arrow = function (test) {
+  TestRun(test, "Statement position")
+    .addError(1, 14, "Expected an assignment or function call and instead saw an expression.")
+    .addError(2, 15, "Expected an assignment or function call and instead saw an expression.")
+    .addError(3, 18, "Expected an assignment or function call and instead saw an expression.")
+    .addError(4, 24, "Expected an assignment or function call and instead saw an expression.")
+    .test([
+      "async () => {};",
+      "async (x) => {};",
+      "async (x, y) => {};",
+      "async (x, y = x()) => {};"
+    ], { esversion: 6 })
+
+  TestRun(test, "Expression position")
+    .test([
+      "void (async () => {});",
+      "void (async (x) => {});",
+      "void (async (x, y) => {});",
+      "void (async (x, y = x()) => {});"
+    ], { esversion: 6 })
 
   test.done();
 };

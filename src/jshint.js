@@ -2805,10 +2805,9 @@ var JSHINT = (function() {
     return that;
   }, 155, true).exps = true;
 
-  function peekThroughParens() {
+  function peekThroughParens(parens) {
     var pn = state.tokens.next;
     var i = -1;
-    var parens = 1;
     var pn1;
 
     do {
@@ -2831,7 +2830,7 @@ var JSHINT = (function() {
     var opening = state.tokens.curr;
     var preceeding = state.tokens.prev;
     var isNecessary = !state.option.singleGroups;
-    var pn = peekThroughParens();
+    var pn = peekThroughParens(1);
 
     if (state.tokens.next.id === "function") {
       triggerFnExpr = state.tokens.next.immed = true;
@@ -4981,8 +4980,12 @@ var JSHINT = (function() {
   }).exps = true;
 
   var a = prefix("async", function(context) {
-    var next = state.tokens.next;
     if (this.isFunc(context)) {
+      if (state.tokens.next.id === "(") {
+        advance();
+        this.funct = doFunction(context, { type: "arrow", isAsync: true, parsedOpening: true });
+        return this;
+      }
       advance();
       return state.syntax["function"].nud.apply(this, arguments);;
     } else {
@@ -4992,11 +4995,24 @@ var JSHINT = (function() {
   a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
   a.isFunc = function(context) {
     var next = state.tokens.next;
-    return next.id === 'function' && this.line === next.line;
+    if (next.id === 'function' && this.line === next.line) {
+      return true;
+    }
+    if (next.id === "(") {
+      var next = peekThroughParens(0);
+      return next.id === "=>";
+    }
+    return false;
   };
   a.useFud = a.isFunc;
   // async function declaration
-  a.fud = function() {
+  a.fud = function(context) {
+    if (state.tokens.next.id === "(") {
+      advance();
+      this.funct = doFunction(context, { type: "arrow", isAsync: true, parsedOpening: true });
+      this.exps = false;
+      return this;
+    }
     this.block = true;
     advance();
     return state.syntax["function"].fud.apply(this, arguments);;
