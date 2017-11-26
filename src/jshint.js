@@ -5045,7 +5045,6 @@ var JSHINT = (function() {
     return this;
   };
   a.exps = true;
-  // TODO(mike) write a test for this
   delete a.reserved;
 
   (function(x) {

@@ -8605,12 +8605,19 @@ exports.asyncFunctions.asyncIdentifier = function (test) {
     "async(async);",
     "async(async());"
   ];
+  var strictCode = ["'use strict';"].concat(code);
 
   TestRun(test)
     .test(code, { esversion: 6 });
 
   TestRun(test)
+    .test(strictCode, { esversion: 6, strict: "global" });
+
+  TestRun(test)
     .test(code, { esversion: 8 });
+
+  TestRun(test)
+    .test(strictCode, { esversion: 8, strict: "global" });
 
   TestRun(test)
     .addError(1, 9, "Expected an assignment or function call and instead saw an expression.")
