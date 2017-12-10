@@ -110,6 +110,16 @@ exports.register = function (linter) {
         data: [ data.value ]
       });
     }
+    
+      linter.on("Number", function style_scanNumbers(data) {
+    if (data.value.charAt(0) === "_") {
+      // Warn about a leading decimal point.
+      linter.warn("W008", {
+        line: data.line,
+        char: data.char,
+        data: [ data.value ]
+      });
+    }
 
     if (data.value.substr(data.value.length - 1) === ".") {
       // Warn about a trailing decimal point.
