@@ -2965,7 +2965,8 @@ var JSHINT = (function() {
    *                                            the body of member functions.
    */
   function doFunction(options) {
-    var f, token, name, statement, classExprBinding, isGenerator, isArrow, ignoreLoopFunc;
+    var f, token, name, statement, classExprBinding, isGenerator, isArrow,
+      isMethod, ignoreLoopFunc;
     var oldOption = state.option;
     var oldIgnored = state.ignored;
 
@@ -2975,6 +2976,7 @@ var JSHINT = (function() {
       classExprBinding = options.classExprBinding;
       isGenerator = options.type === "generator";
       isArrow = options.type === "arrow";
+      isMethod = options.isMethod;
       ignoreLoopFunc = options.ignoreLoopFunc;
     }
 
@@ -2985,6 +2987,7 @@ var JSHINT = (function() {
       "(statement)": statement,
       "(context)":   state.funct,
       "(arrow)":     isArrow,
+      "(method)":    isMethod,
       "(generator)": isGenerator
     });
 
@@ -3231,7 +3234,7 @@ var JSHINT = (function() {
           }
 
           t = state.tokens.next;
-          f = doFunction();
+          f = doFunction({ isMethod: true });
           p = f["(params)"];
 
           // Don't warn about getter/setter pairs if this is an ES6 concise method
@@ -3268,7 +3271,10 @@ var JSHINT = (function() {
             if (!state.inES6()) {
               warning("W104", state.tokens.curr, "concise methods", "6");
             }
-            doFunction({ type: isGeneratorMethod ? "generator" : null });
+            doFunction({
+              isMethod: true,
+              type: isGeneratorMethod ? "generator" : null
+            });
           } else {
             advance(":");
             expression(10);
@@ -3796,7 +3802,10 @@ var JSHINT = (function() {
           advance();
         }
         if (state.tokens.next.value !== "(") {
-          doFunction({ statement: c });
+          doFunction({
+            isMethod: true,
+            statement: c
+          });
         }
       }
 
@@ -3826,6 +3835,7 @@ var JSHINT = (function() {
 
       doFunction({
         statement: c,
+        isMethod: true,
         type: isGenerator ? "generator" : null,
         classExprBinding: c.namedExpr ? c.name : null
       });
@@ -4804,6 +4814,52 @@ var JSHINT = (function() {
     return this;
   }).exps = true;
 
+  /**
+   * Determine if SuperCall or SuperProperty may be used in the current context
+   * (as described by the provided "functor" object).
+   *
+   * @param {string} type - one of "property" or "call"
+   * @param {object} funct - a "functor" object describing the current function
+   *                         context
+   *
+   * @returns {boolean}
+   */
+  function supportsSuper(type, funct) {
+    if (type === "property" && funct["(method)"]) {
+      return true;
+    }
+
+    if (type === "call" && funct["(statement)"] &&
+      funct["(statement)"].id === "class") {
+      return true;
+    }
+
+    if (funct["(arrow)"]) {
+      return supportsSuper(type, funct["(context)"]);
+    }
+
+    return false;
+  }
+
+  var superNud = function(context) {
+    var next = state.tokens.next;
+    var type = null;
+
+    if (checkPunctuators(next, ["[", "."])) {
+      if (!supportsSuper("property", state.funct)) {
+        error("E062", this);
+      }
+    } else if (checkPunctuator(next, "(")) {
+      if (!supportsSuper("call", state.funct)) {
+        error("E063", this);
+      }
+    } else {
+      error("E024", next, next.value || next.id);
+    }
+
+    return this;
+  };
+
   // Future Reserved Words
 
   FutureReservedWord("abstract");
@@ -4831,7 +4887,7 @@ var JSHINT = (function() {
   FutureReservedWord("public", { es5: true, strictOnly: true });
   FutureReservedWord("short");
   FutureReservedWord("static", { es5: true, strictOnly: true });
-  FutureReservedWord("super", { es5: true });
+  FutureReservedWord("super", { es5: true, nud: superNud });
   FutureReservedWord("synchronized");
   FutureReservedWord("transient");
   FutureReservedWord("volatile");
