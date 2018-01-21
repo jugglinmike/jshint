@@ -4403,14 +4403,23 @@ var JSHINT = (function() {
   blockstmt("function", function(context) {
     var inexport = context & prodParams.export;
     var generator = false;
+    var labelType;
+
     if (state.tokens.next.value === "*") {
       advance("*");
+      labelType = "generator function";
+
       if (state.inES6(true)) {
         generator = true;
       } else {
         warning("W119", state.tokens.curr, "function*", "6");
       }
+    } else if (context & prodParams.preAsync) {
+      labelType = "async function";
+    } else {
+      labelType = "function";
     }
+
     if (inblock) {
       warning("W082", state.tokens.curr);
     }
@@ -4420,7 +4429,7 @@ var JSHINT = (function() {
       warning("W025");
     } else {
       state.funct["(scope)"].addlabel(i, {
-        type: generator ? "generator function" : "function",
+        type: labelType,
         token: state.tokens.curr,
         initialized: true });
 
