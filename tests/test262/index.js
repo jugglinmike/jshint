@@ -22,22 +22,22 @@ for (index = 0; index < cpuCount; index += 1) {
 }
 
 workers.forEach(function(worker, index) {
-  worker.on("message", (result) => {
-    if (result === "finish") {
+  worker.on("message", (msg) => {
+    if (msg.finished) {
       worker.disconnect();
 
       index -= 1;
       if (index === 0) {
         results.push(null);
       }
-
-      return;
     }
-    testCount += 1;
-    if (testCount % 1000 === 0) {
+    testCount += msg.results.length;
+    if (Math.round(testCount / 1000) !== Math.round((testCount - msg.results.length) / 1000)) {
       console.log(testCount);
     }
-    results.push(result);
+	msg.results.forEach(function(result) {
+      results.push(result);
+	});
   });
 
   worker.send({ workerCount: cpuCount, workerId: index });

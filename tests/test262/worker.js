@@ -29,7 +29,7 @@ process.on('message', function(info) {
   var workerCount = info.workerCount;
   var workerId = info.workerId;
 
-  var results = new Transform({
+  var resultsStream = new Transform({
     objectMode: true,
     transform(test, encoding, done) {
       var id = normalizePath(test.file) + "(" + test.scenario + ")";
@@ -47,13 +47,21 @@ process.on('message', function(info) {
     }
   });
 
-  stream.pipe(results)
+  var results = [];
+  stream.pipe(resultsStream)
     .on("data", function(result) {
-      if (result) {
-        process.send(result);
+      if (!result) {
+		return;
+	  }
+
+	  results.push(result);
+
+	  if (results.length >= 100) {
+        process.send({ finshed: false, results: results });
+		results.length = 0;
       }
     })
     .on("finish", function() {
-      process.send("finish");
+	  process.send({ finished: true, results: results });
     });
 });
