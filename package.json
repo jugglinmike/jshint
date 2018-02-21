@@ -62,7 +62,7 @@
     "results-interpreter": "~1.0.0",
     "sinon": "1.12.x",
     "test262-stream": "~1.1.0",
-    "unicode-6.3.0": "0.1.x"
+    "unicode-10.0.0": "0.7.x"
   },
   "optionalDependencies": {
     "phantom": "~4.0.1",
