@@ -4089,7 +4089,7 @@ var JSHINT = (function() {
       }
     }
 
-    return (next.identifier && !isReserved(next)) ||
+    return (next.identifier && (!isReserved(next) || next.id === "let")) ||
       checkPunctuators(next, ["{", "["]) ||
       isMozillaLet();
   };

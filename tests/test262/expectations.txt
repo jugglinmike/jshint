@@ -7508,5 +7508,3 @@ test/language/statements/variable/dstr-obj-ptrn-rest-obj-nested-rest.js(default)
 test/language/statements/variable/dstr-obj-ptrn-rest-obj-nested-rest.js(strict mode)
 test/language/statements/variable/dstr-obj-ptrn-rest-obj-own-property.js(default)
 test/language/statements/variable/dstr-obj-ptrn-rest-obj-own-property.js(strict mode)
-
-test/language/statements/let/syntax/let-let-declaration-split-across-two-lines.js(strict mode)
