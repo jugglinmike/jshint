@@ -9145,5 +9145,26 @@ exports.asyncFunctions.objectMethod = function (test) {
   TestRun(test, "Allowed in ES8")
     .test(code, { esversion: 8 });
 
+  TestRun(test)
+    .test([
+      "void { async m() { await 0; } };"
+    ], { esversion: 8 });
+
+  TestRun(test)
+    .addError(3, 9, "Expected an assignment or function call and instead saw an expression.")
+    .addError(3, 14, "Missing semicolon.")
+    .addError(3, 15, "Expected an assignment or function call and instead saw an expression.")
+    .test([
+      "void {",
+      "  async m() { await 0; },",
+      "  n() { await 0; },",
+      "};"
+    ], { esversion: 8 });
+
+  TestRun(test)
+    .test([
+      //"void { async f(x = await) {} };"
+    ], { esversion: 8 });
+
   test.done();
 };
