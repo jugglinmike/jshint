@@ -3701,6 +3701,8 @@ var JSHINT = (function() {
 
             isAsyncMethod = true;
             advance();
+          } else {
+            isAsyncMethod = false;
           }
 
           if (state.tokens.next.id === "[") {
@@ -3720,10 +3722,10 @@ var JSHINT = (function() {
             if (!state.inES6()) {
               warning("W104", state.tokens.curr, "concise methods", "6");
             }
-            doFunction(context, {
+
+            doFunction(isAsyncMethod ? context | prodParams.preAsync : context, {
               isMethod: true,
-              type: isGeneratorMethod ? "generator" : null,
-              isAsync: isAsyncMethod
+              type: isGeneratorMethod ? "generator" : null
             });
           } else {
             advance(":");
