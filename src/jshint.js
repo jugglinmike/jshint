@@ -4409,7 +4409,9 @@ var JSHINT = (function() {
     var generator = false;
     var labelType;
 
-    if (state.tokens.next.value === "*") {
+    if (context & prodParams.preAsync) {
+      labelType = "async function";
+    } else if (state.tokens.next.value === "*") {
       advance("*");
       labelType = "generator function";
 
@@ -4418,8 +4420,6 @@ var JSHINT = (function() {
       } else {
         warning("W119", state.tokens.curr, "function*", "6");
       }
-    } else if (context & prodParams.preAsync) {
-      labelType = "async function";
     } else {
       labelType = "function";
     }
@@ -4469,8 +4469,9 @@ var JSHINT = (function() {
 
   prefix("function", function(context) {
     var generator = false;
+    var isAsync = context & prodParams.preAsync;
 
-    if (state.tokens.next.value === "*") {
+    if (!isAsync && state.tokens.next.value === "*") {
       if (!state.inES6()) {
         warning("W119", state.tokens.curr, "function*", "6");
       }
