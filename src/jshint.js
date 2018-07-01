@@ -4134,7 +4134,7 @@ var JSHINT = (function() {
     // is correctly interpreted as an invalid LexicalBinding. (Without this
     // consideration, the code above would be parsed as two
     // IdentifierReferences.)
-    nextIsBindingName = next.identifier && (!isReserved(next) ||
+    nextIsBindingName = next.identifier && (!isReserved(context, next) ||
       next.id === "let");
 
     return nextIsBindingName || checkPunctuators(next, ["{", "["]) ||
