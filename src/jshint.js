@@ -5084,7 +5084,7 @@ var JSHINT = (function() {
     return this;
   }).exps = true;
 
-  var b = prefix("await", function(context, rbp) {
+  var b = prefix("await", function(context) {
     if (context & prodParams.async) {
       expression(0, context);
       return this;
@@ -5110,7 +5110,7 @@ var JSHINT = (function() {
     return state.syntax["(identifier)"].nud.apply(this, arguments);
   });
   a.meta = { es5: true, isFutureReservedWord: true, strictOnly: true };
-  a.isFunc = function(context) {
+  a.isFunc = function() {
     var next = state.tokens.next;
     var afterParens;
 
@@ -5123,7 +5123,7 @@ var JSHINT = (function() {
     }
 
     if (next.id === "(") {
-      var afterParens = peekThroughParens(0);
+      afterParens = peekThroughParens(0);
 
       return afterParens.id === "=>";
     }
