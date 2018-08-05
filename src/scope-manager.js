@@ -486,14 +486,7 @@ var scopeManager = function(state, predefined, exported, declared) {
       }
 
       if (_.has(_current["(usages)"], labelName)) {
-        var usage = _current["(usages)"][labelName];
-        // if its in a sub function it is not necessarily an error, just latedef
-        if (usage["(onlyUsedSubFunction)"]) {
-          _latedefWarning(type, labelName, token);
-        } else {
-          // this is a clear illegal usage for block scoped variables
-          warning("E056", token, labelName, type);
-        }
+        _latedefWarning(type, labelName, token);
       }
     },
 
