@@ -8,7 +8,7 @@
  *    var TestRun = require("./testhelper").setup.testRun;
  *
  *    TestRun(test, name)
- *      .addError(line, character, errorMessage)
+ *      .addError(line, column, errorMessage)
  *      .test(source, options);
  *
  * TestRun(test, name)
@@ -16,9 +16,9 @@
  *     name:       optional. name of the test run
  *             with a name, it's easier to identify a test run
  *
- * .addError(line, character, errorMessage)
+ * .addError(line, column, errorMessage)
  *     line:       line of the reported error
- *     character:  character of the reported error
+ *     column:     column of the reported error
  *     errorMessage:   the message of the reported error
  *
  * .test(source, options)
@@ -41,7 +41,7 @@ exports.setup.testRun = function (test, name) {
   var definedErrors = [];
 
   var helperObj = {
-    addError: function (line, character, message, extras) {
+    addError: function (line, column, message, extras) {
       var alreadyDefined = definedErrors.some(function(err) {
         if (err.message !== message) {
           return false;
@@ -51,7 +51,7 @@ exports.setup.testRun = function (test, name) {
           return false;
         }
 
-        if (err.character !== character) {
+        if (err.column !== column) {
           return false;
         }
 
@@ -65,7 +65,8 @@ exports.setup.testRun = function (test, name) {
       }
       definedErrors.push({
         line: line,
-        character: character,
+        character: column,
+        column: column,
         message: message,
         extras: extras
       });
@@ -94,7 +95,8 @@ exports.setup.testRun = function (test, name) {
       var undefinedErrors = errors.filter(function (er) {
         return !definedErrors.some(function (def) {
           var result = def.line === er.line &&
-            def.character === er.character &&
+            def.character === er.characer &&
+            def.column === er.column &&
             def.message === er.reason;
 
           if (!result) {
@@ -119,11 +121,15 @@ exports.setup.testRun = function (test, name) {
       // filter all defined errors
       var unthrownErrors = definedErrors.filter(function (def) {
         return !errors.some(function (er) {
-          return def.line === er.line &&
+          var x = def.line === er.line &&
             def.character === er.character &&
+            def.column === er.column &&
             def.message === er.reason;
         });
       });
+	  console.log(definedErrors);
+	  console.log(undefinedErrors);
+	  console.log(unthrownErrors);
 
       // elements that only differ in location
       var wrongLocations = undefinedErrors.map(function (er) {
@@ -132,11 +138,13 @@ exports.setup.testRun = function (test, name) {
             return false;
           }
 
-          return def.line !== er.line || def.character !== er.character;
+          return def.line !== er.line || def.character !== er.character ||
+			  def.column !== er.column;
         }).map(function (def) {
           return {
             line: def.line,
-            character: def.character
+            character: def.character,
+            column: def.column
           };
         });
 
@@ -144,6 +152,7 @@ exports.setup.testRun = function (test, name) {
           return {
             line: er.line,
             character: er.character,
+            column: er.column,
             message: er.reason,
             definedIn: locations
           };
@@ -154,7 +163,7 @@ exports.setup.testRun = function (test, name) {
       });
       var duplicateErrors = errors.filter(function (er) {
         return errors.filter(function (other) {
-          return er.line === other.line && er.character === other.character &&
+          return er.line === other.line && er.column === other.column &&
             er.reason === other.reason;
         }).length > 1;
       });
@@ -176,14 +185,14 @@ exports.setup.testRun = function (test, name) {
       if (unthrownErrors.length > 0) {
         errorDetails += "\n  Errors defined, but not thrown by JSHint:\n" +
           unthrownErrors.map(function (el) {
-            return "    {Line " + el.line + ", Char " + el.character + "} " + el.message;
+            return "    {Line " + el.line + ", Column " + el.column + "} " + el.message;
           }).join("\n");
       }
 
       if (undefinedErrors.length > 0) {
         errorDetails += "\n  Errors thrown by JSHint, but not defined in test run:\n" +
           undefinedErrors.map(function (el) {
-            return "    {Line " + el.line + ", Char " + el.character + "} " + el.reason;
+            return "    {Line " + el.line + ", Column " + el.column + "} " + el.reason;
           }).join("\n");
       }
 
@@ -191,16 +200,16 @@ exports.setup.testRun = function (test, name) {
         errorDetails += "\n  Errors with wrong location:\n" +
           wrongLocations.map(function (el) {
             var locations = el.definedIn.map(function(location) {
-              return "{Line " + location.line + ", Char " + location.character + "}";
+              return "{Line " + location.line + ", Column " + location.column + ", legacy \"character\" " + location.character + "}";
             });
-            return "    {Line " + el.line + ", Char " + el.character + "} " + el.message + " - Not in line(s) " + locations.join(", ");
+            return "    {Line " + el.line + ", Column " + el.column + ", legacy \"character\" " + el.chararater + "} " + el.message + " - Not in line(s) " + locations.join(", ");
           }).join("\n");
       }
 
       if (duplicateErrors.length > 0) {
         errorDetails += "\n  Duplicated errors:\n" +
           duplicateErrors.map(function (el) {
-            return "    {Line " + el.line + ", Char " + el.character + "} " + el.reason;
+            return "    {Line " + el.line + ", Column " + el.column + "} " + el.reason;
           }).join("\n");
       }
 

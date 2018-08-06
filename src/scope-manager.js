@@ -118,7 +118,8 @@ var scopeManager = function(state, predefined, exported, declared) {
       unuseds.push({
         name: name,
         line: line,
-        character: chr
+        character: chr,
+        column: chr
       });
     }
   };

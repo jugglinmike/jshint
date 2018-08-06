@@ -1175,10 +1175,10 @@ exports['unused data with options'] = function (test) {
     "}"
   ];
 
-  var expectedVarUnused = [{ name: 'func', line: 1, character: 10 }];
-  var expectedParamUnused = [{ name: 'param', line: 1, character: 49 }];
-  var expectedPlaceholderUnused = [{ name: 'placeHolder2', line: 1, character: 29 },
-    { name: 'placeHolder1', line: 1, character: 15 }];
+  var expectedVarUnused = [{ name: 'func', line: 1, character: 10, column: 10 }];
+  var expectedParamUnused = [{ name: 'param', line: 1, character: 49, column: 49 }];
+  var expectedPlaceholderUnused = [{ name: 'placeHolder2', line: 1, character: 29, column: 29 },
+    { name: 'placeHolder1', line: 1, character: 15, column: 15 }];
 
   var expectedAllUnused = expectedParamUnused.concat(expectedPlaceholderUnused, expectedVarUnused);
   var expectedVarAndParamUnused = expectedParamUnused.concat(expectedVarUnused);

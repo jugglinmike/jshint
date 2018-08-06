@@ -1231,8 +1231,10 @@ exports.functionCharacterLocation = function (test) {
     test.equal(locations[i].name, report[i].name);
     test.equal(locations[i].line, report[i].line);
     test.equal(locations[i].character, report[i].character);
+    test.equal(locations[i].column, report[i].column);
     test.equal(locations[i].last, report[i].last);
     test.equal(locations[i].lastcharacter, report[i].lastcharacter);
+    test.equal(locations[i].lastcolumn, report[i].lastcolumn);
   }
 
   test.done();
@@ -4054,9 +4056,9 @@ exports["array comprehension unused and undefined"] = function (test) {
 
   var unused = JSHINT.data().unused;
   test.deepEqual([
-    { name: 'a', line: 2, character: 5 },
-    { name: 'b', line: 3, character: 5 },
-    { name: 'c', line: 4, character: 5 }
+    { name: 'a', line: 2, character: 5, column: 5 },
+    { name: 'b', line: 3, character: 5, column: 5 },
+    { name: 'c', line: 4, character: 5, column: 5 }
     //{ name: 'j', line: 3, character: 15 } // see gh-2440
   ], unused);
 

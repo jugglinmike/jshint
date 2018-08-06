@@ -122,10 +122,11 @@ function Lexer(source) {
 
   this.line = 0;
   this.char = 1;
-  this.originalChar = 1;
+  this.column_ = 1;
   this.from = 1;
+  this.fromExpanded = 1;
   this.input = "";
-  this.originalInput = "";
+  this.inputExpanded = "";
   this.inComment = false;
   this.context = [];
   this.templateStarts = [];
@@ -178,14 +179,13 @@ Lexer.prototype = {
    */
   skip: function(i) {
     i = i || 1;
-    var tabExpandedI = i;
-    if (i === 1 && this.peek(0, this.originalInput) === '\t') {
-      tabExpandedI = state.tab.length;
-    }
-    this.char += tabExpandedI;
-    this.originalChar += i;
-    this.input = this.input.slice(tabExpandedI);
-    this.originalInput = this.originalInput.slice(i);
+    var iExpanded = i + (this.input.slice(0, i).match(/\t|$/g).length - 1) * (state.tab.length - 1);
+
+    this.column_ += i;
+    this.input = this.input.slice(i);
+
+    this.char += iExpanded;
+    this.inputExpanded = this.inputExpanded.slice(iExpanded);
   },
 
   /*
@@ -402,7 +402,7 @@ Lexer.prototype = {
     var ch2 = this.peek(1);
     var rest = this.input.substr(2);
     var startLine = this.line;
-    var startChar = this.originalChar;
+    var startChar = this.column_;
     var self = this;
 
     // Create a comment token object and make sure it
@@ -516,7 +516,8 @@ Lexer.prototype = {
       this.trigger("error", {
         code: "E018",
         line: startLine,
-        character: startChar
+        character: 0,
+        column: startChar
       });
 
       this.skip(2);
@@ -551,7 +552,8 @@ Lexer.prototype = {
             this.trigger("error", {
               code: "E017",
               line: startLine,
-              character: startChar
+              character: 0,
+              column: startChar
             });
 
             this.inComment = false;
@@ -728,6 +730,7 @@ Lexer.prototype = {
             code: "W119",
             line: this.line,
             character: this.char,
+            column: this.column_,
             data: ["unicode 8", "6"]
           },
           checks,
@@ -811,7 +814,8 @@ Lexer.prototype = {
               {
                 code: "W119",
                 line: this.line,
-                character: this.originalChar,
+                character: this.char,
+                column: this.column_,
                 data: [ "Octal integer literal", "6" ]
               },
               checks,
@@ -834,7 +838,8 @@ Lexer.prototype = {
               {
                 code: "W119",
                 line: this.line,
-                character: this.originalChar,
+                character: this.somthing,
+                column: this.column_,
                 data: [ "Binary integer literal", "6" ]
               },
               checks,
@@ -977,7 +982,8 @@ Lexer.prototype = {
       this.triggerAsync("warning", {
         code: "W114",
         line: this.line,
-        character: this.originalChar,
+        character: this.char,
+        column: this.column_,
         data: [ "\\'" ]
       }, checks, function() {return state.jsonMode; });
       break;
@@ -1005,7 +1011,8 @@ Lexer.prototype = {
       this.triggerAsync("warning", {
         code: "W115",
         line: this.line,
-        character: this.originalChar
+        character: this.char,
+        column: this.column_
       }, checks,
       function() { return n >= 0 && n <= 7 && state.isStrict(); });
       break;
@@ -1020,7 +1027,8 @@ Lexer.prototype = {
       this.triggerAsync("warning", {
         code: "W115",
         line: this.line,
-        character: this.originalChar
+        character: this.char,
+        column: this.column_
       }, checks,
       function() { return state.isStrict(); });
       break;
@@ -1033,7 +1041,8 @@ Lexer.prototype = {
         this.trigger("warning", {
           code: "W052",
           line: this.line,
-          character: this.originalChar,
+          character: this.char,
+          column: this.column_,
           data: [ "u" + sequence ]
         });
       }
@@ -1044,7 +1053,8 @@ Lexer.prototype = {
       this.triggerAsync("warning", {
         code: "W114",
         line: this.line,
-        character: this.originalChar,
+        character: this.char,
+        column: this.column_,
         data: [ "\\v" ]
       }, checks, function() { return state.jsonMode; });
 
@@ -1056,7 +1066,8 @@ Lexer.prototype = {
       this.triggerAsync("warning", {
         code: "W114",
         line: this.line,
-        character: this.originalChar,
+        character: this.char,
+        column: this.column_,
         data: [ "\\x-" ]
       }, checks, function() { return state.jsonMode; });
 
@@ -1091,7 +1102,7 @@ Lexer.prototype = {
     var value = "";
     var ch;
     var startLine = this.line;
-    var startChar = this.originalChar;
+    var startChar = this.column_;
     var depth = this.templateStarts.length;
 
     if (this.peek() === "`") {
@@ -1101,7 +1112,8 @@ Lexer.prototype = {
           {
             code: "W119",
             line: this.line,
-            character: this.originalChar,
+            character: this.char,
+            column: this.column_,
             data: ["template literal syntax", "6"]
           },
           checks,
@@ -1113,7 +1125,7 @@ Lexer.prototype = {
       this.templateStarts.push({
         line: this.line,
         char: this.char,
-        originalChar: this.originalChar
+        column: this.column_
       });
       depth = this.templateStarts.length;
       this.skip(1);
@@ -1135,7 +1147,8 @@ Lexer.prototype = {
           this.trigger("error", {
             code: "E052",
             line: startPos.line,
-            character: startPos.originalChar
+            character: startPos.char,
+            column: startPos.column
           });
           return {
             type: tokenType,
@@ -1212,12 +1225,13 @@ Lexer.prototype = {
     this.triggerAsync("warning", {
       code: "W108",
       line: this.line,
-      character: this.originalChar // +1?
+      character: this.char, // +1?
+      column: this.column_
     }, checks, function() { return state.jsonMode && quote !== "\""; });
 
     var value = "";
     var startLine = this.line;
-    var startChar = this.originalChar;
+    var startChar = this.column_;
     var allowNewLine = false;
 
     this.skip();
@@ -1238,7 +1252,8 @@ Lexer.prototype = {
           this.trigger("warning", {
             code: "W112",
             line: this.line,
-            character: this.originalChar
+            character: this.char,
+            column: this.column_
           });
         } else {
           allowNewLine = false;
@@ -1249,13 +1264,15 @@ Lexer.prototype = {
           this.triggerAsync("warning", {
             code: "W043",
             line: this.line,
-            character: this.originalChar
+            character: this.char,
+            column: this.column_
           }, checks, function() { return !state.option.multistr; });
 
           this.triggerAsync("warning", {
             code: "W042",
             line: this.line,
-            character: this.originalChar
+            character: this.char,
+            column: this.column_
           }, checks, function() { return state.jsonMode && state.option.multistr; });
         }
 
@@ -1287,7 +1304,8 @@ Lexer.prototype = {
             {
               code: "W113",
               line: this.line,
-              character: this.originalChar,
+              character: this.char,
+              column: this.column_,
               data: [ "<non-printable>" ]
             },
             checks,
@@ -1355,7 +1373,8 @@ Lexer.prototype = {
           {
             code: "W048",
             line: this.line,
-            character: this.originalChar
+            character: this.char,
+            column: this.column_
           },
           checks,
           function() { return true; }
@@ -1370,7 +1389,8 @@ Lexer.prototype = {
           {
             code: "W049",
             line: this.line,
-            character: this.originalChar,
+            character: this.char,
+            column: this.column_,
             data: [ char ]
           },
           checks,
@@ -1459,11 +1479,13 @@ Lexer.prototype = {
       this.trigger("error", {
         code: "E015",
         line: this.line,
-        character: this.from
+        character: this.fromExpanded,
+        column: this.from
       });
 
       return void this.trigger("fatal", {
         line: this.line,
+		fromExpanded: this.fromExpanded,
         from: this.from
       });
     }
@@ -1482,7 +1504,8 @@ Lexer.prototype = {
             {
               code: "W119",
               line: this.line,
-              character: this.originalChar,
+              character: this.char,
+              column: this.column_,
               data: [ "Sticky RegExp flag", "6" ]
             },
             checks,
@@ -1517,7 +1540,8 @@ Lexer.prototype = {
       this.trigger("error", {
         code: "E016",
         line: this.line,
-        character: this.originalChar,
+        character: this.char,
+        column: this.column_,
         data: [ malformedDesc ]
       });
     }
@@ -1535,7 +1559,6 @@ Lexer.prototype = {
    * pages with non-breaking pages produce syntax errors.
    */
   scanNonBreakingSpaces: function(str) {
-    str = str || this.input;
     return state.option.nonbsp ?
       str.search(/(\u00A0)/) : -1;
   },
@@ -1545,10 +1568,12 @@ Lexer.prototype = {
    * This method skips over all space characters.
    */
   next: function(checks) {
-    this.from = this.originalChar;
+    this.fromExpanded = this.character;
+    this.from = this.column_;
 
     // Move to the next non-space character.
     while (reg.whitespace.test(this.peek())) {
+      this.fromExpanded += 1;
       this.from += 1;
       this.skip();
     }
@@ -1588,17 +1613,17 @@ Lexer.prototype = {
    * switched, this method also checks for other minor warnings.
    */
   nextLine: function(checks) {
-    var char, originalChar;
+    var char, column_;
 
     if (this.line >= this.getLines().length) {
       return false;
     }
 
-    this.input = this.getLines()[this.line];
-    this.originalInput = this.getLines()[this.line];
+    this.input = this.inputExpanded = this.getLines()[this.line];
     this.line += 1;
     this.char = 1;
-    this.originalChar = 1;
+    this.column_ = 1;
+    this.fromExpanded = 1;
     this.from = 1;
 
     var inputTrimmed = this.input.trim();
@@ -1623,18 +1648,18 @@ Lexer.prototype = {
       }
     }
 
-    char = this.scanNonBreakingSpaces();
-    originalChar = this.scanNonBreakingSpaces(this.originalInput);
+    char = this.scanNonBreakingSpaces(this.inputExpanded);
+    column_ = this.scanNonBreakingSpaces(this.input);
     if (char >= 0) {
       this.triggerAsync(
         "warning",
-        { code: "W125", line: this.line, character: originalChar + 1 },
+        { code: "W125", line: this.line, character: char + 1, column: column_ + 1 },
         checks,
         function() { return true; }
       );
     }
 
-    this.input = this.input.replace(/\t/g, state.tab);
+    this.inputExpanded = this.input.replace(/\t/g, state.tab);
 
     // If there is a limit on line length, warn when lines get too
     // long.
@@ -1650,7 +1675,12 @@ Lexer.prototype = {
       if (shouldTriggerError) {
         this.triggerAsync(
           "warning",
-          { code: "W101", line: this.line, character: this.originalInput.length },
+          {
+            code: "W101",
+            line: this.line,
+            character: this.inputExpanded.length,
+            column: this.input.length
+          },
           checks,
           function() { return true; }
         );
@@ -1720,7 +1750,9 @@ Lexer.prototype = {
       obj.type = obj.type || type;
       obj.value = value;
       obj.line = this.line;
-      obj.character = this.originalChar;
+      obj.character = this.char;
+      obj.column = this.column_;
+	  obj.fromExpanded = this.fromExpanded;
       obj.from = this.from;
       if (obj.identifier && token) obj.raw_text = token.text || token.value;
       if (token && token.startLine && token.startLine !== this.line) {
@@ -1770,7 +1802,8 @@ Lexer.prototype = {
           this.trigger("error", {
             code: "E024",
             line: this.line,
-            character: this.originalChar,
+            character: this.char,
+            column: this.column_,
             data: [ this.peek() ]
           });
 
@@ -1785,6 +1818,7 @@ Lexer.prototype = {
         this.triggerAsync("String", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           startLine: token.startLine,
           startChar: token.startChar,
@@ -1798,6 +1832,7 @@ Lexer.prototype = {
         this.trigger("TemplateHead", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           startLine: token.startLine,
           startChar: token.startChar,
@@ -1809,6 +1844,7 @@ Lexer.prototype = {
         this.trigger("TemplateMiddle", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           startLine: token.startLine,
           startChar: token.startChar,
@@ -1820,6 +1856,7 @@ Lexer.prototype = {
         this.trigger("TemplateTail", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           startLine: token.startLine,
           startChar: token.startChar,
@@ -1831,6 +1868,7 @@ Lexer.prototype = {
         this.trigger("NoSubstTemplate", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           startLine: token.startLine,
           startChar: token.startChar,
@@ -1842,6 +1880,7 @@ Lexer.prototype = {
         this.triggerAsync("Identifier", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           name: token.value,
           raw_name: token.text,
@@ -1859,7 +1898,8 @@ Lexer.prototype = {
           this.trigger("warning", {
             code: "W045",
             line: this.line,
-            character: this.originalChar,
+            character: this.char,
+            column: this.column_,
             data: [ token.value ]
           });
         }
@@ -1867,14 +1907,16 @@ Lexer.prototype = {
         this.triggerAsync("warning", {
           code: "W114",
           line: this.line,
-          character: this.originalChar,
+          character: this.char,
+          column: this.column_,
           data: [ "0x-" ]
         }, checks, function() { return token.base === 16 && state.jsonMode; });
 
         this.triggerAsync("warning", {
           code: "W115",
           line: this.line,
-          character: this.originalChar
+          character: this.somthing,
+          column: this.column_
         }, checks, function() {
           return state.isStrict() && token.base === 8 && token.isLegacy;
         });
@@ -1882,6 +1924,7 @@ Lexer.prototype = {
         this.trigger("Number", {
           line: this.line,
           char: this.char,
+		  fromExpanded: this.fromExpanded,
           from: this.from,
           value: token.value,
           base: token.base,
@@ -1902,7 +1945,9 @@ Lexer.prototype = {
             type: token.commentType,
             isSpecial: token.isSpecial,
             line: this.line,
-            character: this.originalChar,
+            character: this.char,
+            column: this.column_,
+		    fromExpanded: this.fromExpanded,
             from: this.from
           };
         }

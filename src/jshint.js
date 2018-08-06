@@ -329,7 +329,8 @@ var JSHINT = (function() {
     var exception = {
       name: "JSHintError",
       line: token.line,
-      character: token.from,
+      character: token.fromExpanded,
+      column: token.from,
       message: message + " (" + percentage + "% scanned).",
       raw: message,
       code: code,
@@ -378,7 +379,8 @@ var JSHINT = (function() {
       code: msg.code,
       evidence: state.lines[l - 1] || "",
       line: l,
-      character: ch,
+      character: t.fromExpanded,
+      column: ch,
       scope: JSHINT.scope,
       a: a,
       b: b,
@@ -400,7 +402,8 @@ var JSHINT = (function() {
   function warningAt(m, l, ch, a, b, c, d) {
     return warning(m, {
       line: l,
-      from: ch
+      from: ch,
+	  fromExpanded: ch
     }, a, b, c, d);
   }
 
@@ -1845,14 +1848,14 @@ var JSHINT = (function() {
       var blockEnd = checkPunctuator(state.tokens.next, "}");
 
       if (sameLine && !blockEnd && !(stmt.id === "do" && state.inES6(true))) {
-        errorAt("E058", state.tokens.curr.line, state.tokens.curr.character);
+        errorAt("E058", state.tokens.curr.line, state.tokens.curr.column);
       } else if (!state.option.asi) {
 
         // If this is the last statement in a block that ends on the same line
         // *and* option lastsemic is on, ignore the warning.  Otherwise, issue
         // a warning about missing semicolon.
         if (!(blockEnd && sameLine && state.option.lastsemic)) {
-          warningAt("W033", state.tokens.curr.line, state.tokens.curr.character);
+          warningAt("W033", state.tokens.curr.line, state.tokens.curr.column);
         }
       }
     } else {
@@ -2283,7 +2286,7 @@ var JSHINT = (function() {
 
   delim("(endline)");
   (function(x) {
-    x.line = x.from = 0;
+    x.line = x.from = x.fromExpanded = 0;
   })(delim("(begin)"));
   delim("(end)").reach = true;
   delim("(error)").reach = true;
@@ -2409,7 +2412,8 @@ var JSHINT = (function() {
 
     switch (true) {
       case !eqnull && state.option.eqeqeq:
-        this.from = this.character;
+		this.fromExpanded = this.character;
+        this.from = this.column;
         warning("W116", this, "===", "==");
         break;
       case isTypoTypeof(right, left, state):
@@ -2435,7 +2439,8 @@ var JSHINT = (function() {
         ((left && left.value) === "null" || (right && right.value) === "null");
 
     if (!eqnull && state.option.eqeqeq) {
-      this.from = this.character;
+	  this.fromExpanded = this.character;
+      this.from = this.column;
       warning("W116", this, "!==", "!=");
     } else if (isTypoTypeof(right, left, state)) {
       warning("W122", this, right.value);
@@ -2498,6 +2503,7 @@ var JSHINT = (function() {
     if (left && right && left.id === "(string)" && right.id === "(string)") {
       left.value += right.value;
       left.character = right.character;
+      left.column = right.column;
       if (!state.option.scripturl && reg.javascriptURL.test(left.value)) {
         warning("W050", left);
       }
@@ -3055,7 +3061,7 @@ var JSHINT = (function() {
         }
       } else {
         if (state.option.trailingcomma && state.inES5()) {
-          warningAt("W140", state.tokens.curr.line, state.tokens.curr.character);
+          warningAt("W140", state.tokens.curr.line, state.tokens.curr.column);
         }
         break;
       }
@@ -3264,6 +3270,7 @@ var JSHINT = (function() {
 
       "(line)"      : null,
       "(character)" : null,
+      "(column)" : null,
       "(metrics)"   : null,
       "(statement)" : null,
       "(context)"   : null,
@@ -3278,6 +3285,7 @@ var JSHINT = (function() {
       _.extend(funct, {
         "(line)"     : token.line,
         "(character)": token.character,
+        "(column)"   : token.column,
         "(metrics)"  : createMetrics(token)
       });
     }
@@ -3452,6 +3460,7 @@ var JSHINT = (function() {
     state.ignored = oldIgnored;
     state.funct["(last)"] = state.tokens.curr.line;
     state.funct["(lastcharacter)"] = state.tokens.curr.character;
+    state.funct["(lastcolumn)"] = state.tokens.curr.column;
 
     // unstack the params scope
     state.funct["(scope)"].unstack(); // also does usage and label checks
@@ -3708,7 +3717,7 @@ var JSHINT = (function() {
           }
         } else {
           if (state.option.trailingcomma && state.inES5()) {
-            warningAt("W140", state.tokens.curr.line, state.tokens.curr.character);
+            warningAt("W140", state.tokens.curr.line, state.tokens.curr.column);
           }
           break;
         }
@@ -5023,7 +5032,7 @@ var JSHINT = (function() {
         if (this.first &&
             this.first.type === "(punctuator)" && this.first.value === "=" &&
             !this.first.paren && !state.option.boss) {
-          warningAt("W093", this.first.line, this.first.character);
+          warningAt("W093", this.first.line, this.first.column);
         }
       }
     } else {
@@ -5075,7 +5084,7 @@ var JSHINT = (function() {
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
             !this.first.paren && !state.option.boss) {
-          warningAt("W093", this.first.line, this.first.character);
+          warningAt("W093", this.first.line, this.first.column);
         }
       } else if (state.tokens.next.led) {
         if (state.tokens.next.id !== ",") {
@@ -5117,7 +5126,7 @@ var JSHINT = (function() {
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
             !this.first.paren && !state.option.boss) {
-          warningAt("W093", this.first.line, this.first.character);
+          warningAt("W093", this.first.line, this.first.column);
         }
       }
 
@@ -6032,11 +6041,11 @@ var JSHINT = (function() {
     lex = new Lexer(s);
 
     lex.on("warning", function(ev) {
-      warningAt.apply(null, [ ev.code, ev.line, ev.character].concat(ev.data));
+      warningAt.apply(null, [ ev.code, ev.line, ev.column ].concat(ev.data));
     });
 
     lex.on("error", function(ev) {
-      errorAt.apply(null, [ ev.code, ev.line, ev.character ].concat(ev.data));
+      errorAt.apply(null, [ ev.code, ev.line, ev.column ].concat(ev.data));
     });
 
     lex.on("fatal", function(ev) {
@@ -6112,7 +6121,8 @@ var JSHINT = (function() {
           code      : err.code,
           reason    : err.reason,
           line      : err.line || nt.line,
-          character : err.character || nt.from
+          character : err.character || nt.fromExpanded,
+          column    : err.column || nt.from
         });
       } else {
         throw err;
@@ -6173,8 +6183,10 @@ var JSHINT = (function() {
       fu.param = f["(params)"];
       fu.line = f["(line)"];
       fu.character = f["(character)"];
+      fu.column = f["(column)"];
       fu.last = f["(last)"];
       fu.lastcharacter = f["(lastcharacter)"];
+      fu.lastcolumn = f["(lastcolumn)"];
 
       fu.metrics = {
         complexity: f["(metrics)"].ComplexityCount,
