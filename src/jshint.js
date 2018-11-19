@@ -3292,6 +3292,7 @@ var JSHINT = (function() {
       "(comparray)" : null,
       "(generator)" : null,
       "(arrow)"     : null,
+      "(async)"     : null,
       "(params)"    : null
     };
 
@@ -3389,6 +3390,7 @@ var JSHINT = (function() {
       isMethod, ignoreLoopFunc;
     var oldOption = state.option;
     var oldIgnored = state.ignored;
+    var isAsync = context & prodParams.preAsync;
 
     if (options) {
       name = options.name;
@@ -3403,7 +3405,7 @@ var JSHINT = (function() {
     context &= ~prodParams.noin;
     context &= ~prodParams.tryClause;
 
-    if (context & prodParams.preAsync) {
+    if (isAsync) {
       context |= prodParams.async;
     } else {
       context &= ~prodParams.async;
@@ -3418,7 +3420,8 @@ var JSHINT = (function() {
       "(context)":   state.funct,
       "(arrow)":     isArrow,
       "(method)":    isMethod,
-      "(generator)": isGenerator
+      "(generator)": isGenerator,
+      "(async)":     isAsync
     });
 
     f = state.funct;
@@ -4300,6 +4303,7 @@ var JSHINT = (function() {
     var name;
     var isStatic;
     var isGenerator;
+    var isAsync;
     var getset;
     var props = Object.create(null);
     var staticProps = Object.create(null);
@@ -4308,6 +4312,7 @@ var JSHINT = (function() {
       name = state.tokens.next;
       isStatic = false;
       isGenerator = false;
+      isAsync = false;
       getset = null;
 
       // The ES6 grammar for ClassElement includes the `;` token, but it is
@@ -4350,6 +4355,24 @@ var JSHINT = (function() {
           if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
             computed = state.tokens.next.id === "[";
             getset = name;
+            name = state.tokens.next;
+            if (state.tokens.next.id === "[") {
+              name = computedPropertyName(context);
+            } else advance();
+          }
+        } else if (name.identifier && name.value === "async") {
+          if (checkPunctuators(state.tokens.next, "*")) {
+            isGenerator = true;
+            advance("*");
+          }
+          if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
+            computed = state.tokens.next.id === "[";
+            isAsync = true;
+
+            if (!state.inES8()) {
+              warning("W119", state.tokens.next, "async functions", "8");
+            }
+
             name = state.tokens.next;
             if (state.tokens.next.id === "[") {
               name = computedPropertyName(context);
@@ -4401,7 +4424,7 @@ var JSHINT = (function() {
 
       propertyName(context, name);
 
-      doFunction(context, {
+      doFunction(isAsync ? context | prodParams.preAsync : context, {
         statement: c,
         isMethod: true,
         type: isGenerator ? "generator" : null,
@@ -5511,6 +5534,10 @@ var JSHINT = (function() {
    * @returns {boolean}
    */
   function supportsSuper(type, funct) {
+    if (type === "call" && funct["(async)"]) {
+      return false;
+    }
+
     if (type === "property" && funct["(method)"]) {
       return true;
     }
