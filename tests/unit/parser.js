@@ -9078,11 +9078,11 @@ exports.asyncFunctions.awaitIdentifier = function (test) {
       "  };",
       "  function* g() {",
       "    await;",
-      "    yield;",
+      "    yield 0;",
       "  }",
       "  void function*() {",
       "    await;",
-      "    yield;",
+      "    yield 0;",
       "  };",
       "  void (() => {",
       "    await;",
@@ -9096,7 +9096,7 @@ exports.asyncFunctions.awaitIdentifier = function (test) {
       "    },",
       "    *g() {",
       "      await;",
-	  "      yield;",
+	  "      yield 0;",
       "    }",
       "  };",
       "}"
@@ -9227,10 +9227,37 @@ exports.asyncFunctions.objectMethod = function (test) {
       "};"
     ], { esversion: 8 });
 
+  test.done();
+};
+
+exports.asyncGenerators = {};
+
+exports.asyncGenerators.expression = function (test) {
+  TestRun(test, "Statement position")
+    .addError(1, 18, "Missing name in function declaration.")
+    .test("async function * () { await 0; yield 0; }", { esversion: 9 });
+
+  TestRun(test, "Expression position (disallowed prior to ES9)")
+    .addError(1, 6, "'async generators' is only available in ES9 (use 'esversion: 9').")
+    .test("void async function * () { await 0; yield 0; };", { esversion: 8 });
+
+  TestRun(test, "Expression position")
+    .test("void async function * () { await 0; yield 0; };", { esversion: 9 });
+
+  test.done();
+};
+
+exports.asyncGenerators.declaration = function (test) {
   TestRun(test)
-    .test([
-      //"void { async f(x = await) {} };"
-    ], { esversion: 8 });
+    .addError(1, 1, "'async generators' is only available in ES9 (use 'esversion: 9').")
+    .test("async function * f() { await 0; yield 0; }", { esversion: 8 });
+
+  TestRun(test)
+    .test("async function * f() { await 0; yield 0; }", { esversion: 9 });
+
+  TestRun(test)
+    .addError(1, 43, "Unnecessary semicolon.")
+    .test("async function * f() { await 0; yield 0; };", { esversion: 9 });
 
   test.done();
 };

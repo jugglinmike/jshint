@@ -674,12 +674,14 @@ var JSHINT = (function() {
           case "6":
           case "7":
           case "8":
+          case "9":
             state.option.moz = false;
             state.option.esversion = +val;
             break;
           case "2015":
           case "2016":
           case "2017":
+          case "2018":
             state.option.moz = false;
             // Translate specification publication year to version number.
             state.option.esversion = +val - 2009;
@@ -3693,16 +3695,6 @@ var JSHINT = (function() {
 
           expression(10, context);
         } else {
-          if (state.tokens.next.value === "*" && state.tokens.next.type === "(punctuator)") {
-            if (!state.inES6()) {
-              warning("W104", state.tokens.next, "generator functions", "6");
-            }
-            advance("*");
-            isGeneratorMethod = true;
-          } else {
-            isGeneratorMethod = false;
-          }
-
           if (state.tokens.next.id === "async" && !checkPunctuators(peek(), ["(", ":"])) {
             if (!state.inES8()) {
               warning("W119", state.tokens.next, "async functions", "8");
@@ -3712,6 +3704,19 @@ var JSHINT = (function() {
             advance();
           } else {
             isAsyncMethod = false;
+          }
+
+          if (state.tokens.next.value === "*" && state.tokens.next.type === "(punctuator)") {
+            if (isAsyncMethod && !state.inES9()) {
+              warning("W104", state.tokens.next, "async generator functions", "9");
+            } else if (!state.inES6()) {
+              warning("W104", state.tokens.next, "generator functions", "6");
+            }
+
+            advance("*");
+            isGeneratorMethod = true;
+          } else {
+            isGeneratorMethod = false;
           }
 
           if (state.tokens.next.id === "[") {
@@ -4364,6 +4369,10 @@ var JSHINT = (function() {
           if (checkPunctuators(state.tokens.next, "*")) {
             isGenerator = true;
             advance("*");
+
+            if (!state.inES9()) {
+              warning("W104", state.tokens.next, "async generator functions", "9");
+            }
           }
           if (isPropertyName(state.tokens.next) || state.tokens.next.id === "[") {
             computed = state.tokens.next.id === "[";
@@ -4438,19 +4447,23 @@ var JSHINT = (function() {
   blockstmt("function", function(context) {
     var inexport = context & prodParams.export;
     var generator = false;
+    var isAsync = context & prodParams.preAsync;
     var labelType;
 
-    if (context & prodParams.preAsync) {
+    if (isAsync) {
       labelType = "async function";
-    } else if (state.tokens.next.value === "*") {
+    }
+
+    if (state.tokens.next.value === "*") {
+      if (isAsync && !state.inES9()) {
+        warning("W119", state.tokens.prev, "async generators", "9");
+      } else if (!isAsync && !state.inES6(true)) {
+        warning("W119", state.tokens.next, "function*", "6");
+      }
+
       advance("*");
       labelType = "generator function";
-
-      if (state.inES6(true)) {
-        generator = true;
-      } else {
-        warning("W119", state.tokens.curr, "function*", "6");
-      }
+      generator = true;
     } else {
       labelType = "function";
     }
@@ -4502,10 +4515,13 @@ var JSHINT = (function() {
     var generator = false;
     var isAsync = context & prodParams.preAsync;
 
-    if (!isAsync && state.tokens.next.value === "*") {
-      if (!state.inES6()) {
+    if (state.tokens.next.value === "*") {
+      if (isAsync && !state.inES9()) {
+        warning("W119", state.tokens.prev, "async generators", "9");
+      } else if (!isAsync && !state.inES6(true)) {
         warning("W119", state.tokens.curr, "function*", "6");
       }
+
       advance("*");
       generator = true;
     }
