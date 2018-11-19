@@ -4526,7 +4526,10 @@ var JSHINT = (function() {
       generator = true;
     }
 
-    var nameToken = optionalidentifier(context) ? state.tokens.curr : null;
+    // This context modification restricts the use of `await` as the optional
+    // BindingIdentifier in async function expressions.
+    var nameToken = optionalidentifier(isAsync ? context | prodParams.async : context) ?
+      state.tokens.curr : null;
 
     var f = doFunction(context, {
       name: nameToken && nameToken.value,
