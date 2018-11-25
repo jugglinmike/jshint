@@ -66,6 +66,15 @@ var state = {
   },
 
   /**
+   * Determine if constructs introduced in ECMAScript 9 should be accepted.
+   *
+   * @returns {boolean}
+   */
+  inES9: function() {
+    return this.esVersion >= 9;
+  },
+
+  /**
    * Determine if constructs introduced in ECMAScript 8 should be accepted.
    *
    * @returns {boolean}

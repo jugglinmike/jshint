@@ -4038,11 +4038,17 @@ exports.esversion = function(test) {
     "// jshint esversion: 7",
     "// jshint esversion: 2016",
     "// jshint esversion: 8",
-    "// jshint esversion: 2017"
+    "// jshint esversion: 2017",
+    "// jshint esversion: 9",
+    "// jshint esversion: 2018",
+    "// jshint esversion: 10",
+    "// jshint esversion: 2019"
   ];
 
   TestRun(test, "Value")
     .addError(2, 1, "Bad option value.")
+    .addError(12, 1, "Bad option value.")
+    .addError(13, 1, "Bad option value.")
     .test(code);
 
   var es5code = [
