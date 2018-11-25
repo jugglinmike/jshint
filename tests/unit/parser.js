@@ -648,6 +648,41 @@ exports.regexp = function (test) {
   test.done();
 };
 
+exports.regexpDotAll = function (test) {
+  TestRun(test, "flag presence - disallowed in editions prior to 2018")
+    .addError(1, 6, "'DotAll RegExp flag' is only available in ES9 (use 'esversion: 9').")
+    .addError(2, 6, "'DotAll RegExp flag' is only available in ES9 (use 'esversion: 9').")
+    .addError(3, 6, "'DotAll RegExp flag' is only available in ES9 (use 'esversion: 9').")
+    .test([
+      "void /./s;",
+      "void /./gs;",
+      "void /./sg;",
+    ], { esversion: 8 });
+
+  TestRun(test, "flag presence - allowed in 2018")
+  TestRun(test)
+    .test([
+      "void /./s;",
+      "void /./gs;",
+      "void /./sg;",
+    ], { esversion: 9 });
+
+  TestRun(test, "duplicate flag")
+    .addError(1, 6, "Invalid regular expression.")
+    .addError(2, 6, "Invalid regular expression.")
+    .test([
+      "void /./ss;",
+      "void /./sgs;",
+    ], { esversion: 9 });
+
+  TestRun(test, "missing dot")
+    .test([
+      "void /dotall isnt necessary for this regexp/s;"
+    ], { esversion: 9 });
+
+  test.done();
+};
+
 exports.testRegexRegressions = function (test) {
   // GH-536
   TestRun(test).test("str /= 5;", {es3: true}, { str: true });

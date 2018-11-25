@@ -1459,7 +1459,7 @@ Lexer.prototype = {
 
     while (index < length) {
       char = this.peek(index);
-      if (!/[gimy]/.test(char)) {
+      if (!/[gimys]/.test(char)) {
         break;
       }
       if (char === "y") {
@@ -1479,7 +1479,24 @@ Lexer.prototype = {
         if (value.indexOf("y") > -1) {
           malformedDesc = "Duplicate RegExp flag";
         }
-      } else {
+	  } else if (char === "s") {
+        if (!state.inES9()) {
+          this.triggerAsync(
+            "warning",
+            {
+              code: "W119",
+              line: this.line,
+              character: this.char,
+              data: [ "DotAll RegExp flag", "9" ]
+            },
+            checks,
+            function() { return true; }
+          );
+		}
+        if (value.indexOf("s") > -1) {
+          malformedDesc = "Duplicate RegExp flag";
+        }
+	  } else {
         flags.push(char);
       }
       value += char;
