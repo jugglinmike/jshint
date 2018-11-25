@@ -1328,7 +1328,8 @@ Lexer.prototype = {
     var char = this.peek();
     var value = char;
     var body = "";
-    var flags = [];
+    var allFlags = "";
+    var es5Flags = "";
     var malformed = false;
     var isCharSet = false;
     var terminated, malformedDesc;
@@ -1459,7 +1460,7 @@ Lexer.prototype = {
 
     while (index < length) {
       char = this.peek(index);
-      if (!/[gimy]/.test(char)) {
+      if (!/[gimys]/.test(char)) {
         break;
       }
       if (char === "y") {
@@ -1479,17 +1480,35 @@ Lexer.prototype = {
         if (value.indexOf("y") > -1) {
           malformedDesc = "Duplicate RegExp flag";
         }
+      } else if (char === "s") {
+        if (!state.inES9()) {
+          this.triggerAsync(
+            "warning",
+            {
+              code: "W119",
+              line: this.line,
+              character: this.char,
+              data: [ "DotAll RegExp flag", "9" ]
+            },
+            checks,
+            function() { return true; }
+          );
+        }
+        if (value.indexOf("s") > -1) {
+          malformedDesc = "Duplicate RegExp flag";
+        }
       } else {
-        flags.push(char);
+        es5Flags += char;
       }
       value += char;
+      allFlags += char;
       index += 1;
     }
 
     // Check regular expression for correctness.
 
     try {
-      new RegExp(body, flags.join(""));
+      new RegExp(body, es5Flags);
     } catch (err) {
       /**
        * Because JSHint relies on the current engine's RegExp parser to
@@ -1506,6 +1525,12 @@ Lexer.prototype = {
         line: this.line,
         character: this.char,
         data: [ malformedDesc ]
+      });
+    } else if (allFlags.indexOf("s") > -1 && !reg.regexpDot.test(body)) {
+      this.trigger("warning", {
+        code: "W146",
+        line: this.line,
+        character: this.char
       });
     }
 
