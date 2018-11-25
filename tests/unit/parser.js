@@ -699,6 +699,43 @@ exports.regexpDotAll = function (test) {
   test.done();
 };
 
+exports.regexpNamedCapture = function (test) {
+  TestRun(test, "group - disallowed in editions prior to 2018")
+    .addError(1, 6, "'RegExp named capture groups' is only available in ES9 (use 'esversion: 9').")
+    .test([
+      "void /(?<name>.)/;"
+    ], { esversion: 8 });
+
+  TestRun(test, "group - allowed in 2018")
+    .test([
+      "void /(?<name>.)/",
+      "void /(?<name1>.)(?<name2>.)/;",
+    ], { esversion: 9 });
+
+  TestRun(test, "group - repeated (identical pattern)")
+    .test([
+      "void /(?<repeatede>a)x(?<repeated>a)/;"
+    ], { esversion: 9 });
+
+  TestRun(test, "group - repeated (different pattern)")
+    .test([
+      "void /(?<repeatede>a)x(?<repeated>b)/;"
+    ], { esversion: 9 });
+
+  TestRun(test, "backreference")
+    .test([
+      "void /(?<name>.)something\\k<name>/;"
+      "void /(?<name>.)something\\k<name>\\k<name>/;"
+    ], { esversion: 9 });
+
+  TestRun(test, "backreference - non-existent")
+    .test([
+      "void /(?<name>.)something\\k<othername>/;"
+    ], { esversion: 9 });
+
+  test.done();
+};
+
 exports.testRegexRegressions = function (test) {
   // GH-536
   TestRun(test).test("str /= 5;", {es3: true}, { str: true });
