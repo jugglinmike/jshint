@@ -2320,10 +2320,22 @@ var JSHINT = (function() {
       warning("W040", x);
     }
   });
-  reservevar("super", function(x) {
-    if (!state.inClassBody && !state.inObjectBody && !isMethod()) {
-      error("E024", x, x.value);
+  reservevar("super", function(token) {
+    var next = state.tokens.next;
+
+    if (checkPunctuators(next, ["[", "."])) {
+      if (!supportsSuper("property", state.funct)) {
+        error("E063", token);
+      }
+    } else if (checkPunctuator(next, "(")) {
+      if (!supportsSuper("call", state.funct)) {
+        error("E064", token);
+      }
+    } else {
+      error("E024", next, next.value || next.id);
     }
+
+    return token;
   });
 
   assignop("=", "assign", 20);
@@ -2779,7 +2791,7 @@ var JSHINT = (function() {
             // treat like a regular method -- static methods can be called 'constructor'
             name = propertyName();
             saveProperty(props, name, token, true, isStatic);
-            doMethod(context, name, inGenerator);
+            doMethod(context, name, inGenerator, classToken);
           } else {
             if (inGenerator) {
               error("E024", token, token.value);
@@ -2788,7 +2800,7 @@ var JSHINT = (function() {
               error("E024", token, token.value);
             }
             advance();
-            doMethod(context, state.nameStack.infer());
+            doMethod(context, state.nameStack.infer(), false, classToken);
             hasConstructor = true;
           }
           break;
@@ -2802,20 +2814,20 @@ var JSHINT = (function() {
 
           if (state.tokens.next.value === "[") {
             name = computedPropertyName(context);
-            doMethod(context, name, false);
+            doMethod(context, name, false, classToken);
           } else {
             name = propertyName();
             if (name === "prototype" || name === "constructor") {
               error("E049", token, "class " + accessorType + "ter method", name);
             }
             saveAccessor(accessorType, props, name, state.tokens.curr, true, isStatic);
-            doMethod(context, state.nameStack.infer(), false);
+            doMethod(context, state.nameStack.infer(), false, clasToken);
           }
 
           break;
         case "[":
           name = computedPropertyName(context);
-          doMethod(context, name, inGenerator);
+          doMethod(context, name, inGenerator, classToken);
           // We don't check names (via calling saveProperty()) of computed expressions like ["Symbol.iterator"]()
           break;
         default:
@@ -2829,7 +2841,7 @@ var JSHINT = (function() {
             error("E049", token, "class method", name);
           }
           saveProperty(props, name, token, true, isStatic);
-          doMethod(context, name, inGenerator);
+          doMethod(context, name, inGenerator, classToken);
           break;
       }
     }
@@ -2841,7 +2853,7 @@ var JSHINT = (function() {
     state.funct["(scope)"].unstack();
   }
 
-  function doMethod(context, name, generator) {
+  function doMethod(context, name, generator, statement) {
     if (generator) {
       if (!state.inES6()) {
         warning("W119", state.tokens.curr, "function*", "6");
@@ -2868,7 +2880,11 @@ var JSHINT = (function() {
       }
     }
 
-    doFunction(context, { name: name, type: generator ? "generator" : null });
+    doFunction(context, {
+      name: name,
+      type: generator ? "generator" : null,
+      statement: statement
+    });
   }
 
 
@@ -5439,24 +5455,6 @@ var JSHINT = (function() {
 
     return false;
   }
-
-  var superNud = function() {
-    var next = state.tokens.next;
-
-    if (checkPunctuators(next, ["[", "."])) {
-      if (!supportsSuper("property", state.funct)) {
-        error("E063", this);
-      }
-    } else if (checkPunctuator(next, "(")) {
-      if (!supportsSuper("call", state.funct)) {
-        error("E064", this);
-      }
-    } else {
-      error("E024", next, next.value || next.id);
-    }
-
-    return this;
-  };
 
   // Future Reserved Words
 
