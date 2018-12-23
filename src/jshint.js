@@ -2320,14 +2320,22 @@ var JSHINT = (function() {
       warning("W040", x);
     }
   });
-  reservevar("super", function(x) {
-    // TODO: I am not sure of the right way to set up the context so that isMethod() correctly tells us if we're in a method,
-    // so I'm just saving it on the state directly.
-    // state.inObjectBody is distinct from state.inClassBody because .inClassBody also causes strict mode to be used, which is
-    // not correct for object literals.
-    if (!state.inClassBody && !state.inObjectBody && !isMethod()) {
-      error("E024", x, x.value); //TODO: better message for 'super' outside of classes / object literals
+  reservevar("super", function(token) {
+    var next = state.tokens.next;
+
+    if (checkPunctuators(next, ["[", "."])) {
+      if (!supportsSuper("property", state.funct)) {
+        error("E063", token);
+      }
+    } else if (checkPunctuator(next, "(")) {
+      if (!supportsSuper("call", state.funct)) {
+        error("E064", token);
+      }
+    } else {
+      error("E024", next, next.value || next.id);
     }
+
+    return token;
   });
 
   assignop("=", "assign", 20);
@@ -2790,7 +2798,7 @@ var JSHINT = (function() {
             //TODO: error message about "duplicate constructor"
           }
           advance();
-          doMethod(context, state.nameStack.infer());
+          doMethod(context, state.nameStack.infer(), false, this);
           this.hasConstructor = true;
           break;
         case "set":
@@ -2804,14 +2812,14 @@ var JSHINT = (function() {
 
           if (state.tokens.next.value === "[") {
             name = computedPropertyName(context);
-            doMethod(context, name, false);
+            doMethod(context, name, false, this);
           } else {
             name = propertyName();
             if (name === "prototype" || name === "constructor") {
               error("E049", token, "class " + accessorType + "ter method", name);
             }
             saveAccessor(accessorType, props, name, state.tokens.curr, true, isStatic);
-            doMethod(context, state.nameStack.infer(), false);
+            doMethod(context, state.nameStack.infer(), false, this);
           }
           /*
           This check breaks the tests right now, but is correct (adapted from the object-literal handling code)
@@ -2824,7 +2832,7 @@ var JSHINT = (function() {
           break;
         case "[":
           name = computedPropertyName(context);
-          doMethod(context, name, inGenerator);
+          doMethod(context, name, inGenerator, this);
           // We don't check names (via saveProperty) of computed expressions like ["constructor"]()
           break;
         default:
@@ -2838,7 +2846,7 @@ var JSHINT = (function() {
             error("E049", token, "class method", name);
           }
           saveProperty(props, name, token, true, isStatic);
-          doMethod(context, name, inGenerator);
+          doMethod(context, name, inGenerator, this);
           break;
       }
     }
@@ -2850,7 +2858,7 @@ var JSHINT = (function() {
     state.funct["(scope)"].unstack();
   }
 
-  function doMethod(context, name, generator) {
+  function doMethod(context, name, generator, statement) {
     if (generator) {
       if (!state.inES6()) {
         warning("W119", state.tokens.curr, "function*", "6");
@@ -2878,7 +2886,11 @@ var JSHINT = (function() {
       }
     }
 
-    doFunction(context, { name: name, type: generator ? "generator" : null });
+    doFunction(context, {
+      name: name,
+      type: generator ? "generator" : null,
+      statement: statement
+    });
   }
 
 
@@ -5449,24 +5461,6 @@ var JSHINT = (function() {
 
     return false;
   }
-
-  var superNud = function() {
-    var next = state.tokens.next;
-
-    if (checkPunctuators(next, ["[", "."])) {
-      if (!supportsSuper("property", state.funct)) {
-        error("E063", this);
-      }
-    } else if (checkPunctuator(next, "(")) {
-      if (!supportsSuper("call", state.funct)) {
-        error("E064", this);
-      }
-    } else {
-      error("E024", next, next.value || next.id);
-    }
-
-    return this;
-  };
 
   // Future Reserved Words
 
