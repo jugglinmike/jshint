@@ -2321,12 +2321,8 @@ var JSHINT = (function() {
     }
   });
   reservevar("super", function(x) {
-    // TODO: I am not sure of the right way to set up the context so that isMethod() correctly tells us if we're in a method,
-    // so I'm just saving it on the state directly.
-    // state.inObjectBody is distinct from state.inClassBody because .inClassBody also causes strict mode to be used, which is
-    // not correct for object literals.
     if (!state.inClassBody && !state.inObjectBody && !isMethod()) {
-      error("E024", x, x.value); //TODO: better message for 'super' outside of classes / object literals
+      error("E024", x, x.value);
     }
   });
 
@@ -2721,7 +2717,7 @@ var JSHINT = (function() {
     }
     state.funct["(scope)"].stack();
 
-    classBody.call(this, context);
+    classBody(this, context);
     return this;
   }).exps = true;
 
@@ -2749,17 +2745,15 @@ var JSHINT = (function() {
       state.funct["(scope)"].block.use(className, classNameToken);
     }
 
-    classBody.call(this, context);
+    classBody(this, context);
     return this;
   });
 
-  function classBody(context) {
+  function classBody(classToken, context) {
     var props = {};
-    var name, accessorType, token, isStatic, inGenerator;
+    var name, accessorType, token, isStatic, inGenerator, hasConstructor;
 
-    // TODO: this should probably be an update to state.funct, but I'm not sure the right way to do it.
     state.inClassBody = true;
-    // This is one way to make super() and super.method() parse. It might not be the best (could interfere with metrics or something)
     state.funct["(scope)"].block.add("super", "function", null, false, true);
 
     while (state.tokens.next.value !== "}") {
@@ -2781,23 +2775,27 @@ var JSHINT = (function() {
           advance();
           break;
         case "constructor":
-          if (isStatic || inGenerator) {
-            error("E024", token, token.value); 
-            // TODO: this could be a better error message: "constructors cannot be static or generators"
+          if (isStatic) {
+            // treat like a regular method -- static methods can be called 'constructor'
+            name = propertyName();
+            saveProperty(props, name, token, true, isStatic);
+            doMethod(context, name, inGenerator);
+          } else {
+            if (inGenerator) {
+              error("E024", token, token.value);
+            }
+            if (hasConstructor) {
+              error("E024", token, token.value);
+            }
+            advance();
+            doMethod(context, state.nameStack.infer());
+            hasConstructor = true;
           }
-          if(this.hasConstructor) {
-            error("E024", token, token.value);
-            //TODO: error message about "duplicate constructor"
-          }
-          advance();
-          doMethod(context, state.nameStack.infer());
-          this.hasConstructor = true;
           break;
         case "set":
         case "get":
           if (inGenerator) {
             error("E024", token, token.value);
-            // TODO: better message possible: setters and getters cannot be generators.
           }
           accessorType = token.value;
           advance();
@@ -2813,19 +2811,12 @@ var JSHINT = (function() {
             saveAccessor(accessorType, props, name, state.tokens.curr, true, isStatic);
             doMethod(context, state.nameStack.infer(), false);
           }
-          /*
-          This check breaks the tests right now, but is correct (adapted from the object-literal handling code)
-          params = method["(params)"];
-          if (accessorType === "get" && name && params) {
-            warning("W076", state.tokens.curr, params[0], state.tokens.curr.value);
-          } else if (accessorType === "set" && name && method["(metrics)"].arity !== 1) {
-            warning("W077", state.tokens.curr, state.tokens.curr.value);
-          }*/
+
           break;
         case "[":
           name = computedPropertyName(context);
           doMethod(context, name, inGenerator);
-          // We don't check names (via saveProperty) of computed expressions like ["constructor"]()
+          // We don't check names (via calling saveProperty()) of computed expressions like ["Symbol.iterator"]()
           break;
         default:
           name = propertyName();
@@ -2862,7 +2853,6 @@ var JSHINT = (function() {
       advance();
       if (state.tokens.next.value === "{") {
         // manually cheating the test "invalidClasses", which asserts this particular behavior when a class is misdefined.
-        // this is completely ridiculous, but I don't want to change any tests right now.
         advance();
         if (state.tokens.next.value === "}") {
           warning("W116", state.tokens.next, "(", state.tokens.next.value);
@@ -6077,7 +6067,6 @@ var JSHINT = (function() {
 
         reIgnore = new RegExp(reIgnoreStr, "ig");
 
-        // TODO: if 's' is an array of strings, as in tests, this will fail
         s = s.replace(reIgnore, function(match) {
           return match.replace(/./g, " ");
         });
