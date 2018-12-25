@@ -4443,9 +4443,7 @@ var JSHINT = (function() {
     }
     var nameToken = optionalidentifier() ? state.tokens.curr : null;
 
-    if (!nameToken) {
-      warning("W025");
-    } else {
+    if (nameToken) {
       state.funct["(scope)"].addlabel(nameToken.value, {
         type: generator ? "generator function" : "function",
         token: state.tokens.curr,
@@ -4454,6 +4452,8 @@ var JSHINT = (function() {
       if (inexport) {
         state.funct["(scope)"].setExported(nameToken.value, state.tokens.prev);
       }
+    } else if (!inexport) {
+      warning("W025");
     }
 
     var f = doFunction(context, {
