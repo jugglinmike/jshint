@@ -2678,7 +2678,7 @@ var JSHINT = (function() {
   });
   state.syntax["new"].exps = true;
 
-  function classHeader() {
+  function classHeader(isDeclaration) {
     var classNameToken;
     if (!state.inES6()) {
       warning("W104", state.tokens.curr, "class", "6");
@@ -2688,6 +2688,14 @@ var JSHINT = (function() {
     if (state.tokens.next.identifier && state.tokens.next.value !== "extends") {
       classNameToken = state.tokens.next;
       identifier();
+
+      if (isDeclaration) {
+        state.funct["(scope)"].addlabel(classNameToken.value, {
+          type: "class",
+          initialized: false,
+          token: classNameToken
+        });
+      }
     }
 
     // Class Declaration: 'class <Classname> extends <Superclass>'
@@ -2711,18 +2719,14 @@ var JSHINT = (function() {
     var className, classNameToken;
     var inexport = context & prodParams.export;
 
-    classNameToken = classHeader();
+    classNameToken = classHeader(true);
     if (classNameToken) {
       className = classNameToken.value;
     }
 
     if (className) {
       this.name = className;
-      state.funct["(scope)"].addlabel(className, {
-        type: "class",
-        initialized: true,
-        token: classNameToken
-      });
+      state.funct["(scope)"].initialize(this.name);
       if (inexport) {
         state.funct["(scope)"].setExported(className, classNameToken);
       }
@@ -2737,7 +2741,7 @@ var JSHINT = (function() {
   prefix("class", function(context) {
     var className, classNameToken;
 
-    classNameToken = classHeader();
+    classNameToken = classHeader(false);
     if (classNameToken) {
       className = classNameToken.value;
     }
