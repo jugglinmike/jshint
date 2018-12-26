@@ -3309,7 +3309,7 @@ var JSHINT = (function() {
 
 
   function isMethod() {
-    return state.funct["(statement)"] && state.funct["(statement)"].type === "class" ||
+    return state.funct["(statement)"] && state.funct["(statement)"].type === "(identifier)" && state.funct["(statement)"].value === "class" ||
            state.funct["(context)"] && state.funct["(context)"]["(verb)"] === "class";
   }
 
