@@ -8472,9 +8472,9 @@ exports["new.target"] = function (test) {
     .test(code2, { esnext: true });
 
   TestRun(test, "must be in function scope")
-    .addError(1, "'new.target' must be in function scope.")
-    .addError(4, "'new.target' must be in function scope.")
-    .addError(6, "'new.target' must be in function scope.")
+    .addError(1, 12, "'new.target' must be in function scope.")
+    .addError(4, 15, "'new.target' must be in function scope.")
+    .addError(6, 13, "'new.target' must be in function scope.")
     .test(code2, { esversion: 2016 });
 
   var code3 = [

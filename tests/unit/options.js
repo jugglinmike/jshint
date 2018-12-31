@@ -4092,7 +4092,7 @@ exports.esversion = function(test) {
     .test(arrayComprehension, { esversion: 6 });
 
   TestRun(test, "array comprehensions - esversion: 7")
-    .addError(2, "'array comprehension' is only available in Mozilla JavaScript extensions " +
+    .addError(2, 9, "'array comprehension' is only available in Mozilla JavaScript extensions " +
                  "(use moz option).")
     .test(arrayComprehension, { esversion: 7 });
 
