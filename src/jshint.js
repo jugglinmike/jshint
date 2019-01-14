@@ -2769,7 +2769,7 @@ var JSHINT = (function() {
 
   function classBody(classToken, context) {
     var props = {};
-    var name, accessorType, token, isStatic, inGenerator, hasConstructor;
+    var name, accessorType, token, isStatic, isAsync, inGenerator, hasConstructor;
 
     if (state.tokens.next.value === "{") {
       advance("{");
@@ -4502,10 +4502,10 @@ var JSHINT = (function() {
     var inexport = context & prodParams.export;
     var generator = false;
     var isAsync = context & prodParams.preAsync;
-    var labelType;
+    var labelType = "";
 
     if (isAsync) {
-      labelType = "async function";
+      labelType = "async ";
     }
 
     if (state.tokens.next.value === "*") {
@@ -4516,11 +4516,11 @@ var JSHINT = (function() {
       }
 
       advance("*");
-      labelType = "generator function";
+      labelType += "generator ";
       generator = true;
-    } else {
-      labelType = "function";
     }
+
+    labelType += "function";
 
     if (inblock) {
       warning("W082", state.tokens.curr);

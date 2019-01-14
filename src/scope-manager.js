@@ -723,7 +723,8 @@ var scopeManager = function(state, predefined, exported, declared) {
      * @param {Object} opts
      * @param {String} opts.type - the type of the label e.g. "param", "var",
      *                             "let, "const", "import", "function",
-     *                             "generator function", "async function"
+     *                             "generator function", "async function",
+     *                             "async generator function"
      * @param {object} opts.token - the token pointing at the declaration
      * @param {boolean} opts.initialized - whether the binding should be
      *                                     created in an "initialized" state.
@@ -734,7 +735,7 @@ var scopeManager = function(state, predefined, exported, declared) {
       var token = opts.token;
       var isblockscoped = type === "let" || type === "const" ||
         type === "class" || type === "import" || type === "generator function" ||
-        type === "async function";
+        type === "async function" || type == "async generator function";
       var ishoisted = type === "function" || type === "generator function" ||
         type === "async function" || type === "import";
       var isexported    = (isblockscoped ? _current : _currentFunctBody)["(type)"] === "global" &&
