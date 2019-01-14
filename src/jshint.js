@@ -2698,7 +2698,7 @@ var JSHINT = (function() {
     if (state.tokens.next.identifier && state.tokens.next.value !== "extends") {
       classNameToken = state.tokens.next;
       className = classNameToken.value;
-      identifier();
+      identifier(context);
       // unintialized, so that the 'extends' clause is parsed while the class is in TDZ
       state.funct["(scope)"].addlabel(className, {
         type: "class",
@@ -2743,7 +2743,7 @@ var JSHINT = (function() {
     if (state.tokens.next.identifier && state.tokens.next.value !== "extends") {
       classNameToken = state.tokens.next;
       className = classNameToken.value;
-      identifier();
+      identifier(context);
     }
 
     // Class Declaration: 'class <Classname> extends <Superclass>'
@@ -2785,6 +2785,27 @@ var JSHINT = (function() {
         isStatic = true;
         advance();
       }
+
+      if (state.tokens.next.value === "async") {
+        if (!checkPunctuator(peek(), "(")) {
+          context |= prodParams.preAsync;
+          advance();
+
+          if (checkPunctuator(state.tokens.next, "*")) {
+            inGenerator = true;
+            advance("*");
+
+            if (!state.inES9()) {
+              warning("W119", state.tokens.next, "async generator functions", "9");
+            }
+          }
+
+          if (!state.inES8()) {
+            warning("W119", state.tokens.next, "async functions", "8");
+          }
+        }
+      }
+
       if (state.tokens.next.value === "*") {
         inGenerator = true;
         advance();
@@ -2878,7 +2899,7 @@ var JSHINT = (function() {
         if (state.tokens.next.value === "}") {
           warning("W116", state.tokens.next, "(", state.tokens.next.value);
           advance();
-          identifier();
+          identifier(context);
           advance();
         }
         return;
