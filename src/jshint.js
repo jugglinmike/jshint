@@ -3953,7 +3953,7 @@ var JSHINT = (function() {
 
           if (state.tokens.next.value === "*" && state.tokens.next.type === "(punctuator)") {
             if (isAsyncMethod && !state.inES9()) {
-              warning("W104", state.tokens.next, "async generator functions", "9");
+              warning("W119", state.tokens.next, "async generators", "9");
             } else if (!state.inES6()) {
               warning("W104", state.tokens.next, "generator functions", "6");
             }
@@ -5195,6 +5195,13 @@ var JSHINT = (function() {
 
   var b = prefix("await", function(context) {
     if (context & prodParams.async) {
+      // If the parameters of the current function scope have not been defined,
+      // it is because the current expression is contained within the parameter
+      // list.
+      if (!state.funct["(params)"]) {
+        error("E024", this, "await");
+      }
+
       expression(0, context);
       return this;
     } else {

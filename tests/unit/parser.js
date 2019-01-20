@@ -9303,6 +9303,10 @@ exports.asyncFunctions.expression = function (test) {
   TestRun(test, "Expression position")
     .test("void async function() {};", { esversion: 8 });
 
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 26, "Unexpected 'await'.")
+    .test("void async function (x = await 0) {};", { esversion: 8 });
+
   test.done();
 };
 
@@ -9363,6 +9367,10 @@ exports.asyncFunctions.arrow = function (test) {
   TestRun(test, "Expression position")
     .test(expressions, { esversion: 8 })
 
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 18, "Unexpected 'await'.")
+    .test("void (async (x = await 0) => {});", { esversion: 8 });
+
   test.done();
 };
 
@@ -9377,6 +9385,10 @@ exports.asyncFunctions.declaration = function (test) {
   TestRun(test)
     .addError(1, 22, "Unnecessary semicolon.")
     .test("async function f() {};", { esversion: 8 });
+
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 22, "Unexpected 'await'.")
+    .test("async function f(x = await 0) {}", { esversion: 8 });
 
   test.done();
 };
@@ -9413,6 +9425,10 @@ exports.asyncFunctions.objectMethod = function (test) {
       "};"
     ], { esversion: 8 });
 
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 20, "Unexpected 'await'.")
+    .test("void { async m(x = await 0) {} };", { esversion: 9 });
+
   test.done();
 };
 
@@ -9430,6 +9446,14 @@ exports.asyncGenerators.expression = function (test) {
   TestRun(test, "Expression position")
     .test("void async function * () { await 0; yield 0; };", { esversion: 9 });
 
+  TestRun(test, "YieldExpression in parameter list")
+    .addError(1, 28, "Unexpected 'yield'.")
+    .test("void async function * (x = yield) { await 0; yield 0; };", { esversion: 9 });
+
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 28, "Unexpected 'await'.")
+    .test("void async function * (x = await 0) { await 0; yield 0; };", { esversion: 9 });
+
   test.done();
 };
 
@@ -9444,6 +9468,33 @@ exports.asyncGenerators.declaration = function (test) {
   TestRun(test)
     .addError(1, 43, "Unnecessary semicolon.")
     .test("async function * f() { await 0; yield 0; };", { esversion: 9 });
+
+  TestRun(test, "YieldExpression in parameter list")
+    .addError(1, 24, "Unexpected 'yield'.")
+    .test("async function * f(x = yield) { await 0; yield 0; }", { esversion: 9 });
+
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 24, "Unexpected 'await'.")
+    .test("async function * f(x = await 0) { await 0; yield 0; }", { esversion: 9 });
+
+  test.done();
+};
+
+exports.asyncGenerators.method = function (test) {
+  TestRun(test)
+    .addError(1, 14, "'async generators' is only available in ES9 (use 'esversion: 9').")
+    .test("void { async * m() { await 0; yield 0; } };", { esversion: 8 });
+
+  TestRun(test)
+    .test("void { async * m() { await 0; yield 0; } };", { esversion: 9 });
+
+  TestRun(test, "YieldExpression in parameter list")
+    .addError(1, 22, "Unexpected 'yield'.")
+    .test("void { async * m(x = yield) { await 0; yield 0; } };", { esversion: 9 });
+
+  TestRun(test, "AwaitExpression in parameter list")
+    .addError(1, 22, "Unexpected 'await'.")
+    .test("void { async * m(x = await 0) { await 0; yield 0; } };", { esversion: 9 });
 
   test.done();
 };
