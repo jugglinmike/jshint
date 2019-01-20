@@ -6203,6 +6203,17 @@ exports["object ComputedPropertyName"] = function (test) {
     .addError(19, 17, "Setter is defined without getter.")
   .test(code);
 
+  TestRun(test, "YieldExpression")
+    .test([
+      "(function * () {",
+      "  void {",
+      "    [yield]: 0,",
+      "    [yield 0]: 0,",
+      "    [yield * 0]: 0",
+      "  };",
+      "}());"
+    ], { esversion: 6 });
+
   test.done();
 };
 
