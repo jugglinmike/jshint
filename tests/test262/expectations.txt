@@ -3031,7 +3031,6 @@ test/language/statements/variable/dstr-obj-ptrn-rest-obj-own-property.js(strict 
 
 test/language/expressions/object/method-definition/early-errors-object-method-async-lineterminator.js(default)
 test/language/expressions/object/method-definition/early-errors-object-method-async-lineterminator.js(strict mode)
-test/language/expressions/object/method-definition/early-errors-object-method-duplicate-parameters.js(default)
 
 test/language/expressions/async-generator/early-errors-expression-formals-contains-await-expr.js(default)
 test/language/expressions/async-generator/early-errors-expression-formals-contains-await-expr.js(strict mode)
