@@ -9282,7 +9282,7 @@ exports.asyncFunctions.awaitIdentifier = function (test) {
       "    },",
       "    *g() {",
       "      await;",
-	  "      yield 0;",
+      "      yield 0;",
       "    }",
       "  };",
       "}"
