@@ -9429,6 +9429,15 @@ exports.asyncFunctions.objectMethod = function (test) {
     .addError(1, 20, "Unexpected 'await'.")
     .test("void { async m(x = await 0) {} };", { esversion: 9 });
 
+  TestRun(test, "Illegal line break")
+    .addError(2, 3, "Line breaking error 'async'.")
+    .test([
+      "void {",
+      "  async",
+      "  m() {}",
+      "};"
+    ], { esversion: 9 });
+
   test.done();
 };
 

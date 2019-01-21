@@ -3947,6 +3947,8 @@ var JSHINT = (function() {
 
             isAsyncMethod = true;
             advance();
+
+            nolinebreak(state.tokens.curr);
           } else {
             isAsyncMethod = false;
           }
