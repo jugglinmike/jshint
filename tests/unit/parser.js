@@ -9898,15 +9898,115 @@ exports.asyncIteration = function (test) {
 };
 
 exports.htmlComments = function (test) {
+  var src;
+
+  src = [
+    "/*",
+    "*/-->",
+    ";"
+  ];
   TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  src = [
+    "/*",
+    "*/   -->",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  TestRun(test)
+    .addError(3, 1, "Unnecessary semicolon.")
     .test([
-      "<!-- this is a comment -->",
-	  "/*",
-	  "*/-->",
-	  "/*",
-	  "*/-->the comment extends to these characters",
-	  "<!-- this is a comment",
+      "/*",
+      "*/-->the comment extends to these characters",
+      ";"
     ], { webcompat: true });
+
+  src = [
+    "/*",
+    "*/-->    the comment extends to these characters",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  src = [
+    "/*",
+    "*/   -->    the comment extends to these characters",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  src = [
+    "<!--this is a comment",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  src = [
+    "<!--   this is a comment",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  src = [
+    "-->this is a comment",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
+
+  src = [
+    "-->   this is a comment",
+    ";"
+  ];
+  TestRun(test)
+    .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src);
+  TestRun(test)
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true });
 
   test.done();
 };

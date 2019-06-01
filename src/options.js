@@ -633,6 +633,14 @@ exports.bool = {
      * or empty elements (for example, `[1, , , 4, , , 7]`).
      */
     elision     : true,
+
+    /**
+     * This option allows the use of language features intended to support
+     * existing content on the web (e.g. HTML comments). As recommended in
+     * Annex B of ECMAScript, new code should typically not be written to use
+     * these features.
+     */
+    webcompat   : true,
   },
 
   // Third party globals

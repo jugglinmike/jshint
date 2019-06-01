@@ -391,13 +391,16 @@ Lexer.prototype = {
   scanComments: function(checks) {
     var ch1 = this.peek();
     var ch2 = this.peek(1);
+    var ch3 = this.peek(2);
     var rest = this.input.substr(2);
     var firstTwo = ch1 + ch2;
-    var firstFour = ch1 + ch2 + this.peek(2) + this.peek(3);
-    var opening;
+    var firstThree = firstTwo + ch3;
+    var firstFour = firstThree + this.peek(3);
     var startLine = this.line;
     var startChar = this.char;
     var self = this;
+    var isHtml = false;
+    var opening;
 
     // Create a comment token object and make sure it
     // has all the data JSHint needs to work with special
@@ -415,6 +418,15 @@ Lexer.prototype = {
 
       if (opt.isMultiline) {
         value += "*/";
+      }
+
+      if (opt.isHtml && !state.option.webcompat) {
+        self.trigger("error", {
+          code: "W149",
+          line: startLine,
+          character: startChar,
+          data: ["HTML comments"]
+        });
       }
 
       body = body.replace(/\n/g, " ");
@@ -518,27 +530,31 @@ Lexer.prototype = {
     }
 
     // One-line comment
-    if (firstTwo === "//") {
-      this.skip(this.input.length); // Skip to the EOL.
-      return commentToken("//", rest);
-    } else if (firstTwo === "/*") {
+    if (firstTwo === "//" || firstTwo === "/*") {
       opening = firstTwo;
+    } else if (firstThree === "-->") {
+      isHtml = true;
+      opening = firstThree;
     } else if (firstFour === "<!--") {
+      isHtml = true;
       opening = firstFour;
     } else {
       return null;
     }
 
+    if (opening !== "/*") {
+      this.skip(this.input.length); // Skip to the EOL.
+      return commentToken(opening, rest, { isHtml: isHtml });
+    }
+
     var body = "";
 
     /* Multi-line comment */
-    var isEnd = opening === "/*" ?
-      function() { return self.peek() === "*" && self.peek(1) === "/"; } :
-      function() { return self.peek() === "-" && self.peek(1) === "-" && self.peek(2) === ">"; };
+    if (ch2 === "*") {
       this.inComment = true;
-      this.skip(opening.length);
+      this.skip(2);
 
-      while (!isEnd()) {
+      while (this.peek() !== "*" || this.peek(1) !== "/") {
         if (this.peek() === "") { // End of Line
           body += "\n";
 
@@ -552,7 +568,7 @@ Lexer.prototype = {
             });
 
             this.inComment = false;
-            return commentToken(opening, body, {
+            return commentToken("/*", body, {
               isMultiline: true,
               isMalformed: true
             });
@@ -563,17 +579,16 @@ Lexer.prototype = {
         }
       }
 
-	  if (opening === "/*") {
-		this.skip(2);
-		var match = /\s*-->/.exec(this.input);
-		if (match) {
-		  this.skip(this.input.length);
-		}
-	  } else {
-		this.skip(3);
-	  }
+      this.skip(2);
+
+      if (/^\s*-->/.test(this.input)) {
+        this.skip(this.input.length);
+        isHtml = true;
+      }
+
       this.inComment = false;
-      return commentToken(opening, body, { isMultiline: true });
+      return commentToken("/*", body, { isMultiline: true, isHtml: isHtml });
+    }
   },
 
   /*
