@@ -392,6 +392,9 @@ Lexer.prototype = {
     var ch1 = this.peek();
     var ch2 = this.peek(1);
     var rest = this.input.substr(2);
+    var firstTwo = ch1 + ch2;
+    var firstFour = ch1 + ch2 + this.peek(2) + this.peek(3);
+    var opening;
     var startLine = this.line;
     var startChar = this.char;
     var self = this;
@@ -503,7 +506,7 @@ Lexer.prototype = {
     }
 
     // End of unbegun comment. Raise an error and skip that input.
-    if (ch1 === "*" && ch2 === "/") {
+    if (firstTwo === "*/") {
       this.trigger("error", {
         code: "E018",
         line: startLine,
@@ -514,25 +517,28 @@ Lexer.prototype = {
       return null;
     }
 
-    // Comments must start either with // or /*
-    if (ch1 !== "/" || (ch2 !== "*" && ch2 !== "/")) {
-      return null;
-    }
-
     // One-line comment
-    if (ch2 === "/") {
+    if (firstTwo === "//") {
       this.skip(this.input.length); // Skip to the EOL.
       return commentToken("//", rest);
+    } else if (firstTwo === "/*") {
+      opening = firstTwo;
+    } else if (firstFour === "<!--") {
+      opening = firstFour;
+    } else {
+      return null;
     }
 
     var body = "";
 
     /* Multi-line comment */
-    if (ch2 === "*") {
+    var isEnd = opening === "/*" ?
+      function() { return self.peek() === "*" && self.peek(1) === "/"; } :
+      function() { return self.peek() === "-" && self.peek(1) === "-" && self.peek(2) === ">"; };
       this.inComment = true;
-      this.skip(2);
+      this.skip(opening.length);
 
-      while (this.peek() !== "*" || this.peek(1) !== "/") {
+      while (!isEnd()) {
         if (this.peek() === "") { // End of Line
           body += "\n";
 
@@ -546,7 +552,7 @@ Lexer.prototype = {
             });
 
             this.inComment = false;
-            return commentToken("/*", body, {
+            return commentToken(opening, body, {
               isMultiline: true,
               isMalformed: true
             });
@@ -557,10 +563,17 @@ Lexer.prototype = {
         }
       }
 
-      this.skip(2);
+	  if (opening === "/*") {
+		this.skip(2);
+		var match = /\s*-->/.exec(this.input);
+		if (match) {
+		  this.skip(this.input.length);
+		}
+	  } else {
+		this.skip(3);
+	  }
       this.inComment = false;
-      return commentToken("/*", body, { isMultiline: true });
-    }
+      return commentToken(opening, body, { isMultiline: true });
   },
 
   /*

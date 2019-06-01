@@ -9896,3 +9896,17 @@ exports.asyncIteration = function (test) {
 
   test.done();
 };
+
+exports.htmlComments = function (test) {
+  TestRun(test)
+    .test([
+      "<!-- this is a comment -->",
+	  "/*",
+	  "*/-->",
+	  "/*",
+	  "*/-->the comment extends to these characters",
+	  "<!-- this is a comment",
+    ], { webcompat: true });
+
+  test.done();
+};
