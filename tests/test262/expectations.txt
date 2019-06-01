@@ -8,14 +8,6 @@
 #
 # Entries should be removed incrementally as JSHint is improved.
 
-test/annexB/language/comments/multi-line-html-close.js(default)
-test/annexB/language/comments/multi-line-html-close.js(strict mode)
-test/annexB/language/comments/single-line-html-close-asi.js(default)
-test/annexB/language/comments/single-line-html-close-asi.js(strict mode)
-test/annexB/language/comments/single-line-html-close.js(default)
-test/annexB/language/comments/single-line-html-close.js(strict mode)
-test/annexB/language/comments/single-line-html-open.js(default)
-test/annexB/language/comments/single-line-html-open.js(strict mode)
 test/annexB/language/global-code/block-decl-global-skip-early-err-block.js(default)
 test/annexB/language/global-code/block-decl-global-skip-early-err-for-in.js(default)
 test/annexB/language/global-code/block-decl-global-skip-early-err-for-of.js(default)
@@ -1891,8 +1883,6 @@ test/language/module-code/instn-once.js(default)
 test/language/module-code/instn-once.js(strict mode)
 test/language/module-code/privatename-valid-no-earlyerr.js(default)
 test/language/module-code/privatename-valid-no-earlyerr.js(strict mode)
-test/annexB/language/comments/single-line-html-close-unicode-separators.js(default)
-test/annexB/language/comments/single-line-html-close-unicode-separators.js(strict mode)
 test/annexB/language/function-code/function-redeclaration-block.js(default)
 test/built-ins/BigInt/asIntN/arithmetic.js(default)
 test/built-ins/BigInt/asIntN/arithmetic.js(strict mode)

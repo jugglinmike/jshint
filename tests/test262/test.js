@@ -47,9 +47,15 @@ function isFailure(errors) {
 
 module.exports = function(test) {
   var isModule = !!test.attrs.flags.module;
+  var webcompat = /test\/annexB\//.test(test.file);
 
   try {
-    JSHint(test.contents, { esversion: 9, maxerr: Infinity, module: isModule });
+    JSHint(test.contents, {
+      esversion: 9,
+      maxerr: Infinity,
+      module: isModule,
+      webcompat: webcompat
+    });
   } catch (e) {
     return false;
   }

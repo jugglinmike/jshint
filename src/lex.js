@@ -420,13 +420,21 @@ Lexer.prototype = {
         value += "*/";
       }
 
-      if (opt.isHtml && !state.option.webcompat) {
-        self.trigger("error", {
-          code: "W149",
-          line: startLine,
-          character: startChar,
-          data: ["HTML comments"]
-        });
+      if (opt.isHtml) {
+        if (state.option.module) {
+          self.trigger("error", {
+            code: "E068",
+            line: startLine,
+            character: startChar
+          });
+        } else if (!state.option.webcompat) {
+          self.trigger("error", {
+            code: "E067",
+            line: startLine,
+            character: startChar,
+            data: ["HTML comments"]
+          });
+        }
       }
 
       body = body.replace(/\n/g, " ");

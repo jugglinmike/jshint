@@ -9910,6 +9910,10 @@ exports.htmlComments = function (test) {
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src);
   TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
+  TestRun(test)
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
 
@@ -9922,6 +9926,10 @@ exports.htmlComments = function (test) {
     .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src);
+  TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
   TestRun(test)
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
@@ -9944,6 +9952,10 @@ exports.htmlComments = function (test) {
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src);
   TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
+  TestRun(test)
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
 
@@ -9957,6 +9969,10 @@ exports.htmlComments = function (test) {
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src);
   TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(3, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
+  TestRun(test)
     .addError(3, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
 
@@ -9968,6 +9984,10 @@ exports.htmlComments = function (test) {
     .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src);
+  TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
   TestRun(test)
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
@@ -9981,6 +10001,10 @@ exports.htmlComments = function (test) {
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src);
   TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
+  TestRun(test)
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
 
@@ -9993,6 +10017,10 @@ exports.htmlComments = function (test) {
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src);
   TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
+  TestRun(test)
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });
 
@@ -10004,6 +10032,10 @@ exports.htmlComments = function (test) {
     .addError(1, 1, "'HTML comments' is only available in web compatability mode (use 'webcompat: true').")
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src);
+  TestRun(test)
+    .addError(1, 1, "HTML comments are not available in module code.")
+    .addError(2, 1, "Unnecessary semicolon.")
+    .test(src, { webcompat: true, esversion: 6, module: true });
   TestRun(test)
     .addError(2, 1, "Unnecessary semicolon.")
     .test(src, { webcompat: true });

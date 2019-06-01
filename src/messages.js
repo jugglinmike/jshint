@@ -82,7 +82,9 @@ var errors = {
   E064: "Super call may only be used within class method bodies.",
   E065: "Functions defined outside of strict mode with non-simple parameter lists may not " +
     "enable strict mode.",
-  E066: "Asynchronous iteration is only available with for-of loops."
+  E066: "Asynchronous iteration is only available with for-of loops.",
+  E067: "'{a}' is only available in web compatability mode (use 'webcompat: true').",
+  E068: "HTML comments are not available in module code."
 };
 
 var warnings = {
@@ -240,8 +242,7 @@ var warnings = {
   W145: "Superfluous 'case' clause.",
   W146: "Unnecessary `await` expression.",
   W147: "Regular expressions should include the 'u' flag.",
-  W148: "Unnecessary RegExp 's' flag.",
-  W149: "'{a}' is only available in web compatability mode (use 'webcompat: true')."
+  W148: "Unnecessary RegExp 's' flag."
 };
 
 var info = {
