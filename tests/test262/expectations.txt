@@ -98,7 +98,6 @@ test/annexB/language/eval-code/indirect/global-switch-dflt-eval-global-skip-earl
 test/annexB/language/eval-code/indirect/global-switch-dflt-eval-global-skip-early-err-try.js(default)
 test/annexB/language/eval-code/indirect/global-switch-dflt-eval-global-skip-early-err.js(default)
 test/annexB/language/eval-code/indirect/global-switch-dflt-eval-global-update.js(default)
-test/annexB/language/statements/for-in/nonstrict-initializer.js(default)
 test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR-LF.js(default)
 test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR-LF.js(strict mode)
 test/built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js(default)

@@ -747,6 +747,12 @@ exports.testForIn = function (test) {
     .addError(5, 6, "Invalid for-in loop left-hand-side: initializer is forbidden.")
     .test(src);
 
+  TestRun(test, "bad lhs errors")
+    .addError(2, 7, "Invalid for-in loop left-hand-side: more than one ForBinding.")
+    .addError(3, 6, "Invalid for-in loop left-hand-side: more than one ForBinding.")
+    .addError(4, 8, "Invalid for-in loop left-hand-side: initializer is forbidden.")
+    .test(src, { webcompat: true });
+
   src = [
     "(function (o) {",
     "for (let i, j in o) { i(); }",

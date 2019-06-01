@@ -5010,11 +5010,13 @@ var JSHINT = (function() {
     var target;
     var decl;
     var afterNext = peek();
+    var isVarWithoutDestructuring = false;
 
     var headContext = context | prodParams.noin;
 
     if (state.tokens.next.id === "var") {
       advance("var");
+      isVarWithoutDestructuring = !checkPunctuators(afterNext, ["{", "["]);
       decl = state.tokens.curr.fud(headContext);
       comma = decl.hasComma ? decl : null;
       initializer = decl.hasInitializer ? decl : null;
@@ -5104,7 +5106,8 @@ var JSHINT = (function() {
       if (comma) {
         error("W133", comma, nextop.value, "more than one ForBinding");
       }
-      if (initializer) {
+      if (initializer &&
+        !(state.option.webcompat && isVarWithoutDestructuring && !state.isStrict())) {
         error("W133", initializer, nextop.value, "initializer is forbidden");
       }
       if (target && !comma && !initializer) {
