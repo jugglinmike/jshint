@@ -807,7 +807,8 @@ var scopeManager = function(state, predefined, exported, declared) {
 
         // defining with a var or a function when a block scope variable of the same name
         // is in scope is an error
-        if (scopeManagerInst.funct.has(labelName, { onlyBlockscoped: true })) {
+        if (!state.option.webcompat &&
+          scopeManagerInst.funct.has(labelName, { onlyBlockscoped: true })) {
           warning("E011", token, labelName);
         } else if (state.option.shadow !== true) {
           // now since we didn't get any block scope variables, test for var/function
