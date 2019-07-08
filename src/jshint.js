@@ -1000,6 +1000,10 @@ var JSHINT = (function() {
 
     state.nameStack.pop();
 
+    if (!left) {
+      left = Object.create(state.syntax["(error)"]);
+    }
+
     return left;
   }
 
@@ -2604,11 +2608,8 @@ var JSHINT = (function() {
   prefix("delete", function(context) {
     this.arity = "unary";
     var p = expression(context, 150);
-    if (!p) {
-      return this;
-    }
 
-    if (p.id !== "." && p.id !== "[") {
+    if (p.id !== "(error)" && p.id !== "." && p.id !== "[") {
       warning("W051");
     }
     this.first = p;
