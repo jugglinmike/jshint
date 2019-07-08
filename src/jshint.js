@@ -2133,6 +2133,9 @@ var JSHINT = (function() {
         }
 
         var expr = expression(context, 10);
+        // Hazardous use of `expression`
+        // example:
+        //     /* jshint noreturnawait: true */ x = async () => ;
 
         if (state.option.noreturnawait && context & prodParams.async &&
             expr.identifier && expr.value === "await") {
@@ -4186,6 +4189,9 @@ var JSHINT = (function() {
             id = identifier(context);
           } else {
             expr = expression(context, 10);
+            // Hazardous use of `expression`
+            // example:
+            //     var { ...; } = {};
             error("E030", expr, expr.value);
           }
         } else {
@@ -5352,6 +5358,7 @@ var JSHINT = (function() {
       context |= prodParams.preAsync;
       context |= prodParams.initial;
       this.func = expression(context, 0);
+      // Hazardous use of `expression`
       this.block = this.func.block;
       this.exps = this.func.exps;
       return this;
@@ -5639,6 +5646,9 @@ var JSHINT = (function() {
         state.syntax["class"].fud(context);
       } else {
         token = expression(context, 10);
+        // Hazardous use of `expression`
+        // example:
+        //     export default ;
         if (token.identifier) {
           identifier = token.value;
           state.funct["(scope)"].setExported(identifier, token);
@@ -5956,6 +5966,7 @@ var JSHINT = (function() {
       warning("W119", state.tokens.curr, "computed property names", "6");
     }
     var value = expression(context & ~prodParams.noin, 10);
+    // Hazardous use of `expression`
     advance("]");
     return value;
   }
