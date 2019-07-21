@@ -893,6 +893,14 @@ var JSHINT = (function() {
     if (next.id === "in" && context & prodParams.noin) {
       return true;
     }
+
+    if (next.id === ";") {
+      return true;
+    }
+
+    return next.identifier &&
+      !curr.led &&
+      curr.line !== next.line;
   }
 
   /**
@@ -950,12 +958,7 @@ var JSHINT = (function() {
         error("E030", state.tokens.curr, state.tokens.curr.id);
       }
 
-      var end_of_expr = state.tokens.next.identifier &&
-                                                      !state.tokens.curr.led &&
-                                                      state.tokens.curr.line !== state.tokens.next.line;
-
-
-      while (rbp < state.tokens.next.lbp && !end_of_expr) {
+      while (rbp < state.tokens.next.lbp && !isEndOfExpr(context)) {
         isArray = state.tokens.curr.value === "Array";
         isObject = state.tokens.curr.value === "Object";
 
