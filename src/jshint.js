@@ -894,7 +894,7 @@ var JSHINT = (function() {
       return true;
     }
 
-    if (next.id === ";") {
+    if (next.delim) {
       return true;
     }
 
@@ -1240,7 +1240,7 @@ var JSHINT = (function() {
    *                     support cases where further refinement is necessary)
    */
   function type(s, f) {
-    var x = delim(s);
+    var x = symbol(s, 0);
     x.type = s;
     x.nud = f;
     return x;
