@@ -1029,9 +1029,9 @@ var JSHINT = (function() {
     if (!opts.peek) {
       if (state.tokens.curr.line !== startLine(state.tokens.next)) {
         if (!state.option.laxcomma) {
-          if (comma.first) {
+          if (parseComma.first) {
             warning("I001");
-            comma.first = false;
+            parseComma.first = false;
           }
           warning("W014", state.tokens.curr, state.tokens.next.value);
         }
