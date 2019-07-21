@@ -1608,15 +1608,12 @@ var JSHINT = (function() {
    * @param {function} [f] - a function to be invoked that consumes the
    *                         right-hand side of the operator (see the `infix`
    *                         function)
-   * @param {number} p - the left-binding power of the token as used by the
-   *                     Pratt parsing semantics
    *
    * @returns {object} - the object describing the JSHint symbol (provided to
    *                     support cases where further refinement is necessary)
    */
-  function assignop(s, f, p) {
-    symbol(s, 20).exps = true;
-    return infix(s, function(context, left, that) {
+  function assignop(s, f) {
+    var x = infix(s, typeof f === "function" ? f : function(context, left, that) {
       that.left = left;
 
       checkLeftSideAssign(context, left, that, { allowDestructuring: true });
@@ -1625,6 +1622,11 @@ var JSHINT = (function() {
 
       return that;
     }, 20);
+
+    x.exps = true;
+    x.assign = true;
+
+    return x;
   }
 
   /**
@@ -2343,15 +2345,15 @@ var JSHINT = (function() {
     return this;
   });
 
-  assignop("=", "assign", 20);
-  assignop("+=", "assignadd", 20);
-  assignop("-=", "assignsub", 20);
-  assignop("*=", "assignmult", 20);
-  assignop("/=", "assigndiv", 20).nud = function() {
+  assignop("=", "assign");
+  assignop("+=", "assignadd");
+  assignop("-=", "assignsub");
+  assignop("*=", "assignmult");
+  assignop("/=", "assigndiv").nud = function() {
     /* istanbul ignore next */
     error("E014");
   };
-  assignop("%=", "assignmod", 20);
+  assignop("%=", "assignmod");
   assignop("**=", function(context, left, that) {
     if (!state.inES7()) {
       warning("W119", that, "Exponentiation operator", "7");
@@ -2364,7 +2366,7 @@ var JSHINT = (function() {
     that.right = expression(context, 10);
 
     return that;
-  }, 20);
+  });
 
   bitwiseassignop("&=");
   bitwiseassignop("|=");
