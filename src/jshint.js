@@ -5371,7 +5371,7 @@ var JSHINT = (function() {
     return state.syntax["(identifier)"].nud.apply(this, arguments);
   })));
 
-  stmt("yield", function(context) {
+  prefix("yield", function(context) {
     if (state.inMoz()) {
       return mozYield.call(this, context);
     }
