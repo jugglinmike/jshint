@@ -3600,7 +3600,7 @@ var JSHINT = (function() {
       "(context)"   : null,
       "(scope)"     : null,
       "(comparray)" : null,
-      "(generator)" : null,
+      "(yielded)"   : null,
       "(arrow)"     : null,
       "(async)"     : null,
       "(params)"    : null
@@ -3723,6 +3723,12 @@ var JSHINT = (function() {
     } else {
       context &= ~prodParams.async;
     }
+
+    if (isGenerator) {
+      context |= prodParams.yield;
+    } else {
+      context &= ~prodParams.yield;
+    }
     context &= ~prodParams.preAsync;
 
     state.option = Object.create(state.option);
@@ -3733,7 +3739,6 @@ var JSHINT = (function() {
       "(context)":   state.funct,
       "(arrow)":     isArrow,
       "(method)":    isMethod,
-      "(generator)": isGenerator,
       "(async)":     isAsync
     });
 
@@ -3786,8 +3791,7 @@ var JSHINT = (function() {
 
     block(context, false, true, true, isArrow);
 
-    if (!state.option.noyield && isGenerator &&
-        state.funct["(generator)"] !== "yielded") {
+    if (!state.option.noyield && isGenerator && !state.funct["(yielded)"]) {
       warning("W124", state.tokens.curr);
     }
 
@@ -5388,15 +5392,12 @@ var JSHINT = (function() {
       error("E061", this);
     }
 
-    if (state.inES6(true) && !state.funct["(generator)"]) {
-      // If it's a yield within a catch clause inside a generator then that's ok
-      if (!("(catch)" === state.funct["(name)"] && state.funct["(context)"]["(generator)"])) {
-        error("E046", state.tokens.curr, "yield");
-      }
+    if (state.inES6(true) && !(context & prodParams.yield)) {
+      error("E046", state.tokens.curr, "yield");
     } else if (!state.inES6()) {
       warning("W104", state.tokens.curr, "yield", "6");
     }
-    state.funct["(generator)"] = "yielded";
+    state.funct["(yielded)"] = true;
 
     if (state.tokens.next.value === "*") {
       advance("*");
@@ -5429,13 +5430,10 @@ var JSHINT = (function() {
    */
   var mozYield = function(context) {
     var prev = state.tokens.prev;
-    if (state.inES6(true) && !state.funct["(generator)"]) {
-      // If it's a yield within a catch clause inside a generator then that's ok
-      if (!("(catch)" === state.funct["(name)"] && state.funct["(context)"]["(generator)"])) {
-        error("E046", state.tokens.curr, "yield");
-      }
+    if (state.inES6(true) && !(context & prodParams.yield)) {
+      error("E046", state.tokens.curr, "yield");
     }
-    state.funct["(generator)"] = "yielded";
+    state.funct["(yielded)"] = true;
     var delegatingYield = false;
 
     if (state.tokens.next.value === "*") {
