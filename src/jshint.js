@@ -5377,7 +5377,7 @@ var JSHINT = (function() {
     return state.syntax["(identifier)"].nud.apply(this, arguments);
   })));
 
-  prefix("yield", function(context) {
+  var y = prefix("yield", function(context) {
     if (state.inMoz()) {
       return mozYield.call(this, context);
     }
@@ -5424,7 +5424,10 @@ var JSHINT = (function() {
     }
 
     return this;
-  }).exps = true;
+  });
+  y.rbp = 25;
+  y.lbp = 25;
+  y.exps = true;
 
   /**
    * Parsing logic for non-standard Mozilla implementation of `yield`
