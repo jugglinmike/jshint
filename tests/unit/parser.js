@@ -9699,6 +9699,9 @@ exports.asyncFunctions.awaitOperator = function (test) {
       "void async function() {",
       "  void {",
       "    x: await 0,",
+      "    [await 0]: 0,",
+      "    get [await 0]() {},",
+      "    set [await 0](_) {},",
       "  };",
       "};"
     ], { esversion: 8 });

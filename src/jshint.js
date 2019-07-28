@@ -3982,7 +3982,7 @@ var JSHINT = (function() {
           }
 
           if (state.tokens.next.id === "[") {
-            i = computedPropertyName();
+            i = computedPropertyName(context);
           } else {
             i = propertyName(context);
 
