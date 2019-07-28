@@ -894,13 +894,15 @@ var JSHINT = (function() {
       return true;
     }
 
-    if (next.delim) {
+    if (next.id === ";" || next.id === "}" || next.id === ":") {
       return true;
     }
 
-    return next.identifier &&
-      !curr.led &&
-      curr.line !== next.line;
+    if (next.infix === curr.infix || curr.ltBoundary === "after" ||
+      next.ltBoundary === "before") {
+      return curr.line !== startLine(next);
+    }
+    return false;
   }
 
   /**
@@ -1012,7 +1014,7 @@ var JSHINT = (function() {
 
   function nobreaknonadjacent(left, right) {
     if (!state.option.laxbreak && left.line !== startLine(right)) {
-      warning("W014", right, right.id);
+      warning("W014", right, right.value);
     }
   }
 
@@ -1060,7 +1062,6 @@ var JSHINT = (function() {
       case "in":
       case "instanceof":
       case "return":
-      case "yield":
       case "switch":
       case "throw":
       case "try":
@@ -1313,6 +1314,7 @@ var JSHINT = (function() {
   function infix(s, f, p, w) {
     var x = symbol(s, p);
     reserveName(x);
+    x.infix = true;
     x.led = function(context, left) {
       if (!w) {
         nobreaknonadjacent(state.tokens.prev, state.tokens.curr);
@@ -5410,7 +5412,7 @@ var JSHINT = (function() {
       if (state.tokens.next.nud) {
 
         nobreaknonadjacent(state.tokens.curr, state.tokens.next);
-        this.first = expression(context, 0);
+        this.first = expression(context, 10);
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
             !this.first.paren && !state.option.boss) {
@@ -5428,6 +5430,7 @@ var JSHINT = (function() {
   y.rbp = 25;
   y.lbp = 25;
   y.exps = true;
+  y.ltBoundary = "after";
 
   /**
    * Parsing logic for non-standard Mozilla implementation of `yield`
@@ -5449,15 +5452,19 @@ var JSHINT = (function() {
     if (this.line === startLine(state.tokens.next)) {
       if (delegatingYield ||
           (state.tokens.next.id !== ";" && !state.option.asi &&
-           !state.tokens.next.reach)) {
+           !state.tokens.next.reach && state.tokens.next.nud)) {
 
         nobreaknonadjacent(state.tokens.curr, state.tokens.next);
-        this.first = expression(context, 0);
+        this.first = expression(context, 10);
 
         if (this.first.type === "(punctuator)" && this.first.value === "=" &&
             !this.first.paren && !state.option.boss) {
           warningAt("W093", this.first.line, this.first.character);
         }
+      }
+      if (state.tokens.next.id !== ")" &&
+          (prev.lbp > 30 || (!prev.assign && !isEndOfExpr()) || prev.id === "yield")) {
+        error("E050", this);
       }
     } else if (!state.option.asi) {
       nolinebreak(this); // always warn (Line breaking error)
