@@ -1950,7 +1950,7 @@ var JSHINT = (function() {
       }
 
       while (state.tokens.next.id === ",") {
-        if (comma()) {
+        if (parseComma()) {
           r = expression(0, true);
         } else {
           return;
