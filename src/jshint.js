@@ -42,6 +42,10 @@ var style        = require("./style.js");
 var options      = require("./options.js");
 var scopeManager = require("./scope-manager.js");
 var prodParams   = require("./prod-params.js");
+var powers       = {
+  Expression: 5,
+  AssignmentExpression: 10
+};
 
 // We need this module here because environments such as IE and Rhino
 // don't necessarilly expose the 'console' API and browserify uses
@@ -1949,14 +1953,6 @@ var JSHINT = (function() {
         warning("W031", t);
       }
 
-      while (state.tokens.next.id === ",") {
-        if (parseComma()) {
-          r = expression(0, true);
-        } else {
-          return;
-        }
-      }
-
       parseFinalSemicolon(t);
     }
 
@@ -2322,7 +2318,6 @@ var JSHINT = (function() {
   delim("'").reach = true;
   delim(";");
   delim(":").reach = true;
-  delim(",");
   delim("#");
 
   reserve("else");
@@ -2381,9 +2376,9 @@ var JSHINT = (function() {
   infix("?", function(context, left, that) {
     increaseComplexityCount();
     that.left = left;
-    that.right = expression(context & ~prodParams.noin, 10);
+    that.right = expression(context & ~prodParams.noin, powers.AssignmentExpression);
     advance(":");
-    expression(context, 10);
+    expression(context, powers.AssignmentExpression);
     return that;
   }, 30);
 
@@ -3104,6 +3099,16 @@ var JSHINT = (function() {
     return pn;
   }
 
+  infix(",", function(context, left, that) {
+    if (state.option.nocomma) {
+      warning("W127");
+    }
+
+    that.left = left;
+    that.right = expression(powers.AssignmentExpression);
+    return that;
+  }, powers.Expression, true);
+
   prefix("(", function(context, rbp) {
     var ret, triggerFnExpr, first, last;
     var opening = state.tokens.curr;
@@ -3123,39 +3128,32 @@ var JSHINT = (function() {
       return pn;
     }
 
-    var exprs = [];
-
-    if (state.tokens.next.id !== ")") {
-      for (;;) {
-        exprs.push(expression(context, 10));
-
-        if (state.tokens.next.id !== ",") {
-          break;
-        }
-
-        if (state.option.nocomma) {
-          warning("W127");
-        }
-
-        parseComma();
-      }
-    }
+    ret = expression(context, 0);
 
     advance(")", this);
-    if (state.option.immed && exprs[0] && exprs[0].id === "function") {
+
+    if (!ret) {
+      return;
+    }
+
+    ret.paren = true;
+
+    if (state.option.immed && ret && ret.id === "function") {
       if (state.tokens.next.id !== "(" &&
         state.tokens.next.id !== "." && state.tokens.next.id !== "[") {
         warning("W068", this);
       }
     }
 
-    if (exprs.length > 1) {
-      ret = exprs[0];
+    if (ret.id === ",") {
+      first = ret.left;
+      while (first.id === ",") {
+        first = first.left;
+      }
 
-      first = exprs[0];
-      last = exprs[exprs.length - 1];
+      last = ret.right;
     } else {
-      ret = first = last = exprs[0];
+      first = last = ret;
 
       if (!isNecessary) {
         // async functions are identified after parsing due to the complexity
@@ -3193,22 +3191,18 @@ var JSHINT = (function() {
       }
     }
 
-    if (ret) {
-      ret.paren = true;
+    // The operator may be necessary to override the default binding power of
+    // neighboring operators (whenever there is an operator in use within the
+    // first expression *or* the current group contains multiple expressions)
+    if (!isNecessary && (isOperator(first) || ret.exprs)) {
+      isNecessary =
+        (rbp > first.lbp) ||
+        (rbp > 0 && rbp === first.lbp) ||
+        (!isEndOfExpr() && last.rbp < state.tokens.next.lbp);
+    }
 
-      // The operator may be necessary to override the default binding power of
-      // neighboring operators (whenever there is an operator in use within the
-      // first expression *or* the current group contains multiple expressions)
-      if (!isNecessary && (isOperator(first) || ret.exprs)) {
-        isNecessary =
-          (rbp > first.lbp) ||
-          (rbp > 0 && rbp === first.lbp) ||
-          (!isEndOfExpr() && last.rbp < state.tokens.next.lbp);
-      }
-
-      if (!isNecessary) {
-        warning("W126", opening);
-      }
+    if (!isNecessary) {
+      warning("W126", opening);
     }
 
     return ret;
@@ -3842,8 +3836,12 @@ var JSHINT = (function() {
   // Parse assignments that were found instead of conditionals.
   // For example: if (a = 1) { ... }
 
-  function parseCondAssignment(context) {
-    switch (state.tokens.next.id) {
+  function checkCondAssignment(token) {
+    if (token.paren) {
+      return;
+    }
+
+    switch (token.id) {
     case "=":
     case "+=":
     case "-=":
@@ -3856,9 +3854,6 @@ var JSHINT = (function() {
       if (!state.option.boss) {
         warning("W084");
       }
-
-      advance(state.tokens.next.id);
-      expression(20, context);
     }
   }
 
@@ -3935,7 +3930,7 @@ var JSHINT = (function() {
           i = propertyName(context, true);
           saveProperty(props, i, state.tokens.next);
 
-          expression(context, 10);
+          expression(context, powers.Expression);
 
         } else if (peek().id !== ":" && (nextVal === "get" || nextVal === "set")) {
           advance(nextVal);
@@ -4665,7 +4660,7 @@ var JSHINT = (function() {
       quit("E041", this);
     }
 
-    parseCondAssignment(context);
+    checkCondAssignment(expr);
 
     // When the if is within a for-in loop, check if the condition
     // starts with a negation operator
@@ -4770,8 +4765,7 @@ var JSHINT = (function() {
     state.funct["(loopage)"] += 1;
     increaseComplexityCount();
     advance("(");
-    expression(context, 0);
-    parseCondAssignment(context);
+    checkCondAssignment(expression(context, 0));
     advance(")", t);
     block(context, true, true);
     state.funct["(breakage)"] -= 1;
@@ -4940,8 +4934,7 @@ var JSHINT = (function() {
       advance("while");
       var t = state.tokens.next;
       advance("(");
-      expression(context, 0);
-      parseCondAssignment(context);
+      checkCondAssignment(expression(context, 0));
       advance(")", t);
       state.funct["(breakage)"] -= 1;
       state.funct["(loopage)"] -= 1;
@@ -5160,8 +5153,7 @@ var JSHINT = (function() {
       // on every loop
       state.funct["(loopage)"] += 1;
       if (state.tokens.next.id !== ";") {
-        expression(context, 0);
-        parseCondAssignment(context);
+        checkCondAssignment(expression(context, 0));
       }
       nolinebreak(state.tokens.curr);
       advance(";");
