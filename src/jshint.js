@@ -3105,7 +3105,7 @@ var JSHINT = (function() {
     }
 
     that.left = left;
-    that.right = expression(powers.AssignmentExpression);
+    that.right = expression(context, powers.Expression);
     return that;
   }, powers.Expression, true);
 
