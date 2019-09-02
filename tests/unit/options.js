@@ -2846,7 +2846,7 @@ exports.nocomma = function (test) {
     .test("return 2, 5;", {});
 
   TestRun(test, "nocomma main case")
-    .addError(1, 11, "Unexpected use of a comma operator.")
+    .addError(1, 9, "Unexpected use of a comma operator.")
     .test("return 2, 5;", { nocomma: true });
 
   TestRun(test, "nocomma in an expression")

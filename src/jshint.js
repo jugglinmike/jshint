@@ -3101,7 +3101,7 @@ var JSHINT = (function() {
 
   infix(",", function(context, left, that) {
     if (state.option.nocomma) {
-      warning("W127");
+      warning("W127", that);
     }
 
     that.left = left;
