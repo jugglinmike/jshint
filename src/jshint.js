@@ -3837,7 +3837,7 @@ var JSHINT = (function() {
   // For example: if (a = 1) { ... }
 
   function checkCondAssignment(token) {
-    if (token.paren) {
+    if (!token || token.paren) {
       return;
     }
 
