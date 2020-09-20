@@ -5634,7 +5634,6 @@ var JSHINT = (function() {
   stmt("export", function(context) {
     var ok = true;
     var token;
-    var identifier;
     var moduleSpecifier;
     context = context | prodParams.export;
 
@@ -5650,7 +5649,17 @@ var JSHINT = (function() {
 
     if (state.tokens.next.value === "*") {
       // ExportDeclaration :: export * FromClause
+      // ExportDeclaration :: export * as IdentifierName FromClause
       advance("*");
+
+      if (state.tokens.next.value === "as") {
+        if (!state.inES11()) {
+          warning("W119", state.tokens.curr, "export namespace from", "11");
+        }
+        advance("as");
+        identifier(context, true);
+      }
+
       advance("from");
       advance("(string)");
       return this;
@@ -5684,8 +5693,7 @@ var JSHINT = (function() {
       } else {
         token = expression(context, 10);
         if (token.identifier) {
-          identifier = token.value;
-          state.funct["(scope)"].setExported(identifier, token);
+          state.funct["(scope)"].setExported(token.value, token);
         }
       }
       return this;

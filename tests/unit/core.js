@@ -984,6 +984,33 @@ exports.testES6Modules = function (test) {
   test.done();
 };
 
+exports.testExportStar = function (test) {
+  TestRun(test, "rejects earlier language editions")
+    .addError(1, 8, "'export namespace from' is only available in ES11 (use 'esversion: 11').")
+    .test([
+      "export * as x from '.';"
+    ], { esversion: 10, module: true });
+
+  TestRun(test, "minimal esversion")
+    .test([
+      "export * as x from '.';"
+    ], { esversion: 11, module: true });
+
+  TestRun(test, "tolerates any IdentifierName")
+    .test([
+      "export * as if from '.';"
+    ], { esversion: 11, module: true });
+
+  TestRun(test, "detects duplicate bindings")
+    .addError(2, 13, "Duplicate export: 'x'.")
+    .test([
+      "export * as x from '.';",
+      "export * as x from '.';"
+    ], { esversion: 11, module: true });
+
+  test.done();
+};
+
 exports.testES6ModulesNamedExportsAffectUnused = function (test) {
   // Named Exports should count as used
   var src1 = [
