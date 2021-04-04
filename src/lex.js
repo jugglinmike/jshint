@@ -2034,21 +2034,7 @@ Lexer.prototype = {
       obj.type = obj.type || type;
       if (type !== "(punctuator)") {
         obj.value = value;
-      } else {
-        Object.defineProperty(obj, 'value', {
-            get () { console.log('>> ' + new Error().stack.split('\n')[2]); },
-            set (x) { console.log(new Error().stack); process.exit(0); },
-        });
       }
-      Object.defineProperty(obj, 'VALUE', {
-          get() {
-            if (this.type === '(punctuator)') {
-                return undefined;
-            }
-            return this.value;
-          },
-          set(x) { throw new Error('what'); }
-      });
       obj.line = this.line;
       obj.character = this.char;
       obj.from = this.from;

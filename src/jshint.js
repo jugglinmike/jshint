@@ -976,8 +976,8 @@ var JSHINT = (function() {
       }
 
       while (rbp < state.tokens.next.lbp && !isEndOfExpr(context)) {
-        isArray = state.tokens.curr.VALUE === "Array";
-        isObject = state.tokens.curr.VALUE === "Object";
+        isArray = state.tokens.curr.value === "Array";
+        isObject = state.tokens.curr.value === "Object";
 
         // #527, new Foo.Array(), Foo.Array(), new Foo.Object(), Foo.Object()
         // Line breaks in IfStatement heads exist to satisfy the checkJSHint
@@ -986,7 +986,7 @@ var JSHINT = (function() {
           // If the left.value is not "new", or the left.first.value is a "."
           // then safely assume that this is not "new Array()" and possibly
           // not "new Object()"...
-          if (left.VALUE !== "new" ||
+          if (left.value !== "new" ||
             (left.first && left.first.id === ".")) {
             isArray = false;
             // ...In the case of Object, if the left.value and state.tokens.curr.value
@@ -1589,7 +1589,7 @@ var JSHINT = (function() {
     }
 
     if (left.id === ".") {
-      if (!left.left || left.left.VALUE === "arguments" && !state.isStrict()) {
+      if (!left.left || left.left.value === "arguments" && !state.isStrict()) {
         warning("W143", assignToken);
       }
 
@@ -1599,7 +1599,7 @@ var JSHINT = (function() {
       if (!allowDestructuring || !left.destructAssign) {
         if (left.id === "{" || !left.left) {
           warning("E031", assignToken);
-        } else if (left.left.VALUE === "arguments" && !state.isStrict()) {
+        } else if (left.left.value === "arguments" && !state.isStrict()) {
           warning("W143", assignToken);
         }
       }
@@ -2546,8 +2546,8 @@ var JSHINT = (function() {
 
     if (right.id === "(number)" ||
         right.id === "(string)" ||
-        right.VALUE === "null" ||
-        (right.VALUE === "undefined" && !scope.has("undefined")) ||
+        right.value === "null" ||
+        (right.value === "undefined" && !scope.has("undefined")) ||
         right.arity === "unary" ||
         right.id === "{" ||
         (right.id === "[" && !right.right) ||
@@ -2785,7 +2785,7 @@ var JSHINT = (function() {
     }
 
     // Class Declaration: 'class <Classname> extends <Superclass>'
-    if (state.tokens.next.VALUE === "extends") {
+    if (state.tokens.next.value === "extends") {
       advance("extends");
       expression(context, 0);
     }
@@ -2826,7 +2826,7 @@ var JSHINT = (function() {
     }
 
     // Class Declaration: 'class <Classname> extends <Superclass>'
-    if (state.tokens.next.VALUE === "extends") {
+    if (state.tokens.next.value === "extends") {
       advance("extends");
       expression(context, 0);
     }
@@ -2863,13 +2863,13 @@ var JSHINT = (function() {
       inGenerator = false;
       context &= ~prodParams.preAsync;
 
-      if (state.tokens.next.VALUE === "static" &&
+      if (state.tokens.next.value === "static" &&
         !checkPunctuator(peek(), "(")) {
         isStatic = true;
         advance();
       }
 
-      if (state.tokens.next.VALUE === "async") {
+      if (state.tokens.next.value === "async") {
         if (!checkPunctuator(peek(), "(")) {
           context |= prodParams.preAsync;
           advance();
@@ -2898,7 +2898,7 @@ var JSHINT = (function() {
 
       token = state.tokens.next;
 
-      if ((token.VALUE === "set" || token.VALUE === "get") && !checkPunctuator(peek(), "(")) {
+      if ((token.value === "set" || token.value === "get") && !checkPunctuator(peek(), "(")) {
         if (inGenerator) {
           /* istanbul ignore next */
           error("E024", token, token.value);
@@ -2907,9 +2907,9 @@ var JSHINT = (function() {
         advance();
         token = state.tokens.next;
 
-        if (!isStatic && token.VALUE === "constructor") {
+        if (!isStatic && token.value === "constructor") {
           error("E049", token, "class " + accessorType + "ter method", token.value);
-        } else if (isStatic && token.VALUE === "prototype") {
+        } else if (isStatic && token.value === "prototype") {
           error("E049", token, "static class " + accessorType + "ter method", token.value);
         }
       } else {
@@ -2929,7 +2929,7 @@ var JSHINT = (function() {
         continue;
       }
 
-      switch (token.VALUE) {
+      switch (token.value) {
         case "constructor":
           if (isStatic) {
             // treat like a regular method -- static methods can be called 'constructor'
@@ -3029,12 +3029,12 @@ var JSHINT = (function() {
       warning("W001");
     }
 
-    if (left && left.VALUE === "arguments" && (m === "callee" || m === "caller")) {
+    if (left && left.value === "arguments" && (m === "callee" || m === "caller")) {
       if (state.option.noarg)
         warning("W059", left, m);
       else if (state.isStrict())
         error("E008");
-    } else if (!state.option.evil && left && left.VALUE === "document" &&
+    } else if (!state.option.evil && left && left.value === "document" &&
         (m === "write" || m === "writeln")) {
       warning("W060", left);
     }
@@ -3104,12 +3104,12 @@ var JSHINT = (function() {
     advance(")");
 
     if (typeof left === "object") {
-      if (!state.inES5() && left.VALUE === "parseInt" && n === 1) {
+      if (!state.inES5() && left.value === "parseInt" && n === 1) {
         warning("W065", state.tokens.curr);
       }
       if (!state.option.evil) {
-        if (left.VALUE === "eval" || left.VALUE === "Function" ||
-            left.VALUE === "execScript") {
+        if (left.value === "eval" || left.value === "Function" ||
+            left.value === "execScript") {
           warning("W061", left);
 
           // This conditional expression was initially implemented with a typo
@@ -3123,15 +3123,15 @@ var JSHINT = (function() {
           //  addEvalCode(left, p[0]);
           //}
         } else if (p[0] && p[0].id === "(string)" &&
-             left.VALUE === "setTimeout" ||
-            left.VALUE === "setInterval") {
+             left.value === "setTimeout" ||
+            left.value === "setInterval") {
           warning("W066", left);
           addEvalCode(left, p[0]);
 
         // window.setTimeout/setInterval
         } else if (p[0] && p[0].id === "(string)" &&
              left.id === "." &&
-             left.left.VALUE === "window" &&
+             left.left.value === "window" &&
              (left.right === "setTimeout" ||
             left.right === "setInterval")) {
           warning("W066", left);
@@ -3328,7 +3328,7 @@ var JSHINT = (function() {
     }
     advance("]", that);
 
-    if (e && e.VALUE === "hasOwnProperty" && state.tokens.next.id === "=") {
+    if (e && e.value === "hasOwnProperty" && state.tokens.next.id === "=") {
       warning("W001");
     }
 
@@ -3344,7 +3344,7 @@ var JSHINT = (function() {
 
     // Handle reversed for expressions, used in spidermonkey
     var reversed = false;
-    if (state.tokens.next.VALUE !== "for") {
+    if (state.tokens.next.value !== "for") {
       reversed = true;
       if (!state.inMoz()) {
         warning("W116", state.tokens.next, "for", EITHER(state.tokens.next));
@@ -3354,7 +3354,7 @@ var JSHINT = (function() {
     }
 
     advance("for");
-    if (state.tokens.next.VALUE === "each") {
+    if (state.tokens.next.value === "each") {
       advance("each");
       if (!state.inMoz()) {
         warning("W118", state.tokens.curr, "for each");
@@ -3373,7 +3373,7 @@ var JSHINT = (function() {
     expression(context, 10);
 
     advance(")");
-    if (state.tokens.next.VALUE === "if") {
+    if (state.tokens.next.value === "if") {
       advance("if");
       advance("(");
       state.funct["(comparray)"].setState("filter");
@@ -4013,7 +4013,7 @@ var JSHINT = (function() {
           break;
         }
 
-        nextVal = state.tokens.next.VALUE;
+        nextVal = state.tokens.next.value;
         if (state.tokens.next.identifier &&
             (peekIgnoreEOL().id === "," || peekIgnoreEOL().id === "}")) {
           if (!state.inES6()) {
@@ -4441,7 +4441,7 @@ var JSHINT = (function() {
       // Bindings are not immediately initialized in for-in and for-of
       // statements. As with `const` initializers (described above), the `for`
       // statement parsing logic includes
-      if (state.tokens.next.VALUE !== "in" && state.tokens.next.VALUE !== "of") {
+      if (state.tokens.next.value !== "in" && state.tokens.next.value !== "of") {
         for (t in tokens) {
           if (tokens.hasOwnProperty(t)) {
             t = tokens[t];
@@ -5057,7 +5057,7 @@ var JSHINT = (function() {
     var isAsync = false;
     var foreachtok = null;
 
-    if (t.VALUE === "each") {
+    if (t.value === "each") {
       foreachtok = t;
       advance("each");
       if (!state.inMoz()) {
@@ -5113,8 +5113,8 @@ var JSHINT = (function() {
     } else if (!checkPunctuator(state.tokens.next, ";")) {
       targets = [];
 
-      while (state.tokens.next.VALUE !== "in" &&
-        state.tokens.next.VALUE !== "of" &&
+      while (state.tokens.next.value !== "in" &&
+        state.tokens.next.value !== "of" &&
         !checkPunctuator(state.tokens.next, ";")) {
 
         if (checkPunctuators(state.tokens.next, ["{", "["])) {
@@ -5155,8 +5155,8 @@ var JSHINT = (function() {
       // implicit creation of bindings.
       if (!initializer && !comma) {
         targets.forEach(function(token) {
-          if (!state.funct["(scope)"].has(token.VALUE)) {
-            warning("W088", token, token.VALUE);
+          if (!state.funct["(scope)"].has(token.value)) {
+            warning("W088", token, token.value);
           }
         });
       }
@@ -5164,12 +5164,12 @@ var JSHINT = (function() {
 
     nextop = state.tokens.next;
 
-    if (isAsync && nextop.VALUE !== "of") {
+    if (isAsync && nextop.value !== "of") {
       error("E066", nextop);
     }
 
     // if we're in a for (… in|of …) statement
-    if (_.includes(["in", "of"], nextop.VALUE)) {
+    if (_.includes(["in", "of"], nextop.value)) {
       if (nextop.value === "of") {
         bindingPower = 20;
 
@@ -5293,7 +5293,7 @@ var JSHINT = (function() {
 
 
   stmt("break", function() {
-    var v = state.tokens.next.VALUE;
+    var v = state.tokens.next.value;
 
     if (state.tokens.next.identifier &&
         sameLine(state.tokens.curr, state.tokens.next)) {
@@ -5314,7 +5314,7 @@ var JSHINT = (function() {
 
 
   stmt("continue", function() {
-    var v = state.tokens.next.VALUE;
+    var v = state.tokens.next.value;
 
     if (state.funct["(breakage)"] === 0 || !state.funct["(loopage)"]) {
       warning("W052", state.tokens.next, this.value);
@@ -5610,7 +5610,7 @@ var JSHINT = (function() {
         } else {
           importName = identifier(context);
         }
-        if (state.tokens.next.VALUE === "as") {
+        if (state.tokens.next.value === "as") {
           advance("as");
           importName = identifier(context);
         }
@@ -5720,7 +5720,7 @@ var JSHINT = (function() {
 
         exportedTokens.push(state.tokens.curr);
 
-        if (state.tokens.next.VALUE === "as") {
+        if (state.tokens.next.value === "as") {
           advance("as");
           if (!state.tokens.next.identifier) {
             /* istanbul ignore next */
@@ -5734,7 +5734,7 @@ var JSHINT = (function() {
         }
       }
       advance("}");
-      if (state.tokens.next.VALUE === "from") {
+      if (state.tokens.next.value === "from") {
         // ExportDeclaration :: export ExportClause FromClause
         advance("from");
         moduleSpecifier = state.tokens.next;
@@ -6203,14 +6203,14 @@ var JSHINT = (function() {
           } else if (state.tokens.next.id !== "(string)") {
             warning("W095", state.tokens.next, state.tokens.next.value);
           }
-          if (o[state.tokens.next.VALUE] === true) {
+          if (o[state.tokens.next.value] === true) {
             warning("W075", state.tokens.next, "key", state.tokens.next.value);
-          } else if ((state.tokens.next.VALUE === "__proto__" &&
-            !state.option.proto) || (state.tokens.next.VALUE === "__iterator__" &&
+          } else if ((state.tokens.next.value === "__proto__" &&
+            !state.option.proto) || (state.tokens.next.value === "__iterator__" &&
             !state.option.iterator)) {
             warning("W096", state.tokens.next, state.tokens.next.value);
           } else {
-            o[state.tokens.next.VALUE] = true;
+            o[state.tokens.next.value] = true;
           }
           advance();
           advance(":");
