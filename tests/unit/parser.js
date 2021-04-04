@@ -4081,6 +4081,10 @@ exports["esnext generator"] = function (test) {
     .addError(1, 16, "Unexpected 'yield'.")
     .test("void { * g(x = yield) { yield; } };", { esversion: 6 });
 
+  // https://github.com/jshint/jshint/issues/3542
+  TestRun(test, "Yielding an asterisk character")
+    .test("function * g() { yield '*'; }", { esversion: 6 });
+
   test.done();
 };
 
